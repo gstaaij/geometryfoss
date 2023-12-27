@@ -51,7 +51,7 @@ With a 800x600 game, we can see that the screen is about 16x12 blocks.
 
 With this information, we can see that the height of the blocks is always about 1/11 of the screen.
 
-But in 2.2 we have the Camera Guide trigger, with which we can see that the screen is always at least 320 coordinate points high and at least 465 coordinate points wide.
+But in 2.2 we have the Camera Guide trigger, with which we can see that the screen is always at least 320 coordinate points high and at least 480 coordinate points wide.
 This does align with the 1/11 of the screen height per block, because a block is 30 coordinate points in size.
 
 ![The Geometry Dash 2.2 editor with the Camera Guide trigger](planImages/cameraGuide.png)
