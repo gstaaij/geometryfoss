@@ -36,7 +36,9 @@ static void draw() {
 
     BeginDrawing();
 
-        ClearBackground(BLACK);
+
+        Color background = GetColor(0x287dffff);
+        ClearBackground(background);
 
         Coord blockCoord = {
             .x = 15,
@@ -46,8 +48,16 @@ static void draw() {
 
         ScreenCoord scBlock = getScreenCoord(blockCoord, cameraCoord, screenSizeAsCoord, screenSize);
         long scBlockSize = convertToScreen(blockSize, screenSizeAsCoord, screenSize);
+        long scBlockLineThick = convertToScreen(1.5, screenSizeAsCoord, screenSize);
 
-        DrawRectangle(scBlock.x - (scBlockSize / 2), scBlock.y - (scBlockSize / 2), scBlockSize, scBlockSize, RED);
+        Rectangle recBlock = {
+            .x = scBlock.x - (scBlockSize / 2),
+            .y = scBlock.y - (scBlockSize / 2),
+            .width = scBlockSize,
+            .height = scBlockSize,
+        };
+        DrawRectangleRec(recBlock, BLACK);
+        DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
 
     EndDrawing();
 }
