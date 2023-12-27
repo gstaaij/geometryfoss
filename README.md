@@ -1,7 +1,7 @@
 
 # Geometry FOSS
 
-This is an Open Source clone of Geomety Dash written in C.
+This is an Open Source clone of Geomety Dash written in C using [raylib](https://www.raylib.com/).
 
 ## Disclaimer
 
