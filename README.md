@@ -1,9 +1,7 @@
 
 # Geometry FOSS
 
-This is an Open Source clone of Geomety Dash (to be) written in C.
-
-I haven't actually started programming yet, as you can probably already tell.
+This is an Open Source clone of Geomety Dash written in C.
 
 ## Disclaimer
 
