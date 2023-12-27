@@ -6,8 +6,8 @@
 First, we need to know what we actually want to achieve.
 Here are some essential things we need to do:
 
-- [ ] Use a practical coordinate system
-- [ ] Dynamically calculate the size of a block based on the window size
+- [x] Use a practical coordinate system
+- [x] Dynamically calculate the size of a block based on the window size
 - [ ] Figure out how to make the objects
 - [ ] Implement some physics
 - [ ] Make the physics (almost) one to one compatible with Geometry Dash

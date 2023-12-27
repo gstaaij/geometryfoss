@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include "screen.h"
+#include <stdio.h>
 
 static void update();
 static void draw();
@@ -24,11 +26,29 @@ static void update() {
 }
 
 static void draw() {
+    ScreenCoord screenSize = {
+        .x = GetScreenWidth(),
+        .y = GetScreenHeight(),
+    };
+
+    Coord screenSizeAsCoord = getScreenSizeAsCoord(screenSize.x, screenSize.y);
+    Coord cameraCoord = {0};
+
     BeginDrawing();
 
         ClearBackground(BLACK);
 
-        DrawCircle(1280/2, 720/2, 100, RED);
+        Coord blockCoord = {
+            .x = 15,
+            .y = 15,
+        };
+        double blockSize = 30;
+
+        ScreenCoord scBlock = getScreenCoord(blockCoord, cameraCoord, screenSizeAsCoord, screenSize);
+        printf("block at (%ld, %ld)\n", scBlock.x, scBlock.y);
+        long scBlockSize = convertToScreen(blockSize, screenSizeAsCoord, screenSize);
+
+        DrawRectangle(scBlock.x - (scBlockSize / 2), scBlock.y - (scBlockSize / 2), scBlockSize, scBlockSize, RED);
 
     EndDrawing();
 }

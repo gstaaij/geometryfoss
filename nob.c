@@ -108,6 +108,7 @@ defer:
 
 static const char* cFiles[] = {
     "geometryfoss.c",
+    "screen.c",
 };
 
 bool buildMain(Target target) {
