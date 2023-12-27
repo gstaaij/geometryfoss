@@ -45,7 +45,6 @@ static void draw() {
         double blockSize = 30;
 
         ScreenCoord scBlock = getScreenCoord(blockCoord, cameraCoord, screenSizeAsCoord, screenSize);
-        printf("block at (%ld, %ld)\n", scBlock.x, scBlock.y);
         long scBlockSize = convertToScreen(blockSize, screenSizeAsCoord, screenSize);
 
         DrawRectangle(scBlock.x - (scBlockSize / 2), scBlock.y - (scBlockSize / 2), scBlockSize, scBlockSize, RED);
