@@ -70,7 +70,8 @@ bool buildRaylib(Target target) {
                 break;
             default: NOB_ASSERT(0 && "unreachable");
             }
-            nob_cmd_append(&cmd, "-ggdb", "-DPLATFORM_DESKTOP", "-fPIC");
+            nob_cmd_append(&cmd, "-ggdb", "-DPLATFORM_DESKTOP", "-fPIC"); // Remove -ggdb for a miniscule amount of extra performance
+            nob_cmd_append(&cmd, "-O1");
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src/external/glfw/include");
             nob_cmd_append(&cmd, "-c", inputPath);
             nob_cmd_append(&cmd, "-o", outputPath);
