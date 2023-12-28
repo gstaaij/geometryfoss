@@ -60,11 +60,35 @@ The Camera Guide trigger.
 
 ### Figure out how to make the objects
 
-> BIG TODO
+The objects are going to be stored as IDs, just like in GD.
+
+We will have 2 structs, Object and ObjectDefenition:
+
+```C
+typedef struct {
+    Coord position;
+    double angle;
+    int id;
+} Object;
+```
+
+```C
+typedef struct {
+    ObjectType type;
+    ObjectShape shape;
+    ObjectHitbox hitbox;
+    Texture texture;
+} ObjectDefenition;
+```
+
+We will then have a giant array of Object Defenitions that stores all the objects with their respective IDs.
+
+I decided to go with this approach, because this was the best approach I could think of.
+If anyone has a better approach, feel free to create a pull request.
 
 ### Implement some physics and try to make them compatible with GD
 
-> MORE BIG TODO
+> BIG TODO
 
 ### Add textures
 
