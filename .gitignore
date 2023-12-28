@@ -1,3 +1,7 @@
+# vscode stuff
+.vscode
+
+# Build process
 build
 nob
 nob.old
