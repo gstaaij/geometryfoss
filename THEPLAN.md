@@ -67,7 +67,7 @@ We will have 2 structs, Object and ObjectDefenition:
 ```C
 typedef struct {
     Coord position;
-    double angle;
+    // Any extra properties go here...
     int id;
 } Object;
 ```
@@ -76,7 +76,7 @@ typedef struct {
 typedef struct {
     ObjectType type;
     ObjectShape shape;
-    ObjectHitbox hitbox;
+    Hitbox hitbox;
     Texture texture;
 } ObjectDefenition;
 ```
