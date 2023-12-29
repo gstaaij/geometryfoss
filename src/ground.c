@@ -1,4 +1,5 @@
 #include "ground.h"
+#include "camera.h"
 
 void drawGround(const Color color, const GDFCamera camera) {
     Coord groundCoord = {

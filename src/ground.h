@@ -1,5 +1,5 @@
 #pragma once
-#include "camera.h"
+#include "coord.h"
 #include "raylib.h"
 
 #define GROUND_Y 90

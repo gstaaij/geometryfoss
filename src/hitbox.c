@@ -1,4 +1,5 @@
 #include "hitbox.h"
+#include "camera.h"
 
 void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double scale, const Color hitboxColor, const GDFCamera camera) {
     if (hitbox.shape == SQUARE) {

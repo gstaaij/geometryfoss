@@ -1,6 +1,6 @@
 #pragma once
 #include "raylib.h"
-#include "camera.h"
+#include "coord.h"
 
 // Defines the shape of a hitbox
 typedef enum HitboxShape {

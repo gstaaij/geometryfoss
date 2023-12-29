@@ -1,10 +1,18 @@
 #include "camera.h"
+#include "ground.h"
 #include <math.h>
 
 // The minimum GD coords screen size according to GD
 // Measured using the Camera Guide trigger in GD 2.2
 #define MIN_COORD_SCREEN_WIDTH 480
 #define MIN_COORD_SCREEN_HEIGHT 320
+
+void cameraUpdate(GDFCamera* camera, const Player player, const double deltaTime) {
+    camera->position.x = player.position.x + 90;
+    if (camera->position.y - (camera->screenSizeAsCoord.y / 2) < 0) {
+        camera->position.y = camera->screenSizeAsCoord.y / 2;
+    }
+}
 
 void cameraConvertScreenSize(GDFCamera* camera) {
     // First try making the height the same as the minimum height...

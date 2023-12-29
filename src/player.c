@@ -1,5 +1,6 @@
 #include "player.h"
 #include "raylib.h"
+#include "camera.h"
 #include "object.h"
 
 void playerDraw(const Player player, bool drawHitboxes, const GDFCamera camera) {

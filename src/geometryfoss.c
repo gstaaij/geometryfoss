@@ -1,6 +1,7 @@
 #include "raylib.h"
 // #define NOB_IMPLEMENTATION
 #include "nob.h"
+#include "coord.h"
 #include "camera.h"
 #include "object.h"
 #include "ground.h"
@@ -109,7 +110,7 @@ int main(void) {
 
 
 static void update(const double deltaTime) {
-    (void) deltaTime;
+    cameraUpdate(&camera, player, deltaTime);
 }
 
 static void draw() {

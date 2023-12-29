@@ -1,5 +1,5 @@
 #pragma once
-#include "camera.h"
+#include "coord.h"
 #include "hitbox.h"
 #include <stdbool.h>
 

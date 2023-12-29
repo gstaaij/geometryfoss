@@ -1,6 +1,7 @@
+#include "object.h"
 #include "nob.h"
 #include "raylib.h"
-#include "object.h"
+#include "camera.h"
 
 void objectDraw(const Object object, const bool drawHitbox, const GDFCamera camera) {
     // Get the Object Defenition tied to this Object
