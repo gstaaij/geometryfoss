@@ -1,4 +1,4 @@
-#include "screen.h"
+#include "camera.h"
 #include <math.h>
 
 // The minimum GD coords screen size according to GD
@@ -6,7 +6,7 @@
 #define MIN_COORD_SCREEN_WIDTH 480
 #define MIN_COORD_SCREEN_HEIGHT 320
 
-void getScreenSizeAsCoord(GDFCamera* camera) {
+void cameraConvertScreenSize(GDFCamera* camera) {
     // First try making the height the same as the minimum height...
     double height = MIN_COORD_SCREEN_HEIGHT;
     // ... and calculate a width based on that

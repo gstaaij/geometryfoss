@@ -20,7 +20,7 @@ typedef struct {
 } GDFCamera;
 
 // Convert the size of the screen to GD coordinates
-void getScreenSizeAsCoord(GDFCamera* camera);
+void cameraConvertScreenSize(GDFCamera* camera);
 
 // Convert a position in GD coordinates to a position screen coordinates
 ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera);

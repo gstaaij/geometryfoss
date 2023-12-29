@@ -1,6 +1,6 @@
 #pragma once
 #include "raylib.h"
-#include "screen.h"
+#include "camera.h"
 #include "hitbox.h"
 #include <stdlib.h>
 #include <stdbool.h>

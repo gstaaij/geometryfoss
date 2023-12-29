@@ -1,7 +1,7 @@
 #include "raylib.h"
 // #define NOB_IMPLEMENTATION
 #include "nob.h"
-#include "screen.h"
+#include "camera.h"
 #include "object.h"
 #include "ground.h"
 #include "player.h"
@@ -119,7 +119,7 @@ static void draw() {
         .y = GetScreenHeight(),
     };
     // Convert the screen size to GD coordinates
-    getScreenSizeAsCoord(&camera);
+    cameraConvertScreenSize(&camera);
 
     BeginDrawing();
 
