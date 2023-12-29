@@ -111,6 +111,8 @@ static const char* cFiles[] = {
     "geometryfoss.c",
     "screen.c",
     "object.c",
+    "hitbox.c",
+    "player.c",
 };
 
 bool buildMain(Target target) {

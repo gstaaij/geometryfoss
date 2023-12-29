@@ -37,45 +37,21 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
         Color hitboxColor;
         switch (def.type) {
         case SOLID:
-            hitboxColor = GetColor(0x0000ffff);
+            hitboxColor = SOLID_OBJECT_HITBOX_COLOR;
             break;
         case HAZARD:
-            hitboxColor = GetColor(0xff0000ff);
+            hitboxColor = HAZARD_OBJECT_HITBOX_COLOR;
             break;
         case PORTAL:
         case PAD:
         case RING:
-            hitboxColor = GetColor(0x00ff00ff);
+            hitboxColor = PORTAL_OBJECT_HITBOX_COLOR;
             break;
         default:
             hitboxColor = WHITE;
             break;
         }
 
-        if (def.hitbox.shape == SQUARE) {
-            // Calculate the absolute position of the hitbox
-            Coord hitboxCoord = {
-                .x = object.position.x + def.hitbox.offset.x,
-                .y = object.position.y + def.hitbox.offset.y,
-            };
-
-            // Convert the width, height and line thickness of the hitbox to screen pixels
-            long scHitboxWidth = convertToScreen(def.hitbox.width * object.scale, camera);
-            long scHitboxHeight = convertToScreen(def.hitbox.height * object.scale, camera);
-            long scHitboxLineThick = convertToScreen(1, camera);
-
-            // Convert the absolute position to Screen Coordinates
-            ScreenCoord scHitbox = getScreenCoord(hitboxCoord, camera);
-
-            // Define a raylib Rectangle for the hitbox
-            Rectangle recHitbox = {
-                .x = scHitbox.x - (scHitboxWidth / 2),
-                .y = scHitbox.y - (scHitboxHeight / 2),
-                .width = scHitboxWidth,
-                .height = scHitboxHeight,
-            };
-            // Draw the hitbox
-            DrawRectangleLinesEx(recHitbox, scHitboxLineThick, hitboxColor);
-        }
+        hitboxDraw(def.hitbox, object.position, object.scale, hitboxColor, camera);
     }
 }

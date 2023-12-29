@@ -1,4 +1,5 @@
 #pragma once
+#include "raylib.h"
 #include "screen.h"
 
 // Defines the shape of a hitbox
@@ -14,3 +15,5 @@ typedef struct {
     double width;
     double height;
 } Hitbox;
+
+void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double scale, const Color hitboxColor, const GDFCamera camera);

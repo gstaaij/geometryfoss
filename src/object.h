@@ -1,8 +1,15 @@
 #pragma once
+#include "raylib.h"
 #include "screen.h"
 #include "hitbox.h"
 #include <stdlib.h>
 #include <stdbool.h>
+
+#define SOLID_OBJECT_HITBOX_COLOR   CLITERAL (Color){ 0,   0,   255, 255 }
+#define HAZARD_OBJECT_HITBOX_COLOR  CLITERAL (Color){ 255, 0,   0,   255 }
+#define PORTAL_OBJECT_HITBOX_COLOR  CLITERAL (Color){ 0,   255, 0,   255 }
+#define PAD_OBJECT_HITBOX_COLOR     CLITERAL (Color){ 0,   255, 0,   255 }
+#define RING_OBJECT_HITBOX_COLOR    CLITERAL (Color){ 0,   255, 0,   255 }
 
 // A struct with a position, angle, scale and ID pointing to a ObjectDefenition
 typedef struct {

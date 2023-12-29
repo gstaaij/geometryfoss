@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "screen.h"
 #include "object.h"
+#include "player.h"
 #include <stdio.h>
 
 #define TARGET_FPS 60
@@ -71,6 +72,32 @@ static void draw() {
     // Convert the screen size to GD coordinates
     getScreenSizeAsCoord(&camera);
 
+    Player player = {
+        .position = {
+            .x = 0,
+            .y = 95,
+        },
+        .angle = 0,
+        .outerHitbox = {
+            .shape = SQUARE,
+            .offset = {
+                .x = 0,
+                .y = 0,
+            },
+            .width = PLAYER_SIZE,
+            .height = PLAYER_SIZE,
+        },
+        .innerHitbox = {
+            .shape = SQUARE,
+            .offset = {
+                .x = 0,
+                .y = 0,
+            },
+            .width = (double)PLAYER_SIZE / 3.0,
+            .height = (double)PLAYER_SIZE / 3.0,
+        }
+    };
+
     BeginDrawing();
 
         // Set the backgrond color
@@ -90,6 +117,8 @@ static void draw() {
 
         // Draw our test block without drawing the hitbox
         objectDraw(veryNiceBlock, false, camera);
+
+        playerDraw(player, true, camera);
 
     EndDrawing();
 }
