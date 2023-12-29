@@ -42,7 +42,7 @@ typedef struct {
 } ObjectDefinition;
 
 // Draws an Object
-void objectDraw(const Object object, const bool drawHitbox, const Coord cameraCoord, const Coord screenSizeAsCoord, const ScreenCoord screenSize);
+void objectDraw(const Object object, const bool drawHitbox, const GDFCamera camera);
 
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {

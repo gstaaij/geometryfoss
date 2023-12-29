@@ -54,19 +54,22 @@ static void update(const double deltaTime) {
 }
 
 static void draw() {
-    // Get the screen size
-    ScreenCoord screenSize = {
-        .x = GetScreenWidth(),
-        .y = GetScreenHeight(),
-    };
 
-    // Convert the screen size to GD coordinates
-    Coord screenSizeAsCoord = getScreenSizeAsCoord(screenSize.x, screenSize.y);
-    // Define the camera position
-    Coord cameraCoord = {
-        .x = 15,
-        .y = 15,
+    // Define the camera
+    GDFCamera camera = {
+        .position = {
+            .x = 15,
+            .y = 15,
+        },
+        .screenSizeAsCoord = {0},
+        // Get the screen size
+        .screenSize = {
+            .x = GetScreenWidth(),
+            .y = GetScreenHeight(),
+        },
     };
+    // Convert the screen size to GD coordinates
+    getScreenSizeAsCoord(&camera);
 
     BeginDrawing();
 
@@ -86,7 +89,7 @@ static void draw() {
         };
 
         // Draw our test block without drawing the hitbox
-        objectDraw(veryNiceBlock, false, cameraCoord, screenSizeAsCoord, screenSize);
+        objectDraw(veryNiceBlock, false, camera);
 
     EndDrawing();
 }

@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "object.h"
 
-void objectDraw(const Object object, const bool drawHitbox, const Coord cameraCoord, const Coord screenSizeAsCoord, const ScreenCoord screenSize) {
+void objectDraw(const Object object, const bool drawHitbox, const GDFCamera camera) {
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefenitions[object.id];
 
@@ -14,9 +14,9 @@ void objectDraw(const Object object, const bool drawHitbox, const Coord cameraCo
         double blockSize = scale * 30;
 
         // Convert some values to Screen Coordinates
-        ScreenCoord scBlock = getScreenCoord(object.position, cameraCoord, screenSizeAsCoord, screenSize);
-        long scBlockSize = convertToScreen(blockSize, screenSizeAsCoord, screenSize);
-        long scBlockLineThick = convertToScreen(scale * 1.5, screenSizeAsCoord, screenSize);
+        ScreenCoord scBlock = getScreenCoord(object.position, camera);
+        long scBlockSize = convertToScreen(blockSize, camera);
+        long scBlockLineThick = convertToScreen(scale * 1.5, camera);
 
         // Define a raylib Rectangle for the block
         Rectangle recBlock = {
@@ -60,12 +60,12 @@ void objectDraw(const Object object, const bool drawHitbox, const Coord cameraCo
             };
 
             // Convert the width, height and line thickness of the hitbox to screen pixels
-            long scHitboxWidth = convertToScreen(def.hitbox.width * object.scale, screenSizeAsCoord, screenSize);
-            long scHitboxHeight = convertToScreen(def.hitbox.height * object.scale, screenSizeAsCoord, screenSize);
-            long scHitboxLineThick = convertToScreen(1, screenSizeAsCoord, screenSize);
+            long scHitboxWidth = convertToScreen(def.hitbox.width * object.scale, camera);
+            long scHitboxHeight = convertToScreen(def.hitbox.height * object.scale, camera);
+            long scHitboxLineThick = convertToScreen(1, camera);
 
             // Convert the absolute position to Screen Coordinates
-            ScreenCoord scHitbox = getScreenCoord(hitboxCoord, cameraCoord, screenSizeAsCoord, screenSize);
+            ScreenCoord scHitbox = getScreenCoord(hitboxCoord, camera);
 
             // Define a raylib Rectangle for the hitbox
             Rectangle recHitbox = {

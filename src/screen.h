@@ -12,11 +12,18 @@ typedef struct {
     double y;
 } Coord;
 
+// Defines a camera with a position, 
+typedef struct {
+    Coord position;
+    Coord screenSizeAsCoord;
+    ScreenCoord screenSize;
+} GDFCamera;
+
 // Convert the size of the screen to GD coordinates
-Coord getScreenSizeAsCoord(int screenWidth, int screenHeight);
+void getScreenSizeAsCoord(GDFCamera* camera);
 
 // Convert a position in GD coordinates to a position screen coordinates
-ScreenCoord getScreenCoord(const Coord coord, const Coord cameraCoord, const Coord screenSizeAsCoord, const ScreenCoord screenSize);
+ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera);
 
 // Convert a width or height or length in GD coordinates to screen coordinates
-long convertToScreen(double size, const Coord screenSizeAsCoord, const ScreenCoord screenSize);
+long convertToScreen(double size, const GDFCamera camera);
