@@ -112,6 +112,7 @@ static const char* cFiles[] = {
     "screen.c",
     "object.c",
     "hitbox.c",
+    "ground.c",
     "player.c",
 };
 

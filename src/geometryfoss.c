@@ -1,6 +1,9 @@
 #include "raylib.h"
+// #define NOB_IMPLEMENTATION
+#include "nob.h"
 #include "screen.h"
 #include "object.h"
+#include "ground.h"
 #include "player.h"
 #include <stdio.h>
 
@@ -10,12 +13,67 @@
 static void update(const double deltaTime);
 static void draw();
 
+typedef struct {
+    Object* items;
+    size_t count;
+    size_t capacity;
+} DAObjects;
+
+DAObjects objects;
+Player player;
+GDFCamera camera;
+Color backgroundColor;
+Color groundColor;
+
 int main(void) {
     // Initialize the window and make it resizable
     InitWindow(1280, 720, "Geometry FOSS");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
     // We don't need to set the target FPS, because we limit the amount of updates and draw calls already
+
+    // Initialize the dynamic array of objects, the player and the camera, and colors
+    objects = (DAObjects){0};
+    player = (Player){
+        .position = {
+            .x = 0,
+            .y = 105,
+        },
+        .angle = 0,
+        .outerHitbox = {
+            .shape = SQUARE,
+            .offset = {
+                .x = 0,
+                .y = 0,
+            },
+            .width = PLAYER_SIZE,
+            .height = PLAYER_SIZE,
+        },
+        .innerHitbox = {
+            .shape = SQUARE,
+            .offset = {
+                .x = 0,
+                .y = 0,
+            },
+            .width = (double)PLAYER_SIZE / 3.0,
+            .height = (double)PLAYER_SIZE / 3.0,
+        },
+    };
+    camera = (GDFCamera){0};
+    backgroundColor = GetColor(0x287dffff);
+    groundColor = GetColor(0x0066ffff);
+
+    // Add a test block to the objects DA
+    Object testBlock = {
+        .position = {
+            .x = 135,
+            .y = 105,
+        },
+        .angle = 0,
+        .scale = 1,
+        .id = 1,
+    };
+    nob_da_append(&objects, testBlock);
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
@@ -55,69 +113,27 @@ static void update(const double deltaTime) {
 }
 
 static void draw() {
-
-    // Define the camera
-    GDFCamera camera = {
-        .position = {
-            .x = 15,
-            .y = 15,
-        },
-        .screenSizeAsCoord = {0},
-        // Get the screen size
-        .screenSize = {
-            .x = GetScreenWidth(),
-            .y = GetScreenHeight(),
-        },
+    // Set the screen size of the camera
+    camera.screenSize = (ScreenCoord){
+        .x = GetScreenWidth(),
+        .y = GetScreenHeight(),
     };
     // Convert the screen size to GD coordinates
     getScreenSizeAsCoord(&camera);
 
-    Player player = {
-        .position = {
-            .x = 0,
-            .y = 95,
-        },
-        .angle = 0,
-        .outerHitbox = {
-            .shape = SQUARE,
-            .offset = {
-                .x = 0,
-                .y = 0,
-            },
-            .width = PLAYER_SIZE,
-            .height = PLAYER_SIZE,
-        },
-        .innerHitbox = {
-            .shape = SQUARE,
-            .offset = {
-                .x = 0,
-                .y = 0,
-            },
-            .width = (double)PLAYER_SIZE / 3.0,
-            .height = (double)PLAYER_SIZE / 3.0,
-        }
-    };
-
     BeginDrawing();
 
         // Set the backgrond color
-        Color background = GetColor(0x287dffff); // TODO: This shouldn't be happening every draw call
-        ClearBackground(background);
+        ClearBackground(backgroundColor);
 
-        // Define our test block
-        Object veryNiceBlock = {
-            .position = {
-                .x = 15,
-                .y = 15,
-            },
-            .angle = 0,
-            .scale = 1,
-            .id = 1,
-        };
+        drawGround(groundColor, camera);
 
-        // Draw our test block without drawing the hitbox
-        objectDraw(veryNiceBlock, false, camera);
+        // Draw the objects
+        for (size_t i = 0; i < objects.count; ++i) {
+            objectDraw(objects.items[i], false, camera);
+        }
 
+        // Draw the player
         playerDraw(player, true, camera);
 
     EndDrawing();
