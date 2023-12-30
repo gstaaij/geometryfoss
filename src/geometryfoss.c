@@ -30,6 +30,7 @@ int main(void) {
     // Initialize the window and make it resizable
     InitWindow(1280, 720, "Geometry FOSS");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowMinSize(800, 600);
 
     // We don't need to set the target FPS, because we limit the amount of updates and draw calls already
 
