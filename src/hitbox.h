@@ -4,8 +4,8 @@
 
 // Defines the shape of a hitbox
 typedef enum HitboxShape {
-    SQUARE,
-    CIRCLE,
+    HITBOX_SQUARE,
+    HITBOX_CIRCLE,
 } HitboxShape;
 
 // Defines a hitbox with a shape, an offset, a width and a height

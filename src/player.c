@@ -4,6 +4,7 @@
 #include "object.h"
 #include "ground.h"
 #include <stddef.h>
+#include <math.h>
 
 // I got this value by measuring pixels
 #define PLAYER_SPEED_X 303.46
@@ -31,28 +32,38 @@ void playerUpdate(Player* player, const DAObjects objects, const double deltaTim
         player->isOnGround = true;
     }
 
+    if (!player->isOnGround) {
+        player->angle += 360.0 * deltaTime;
+        while (player->angle >= 360)
+            player->angle -= 360;
+    } else {
+        player->angle = round(player->angle / 90) * 90;
+    }
+
     for (size_t i = 0; i < objects.count; ++i) {
         Object object = objects.items[i];
         ObjectDefinition def = objectDefenitions[object.id];
         switch(def.type) {
-        case SOLID:
+        case OBJECT_SOLID:
             if (hitboxCollides(player->innerHitbox, player->position, def.hitbox, object.position))
                 playerDie(player);
             break;
-        case HAZARD:
+        case OBJECT_HAZARD:
             if (hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position))
                 playerDie(player);
             break;
         default:
-            /// TODO
+            /// TODO: handle the other object types
             break;
         }
     }
 }
 
 void playerDraw(const Player player, bool drawHitboxes, const GDFCamera camera) {
+    // Convert to screen coordinates
     ScreenCoord scPlayer = getScreenCoord(player.position, camera);
     long scPlayerSize = convertToScreen(PLAYER_SIZE, camera);
+    // Create a rectangle and a vector2 for the position & size, and the rotation anchor point respectively
     Rectangle playerRect = {
         .x = scPlayer.x,
         .y = scPlayer.y,
@@ -63,13 +74,14 @@ void playerDraw(const Player player, bool drawHitboxes, const GDFCamera camera) 
         .x = scPlayerSize / 2,
         .y = scPlayerSize / 2,
     };
+    // Draw a rectangle with the player angle
     DrawRectanglePro(playerRect, playerCenter, player.angle, GREEN);
 
     if (drawHitboxes) {
         // Outer hitbox
-        hitboxDraw(player.outerHitbox, player.position, 1.0, HAZARD_OBJECT_HITBOX_COLOR, camera);
+        hitboxDraw(player.outerHitbox, player.position, 1.0, OBJECT_HAZARD_HITBOX_COLOR, camera);
         // Inner hitbox
-        hitboxDraw(player.innerHitbox, player.position, 1.0, SOLID_OBJECT_HITBOX_COLOR, camera);
+        hitboxDraw(player.innerHitbox, player.position, 1.0, OBJECT_SOLID_HITBOX_COLOR, camera);
     }
 }
 

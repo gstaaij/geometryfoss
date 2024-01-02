@@ -20,7 +20,7 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
     long scBlockLineThick = convertToScreen(scale * 1.5, camera);
 
     switch (def.shape.type) {
-    case BLOCK:
+    case OBJSHAPE_BLOCK:
         // Define a raylib Rectangle for the block
         Rectangle recBlock = {
             .x = scBlock.x - (scBlockSize / 2),
@@ -32,7 +32,7 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
         DrawRectangleRec(recBlock, BLACK);
         DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
         break;
-    case SPIKE:
+    case OBJSHAPE_SPIKE:
         Vector2 vecSpikePoint1 = {
             .x = scBlock.x,
             .y = scBlock.y - (scBlockSize / 2),
@@ -52,26 +52,31 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
 
     // Draw the hitbox
 
-    if (drawHitbox && def.type != NONSOLID) {
+    if (drawHitbox && def.type != OBJECT_NONSOLID) {
         // Determine the hitbox color
         Color hitboxColor;
         switch (def.type) {
-        case SOLID:
-            hitboxColor = SOLID_OBJECT_HITBOX_COLOR;
+        case OBJECT_SOLID:
+            hitboxColor = OBJECT_SOLID_HITBOX_COLOR;
             break;
-        case HAZARD:
-            hitboxColor = HAZARD_OBJECT_HITBOX_COLOR;
+        case OBJECT_HAZARD:
+            hitboxColor = OBJECT_HAZARD_HITBOX_COLOR;
             break;
-        case PORTAL:
-        case PAD:
-        case RING:
-            hitboxColor = PORTAL_OBJECT_HITBOX_COLOR;
+        case OBJECT_PORTAL:
+            hitboxColor = OBJECT_PORTAL_HITBOX_COLOR;
+            break;
+        case OBJECT_PAD:
+            hitboxColor = OBJECT_PAD_HITBOX_COLOR;
+            break;
+        case OBJECT_RING:
+            hitboxColor = OBJECT_RING_HITBOX_COLOR;
             break;
         default:
             hitboxColor = WHITE;
             break;
         }
 
+        // Call the hitboxDraw function to do the work for us
         hitboxDraw(def.hitbox, object.position, object.scale, hitboxColor, camera);
     }
 }

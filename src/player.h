@@ -15,10 +15,14 @@ typedef struct {
     Hitbox innerHitbox;
 } Player;
 
+// Player update loop
 void playerUpdate(Player* player, const DAObjects objects, const double deltaTime);
 
+// Draw the player
 void playerDraw(const Player player, bool drawHitboxes, const GDFCamera camera);
 
+// Kill the player
 void playerDie(Player* player);
 
+// Reset the player
 void playerReset(Player* player);
