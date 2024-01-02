@@ -11,7 +11,7 @@
 // These values are completely incorrect, I need to change them
 // I will probably make a GD mod to show me the velocity of the player at some point, so I can measure these values accurately
 #define PLAYER_GRAVITY_Y 3054
-#define PLAYER_JUMP_FORCE 623
+#define PLAYER_JUMP_FORCE 620
 
 void playerUpdate(Player* player, const DAObjects objects, const double deltaTime) {
     // This is always constant, so no need to change the velocity for this

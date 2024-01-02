@@ -12,6 +12,8 @@
 #define TARGET_FPS 60
 #define TARGET_TPS 240
 
+#define TIME_SCALE 1.0
+
 static void update(const double deltaTime);
 static void draw();
 
@@ -102,7 +104,7 @@ int main(void) {
         
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
-            update(timeSinceLastUpdate / 2); // slow motion, this is temporary
+            update(timeSinceLastUpdate * TIME_SCALE);
             timeSinceLastUpdate = 0;
         }
 
