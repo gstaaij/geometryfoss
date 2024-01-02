@@ -110,6 +110,7 @@ defer:
 static const char* cFiles[] = {
     "geometryfoss.c",
     "camera.c",
+    "util.c",
     "object.c",
     "hitbox.c",
     "ground.c",

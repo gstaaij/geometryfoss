@@ -17,3 +17,5 @@ typedef struct {
 } Hitbox;
 
 void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double scale, const Color hitboxColor, const GDFCamera camera);
+
+bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const Hitbox hitbox2, const Coord parent2Position);

@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "coord.h"
 #include "hitbox.h"
-#include <stdlib.h>
+#include "objdefspad.h"
 #include <stdbool.h>
 
 #define SOLID_OBJECT_HITBOX_COLOR   CLITERAL (Color){ 0,   0,   255, 255 }
@@ -67,5 +67,19 @@ static const ObjectDefinition objectDefenitions[] = {
             .height = 30,
         },
 
+    },
+    PAD(6), // Until ID 7, we currently only need the default spike and the default block
+    { // ID 8, default spike
+        .type = HAZARD,
+        .shape = {
+            .type = SPIKE,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = SQUARE,
+            .offset = {0},
+            .width = 6,
+            .height = 12,
+        }
     },
 };

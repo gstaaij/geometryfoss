@@ -1,6 +1,7 @@
 #include "raylib.h"
 // #define NOB_IMPLEMENTATION
 #include "nob.h"
+#include "dynamicarrays.h"
 #include "coord.h"
 #include "camera.h"
 #include "object.h"
@@ -13,12 +14,6 @@
 
 static void update(const double deltaTime);
 static void draw();
-
-typedef struct {
-    Object* items;
-    size_t count;
-    size_t capacity;
-} DAObjects;
 
 DAObjects objects;
 Player player;
@@ -41,6 +36,7 @@ int main(void) {
             .x = 0,
             .y = 105,
         },
+        .velocity = {0},
         .angle = 0,
         .outerHitbox = {
             .shape = SQUARE,
@@ -68,14 +64,27 @@ int main(void) {
     // Add a test block to the objects DA
     Object testBlock = {
         .position = {
-            .x = 135,
-            .y = 105,
+            .x = 375,
+            .y = 195 -5.5, // It should be just barely possible to jump under this, -6 should kill you
         },
         .angle = 0,
         .scale = 1,
         .id = 1,
     };
     nob_da_append(&objects, testBlock);
+    // Add a triple spike
+    for (size_t i = 345; i < 345+90; i += 30) {
+        Object spike = {
+            .position = {
+                .x = i,
+                .y = 105,
+            },
+            .angle = 0,
+            .scale = 1,
+            .id = 8,
+        };
+        nob_da_append(&objects, spike);
+    }
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
@@ -93,7 +102,7 @@ int main(void) {
         
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
-            update(timeSinceLastUpdate);
+            update(timeSinceLastUpdate / 2); // slow motion, this is temporary
             timeSinceLastUpdate = 0;
         }
 
@@ -111,7 +120,12 @@ int main(void) {
 
 
 static void update(const double deltaTime) {
+    playerUpdate(&player, objects, deltaTime);
     cameraUpdate(&camera, player, deltaTime);
+
+    if (IsKeyPressed(KEY_R)) {
+        playerReset(&player);
+    }
 }
 
 static void draw() {
@@ -132,7 +146,7 @@ static void draw() {
 
         // Draw the objects
         for (size_t i = 0; i < objects.count; ++i) {
-            objectDraw(objects.items[i], false, camera);
+            objectDraw(objects.items[i], true, camera);
         }
 
         // Draw the player

@@ -2,6 +2,7 @@
 #include "nob.h"
 #include "raylib.h"
 #include "camera.h"
+#include <stdio.h>
 
 void objectDraw(const Object object, const bool drawHitbox, const GDFCamera camera) {
     // Get the Object Defenition tied to this Object
@@ -9,16 +10,17 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
 
     // Draw the shape
 
-    if (def.shape.type == BLOCK) {
-        // Calculate the size of the block based on the Object Defenition and the Object's scale
-        double scale = def.shape.scale * object.scale;
-        double blockSize = scale * 30;
+    // Calculate the size of the block based on the Object Defenition and the Object's scale
+    double scale = def.shape.scale * object.scale;
+    double blockSize = scale * 30;
 
-        // Convert some values to Screen Coordinates
-        ScreenCoord scBlock = getScreenCoord(object.position, camera);
-        long scBlockSize = convertToScreen(blockSize, camera);
-        long scBlockLineThick = convertToScreen(scale * 1.5, camera);
+    // Convert some values to Screen Coordinates
+    ScreenCoord scBlock = getScreenCoord(object.position, camera);
+    long scBlockSize = convertToScreen(blockSize, camera);
+    long scBlockLineThick = convertToScreen(scale * 1.5, camera);
 
+    switch (def.shape.type) {
+    case BLOCK:
         // Define a raylib Rectangle for the block
         Rectangle recBlock = {
             .x = scBlock.x - (scBlockSize / 2),
@@ -29,6 +31,23 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
         // Draw a black square with a white outline
         DrawRectangleRec(recBlock, BLACK);
         DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
+        break;
+    case SPIKE:
+        Vector2 vecSpikePoint1 = {
+            .x = scBlock.x,
+            .y = scBlock.y - (scBlockSize / 2),
+        };
+        Vector2 vecSpikePoint2 = {
+            .x = scBlock.x - (scBlockSize / 2),
+            .y = scBlock.y + (scBlockSize / 2),
+        };
+        Vector2 vecSpikePoint3 = {
+            .x = scBlock.x + (scBlockSize / 2),
+            .y = scBlock.y + (scBlockSize / 2),
+        };
+        DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
+        DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
+        break;
     }
 
     // Draw the hitbox

@@ -1,0 +1,11 @@
+
+Frame 32:
+block = 104x104 px
+distance begin first block to begin player = 4 px
+
+Frame 62:
+block = still 104x104 px
+distance begin first block to begin player = 530 px
+
+distance traveled in 1/2 seconds = 526 px = 526/104*30 = 151.730769231
+distance traveled in 1   second  = 151.730769231 * 2 = 303.461538462
