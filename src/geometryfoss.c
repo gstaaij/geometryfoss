@@ -104,6 +104,17 @@ int main(void) {
         };
         nob_da_append(&objects, spike);
     }
+    // Add another spike that should make it just barely possible to jump over the spikes
+    Object lastSpike = {
+        .position = {
+            .x = 405 +13,
+            .y = 105,
+        },
+        .angle = 0,
+        .scale = 1,
+        .id = 8,
+    };
+    nob_da_append(&objects, lastSpike);
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
@@ -165,12 +176,15 @@ static void draw() {
         ClearBackground(backgroundColor);
 
         // Draw the player
-        playerDraw(player, true, camera);
+        playerDraw(player, camera);
 
         // Draw the objects
         for (size_t i = 0; i < objects.count; ++i) {
             objectDraw(objects.items[i], true, camera);
         }
+
+        // Draw the player hitboxes
+        playerDrawHitboxes(player, true, camera);
 
         // Draw the ground
         drawGround(groundColor, camera);

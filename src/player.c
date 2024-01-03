@@ -6,15 +6,23 @@
 #include <stddef.h>
 #include <math.h>
 
-// I got this value by measuring pixels
-#define PLAYER_SPEED_X 303.46
+// I got this value using the 2.2 info label
+#define PLAYER_SPEED_X 311.63
 
 // These values are completely incorrect, I need to change them
 // I will probably make a GD mod to show me the velocity of the player at some point, so I can measure these values accurately
 #define PLAYER_GRAVITY_Y 3054
-#define PLAYER_JUMP_FORCE 620
+#define PLAYER_JUMP_FORCE 625
 
 void playerUpdate(Player* player, const DAObjects objects, const double deltaTime) {
+    if (player->isDead) {
+        player->deadTime += deltaTime;
+        if (player->deadTime > 1.0) {
+            playerReset(player);
+        }
+        return;
+    }
+
     // This is always constant, so no need to change the velocity for this
     player->position.x += PLAYER_SPEED_X * deltaTime;
 
@@ -22,9 +30,11 @@ void playerUpdate(Player* player, const DAObjects objects, const double deltaTim
         player->velocity.y = PLAYER_JUMP_FORCE;
         player->isOnGround = false;
     }
-    // I know using deltaTime like this isn't the most accurate, I should probably look at that Jonas Tyroller video about deltaTIme again
-    player->position.y += player->velocity.y * deltaTime;
+    // Using deltaTime like this is probably more accurate, but I should still look at the Jonas Tyroller video about deltaTIme again
+    double halfDeltaTime = deltaTime * 0.5;
+    player->position.y += player->velocity.y * halfDeltaTime;
     player->velocity.y -= PLAYER_GRAVITY_Y * deltaTime;
+    player->position.y += player->velocity.y * halfDeltaTime;
 
     if (player->position.y < GROUND_Y + (PLAYER_SIZE / 2)) {
         player->velocity.y = 0;
@@ -59,7 +69,7 @@ void playerUpdate(Player* player, const DAObjects objects, const double deltaTim
     }
 }
 
-void playerDraw(const Player player, bool drawHitboxes, const GDFCamera camera) {
+void playerDraw(const Player player, const GDFCamera camera) {
     // Convert to screen coordinates
     ScreenCoord scPlayer = getScreenCoord(player.position, camera);
     long scPlayerSize = convertToScreen(PLAYER_SIZE, camera);
@@ -76,21 +86,29 @@ void playerDraw(const Player player, bool drawHitboxes, const GDFCamera camera) 
     };
     // Draw a rectangle with the player angle
     DrawRectanglePro(playerRect, playerCenter, player.angle, GREEN);
+}
 
-    if (drawHitboxes) {
-        // Outer hitbox
-        hitboxDraw(player.outerHitbox, player.position, 1.0, OBJECT_HAZARD_HITBOX_COLOR, camera);
-        // Inner hitbox
-        hitboxDraw(player.innerHitbox, player.position, 1.0, OBJECT_SOLID_HITBOX_COLOR, camera);
-    }
+void playerDrawHitboxes(const Player player, bool drawHitboxes, const GDFCamera camera) {
+    if (!drawHitboxes) return;
+    // Outer hitbox
+    hitboxDraw(player.outerHitbox, player.position, 1.0, OBJECT_HAZARD_HITBOX_COLOR, camera);
+    // Inner hitbox
+    hitboxDraw(player.innerHitbox, player.position, 1.0, OBJECT_SOLID_HITBOX_COLOR, camera);
 }
 
 void playerDie(Player* player) {
-    /// TODO: fancy animation
-    playerReset(player);
+    /// TODO: explosion
+    player->isDead = true;
+    player->deadTime = 0;
 }
 
 void playerReset(Player* player) {
+    // Reset position
     player->position.x = 0;
     player->position.y = GROUND_Y + 15;
+    // Reset velocity
+    player->velocity.x = player->velocity.y = 0;
+    // Reset dead
+    player->isDead = false;
+    player->deadTime = 0;
 }
