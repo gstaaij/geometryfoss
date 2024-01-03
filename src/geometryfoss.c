@@ -29,7 +29,7 @@
 #define TARGET_FPS 60
 #define TARGET_TPS 240
 
-#define TIME_SCALE 1.0
+#define TIME_SCALE 0.5
 
 static void update(const double deltaTime);
 static void draw();
@@ -105,16 +105,30 @@ int main(void) {
         nob_da_append(&objects, spike);
     }
     // Add another spike that should make it just barely possible to jump over the spikes
-    Object lastSpike = {
-        .position = {
-            .x = 405 +13, // +13.5 should kill the player
-            .y = 105,
-        },
-        .angle = 0,
-        .scale = 1,
-        .id = 8,
-    };
-    nob_da_append(&objects, lastSpike);
+    // Object lastSpike = {
+    //     .position = {
+    //         .x = 405 +13, // +13.5 should kill the player
+    //         .y = 105,
+    //     },
+    //     .angle = 0,
+    //     .scale = 1,
+    //     .id = 8,
+    // };
+    // nob_da_append(&objects, lastSpike);
+
+    // Add some blocks for the player to stand on
+    for (int i = 0; i < 10; i++) {
+        Object block = {
+            .position = {
+                .x = 615 + i * 30,
+                .y = 135,
+            },
+            .angle = 0,
+            .scale = 1,
+            .id = 1,
+        };
+        nob_da_append(&objects, block);
+    }
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;

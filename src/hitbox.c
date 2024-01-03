@@ -58,3 +58,33 @@ bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const Hit
     // We aren't colliding or we haven't implemented collision for these two hitbox shapes yet
     return false;
 }
+
+bool hitboxSquareCollidesOnlyX(const Hitbox hitbox1, const Coord parent1Position, const Hitbox hitbox2, const Coord parent2Position) {
+    if (hitbox1.shape != HITBOX_SQUARE || hitbox2.shape != HITBOX_SQUARE) {
+        assert("INCOMPATIBLE: this function only works with square hitboxes" && false);
+    }
+
+    // Calculate the distance between the hitboxes in the two axes
+    double dx = (parent2Position.x + hitbox2.offset.x) - (parent1Position.x + hitbox1.offset.x);
+
+    // Add half of the width of hitbox 1 to half of the width of hitbox 2
+    double halfWidths = (hitbox1.width / 2) + (hitbox2.width / 2);
+
+    // If the x distance is smaller than the combined half widths, we are colliding on the x axis
+    return dabs(dx) < halfWidths;
+}
+
+bool hitboxSquareCollidesOnlyY(const Hitbox hitbox1, const Coord parent1Position, const Hitbox hitbox2, const Coord parent2Position) {
+    if (hitbox1.shape != HITBOX_SQUARE || hitbox2.shape != HITBOX_SQUARE) {
+        assert("INCOMPATIBLE: this function only works with square hitboxes" && false);
+    }
+
+    // Calculate the distance between the hitboxes in the two axes
+    double dy = (parent2Position.y + hitbox2.offset.y) - (parent1Position.y + hitbox1.offset.y);
+
+    // Add half of the height of hitbox 1 to half of the height of hitbox 2
+    double halfHeights = (hitbox1.height / 2) + (hitbox2.height / 2);
+
+    // If the y distance is smaller than the combined half heights, we are colliding on the y axis
+    return dabs(dy) < halfHeights;
+}
