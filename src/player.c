@@ -9,10 +9,13 @@
 // I got this value using the 2.2 info label
 #define PLAYER_SPEED_X 311.63
 
-// These values are completely incorrect, I need to change them
-// I will probably make a GD mod to show me the velocity of the player at some point, so I can measure these values accurately
-#define PLAYER_GRAVITY_Y 3054
-#define PLAYER_JUMP_FORCE 625
+// These two values were found using trail and error knowing that:
+// - The lowest possible block to survive a jump under is three blocks in above the ground minus 5.5 coordinate points on the y axis
+// - The hardest possible triple spike you can survive has the last spike offset by +13 coordinate points on the x axis
+// Given that they're round values, they probably are the real values, but I will have to confirm that once I get
+// around to making a GD mod to show me or once hacks come to GD 2.2
+#define PLAYER_GRAVITY_Y 2800
+#define PLAYER_JUMP_FORCE 600
 
 void playerUpdate(Player* player, const DAObjects objects, const double deltaTime) {
     if (player->isDead) {

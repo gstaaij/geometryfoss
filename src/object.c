@@ -4,7 +4,7 @@
 #include "camera.h"
 #include <stdio.h>
 
-void objectDraw(const Object object, const bool drawHitbox, const GDFCamera camera) {
+void objectDraw(const Object object, const GDFCamera camera) {
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefenitions[object.id];
 
@@ -49,8 +49,11 @@ void objectDraw(const Object object, const bool drawHitbox, const GDFCamera came
         DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
         break;
     }
+}
 
-    // Draw the hitbox
+void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera) {
+    // Get the Object Defenition tied to this Object
+    ObjectDefinition def = objectDefenitions[object.id];
 
     if (drawHitbox && def.type != OBJECT_NONSOLID) {
         // Determine the hitbox color

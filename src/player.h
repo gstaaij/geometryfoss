@@ -25,6 +25,7 @@ void playerUpdate(Player* player, const DAObjects objects, const double deltaTim
 
 // Draw the player
 void playerDraw(const Player player, const GDFCamera camera);
+// Draw the player's hitbox
 void playerDrawHitboxes(const Player player, bool drawHitboxes, const GDFCamera camera);
 
 // Kill the player

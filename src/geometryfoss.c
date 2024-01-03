@@ -107,7 +107,7 @@ int main(void) {
     // Add another spike that should make it just barely possible to jump over the spikes
     Object lastSpike = {
         .position = {
-            .x = 405 +13,
+            .x = 405 +13, // +13.5 should kill the player
             .y = 105,
         },
         .angle = 0,
@@ -180,10 +180,13 @@ static void draw() {
 
         // Draw the objects
         for (size_t i = 0; i < objects.count; ++i) {
-            objectDraw(objects.items[i], true, camera);
+            objectDraw(objects.items[i], camera);
         }
 
-        // Draw the player hitboxes
+        // Draw the hitboxes
+        for (size_t i = 0; i < objects.count; ++i) {
+            objectDrawHitbox(objects.items[i], true, camera);
+        }
         playerDrawHitboxes(player, true, camera);
 
         // Draw the ground
