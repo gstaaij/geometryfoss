@@ -15,6 +15,7 @@ void cameraUpdate(GDFCamera* camera, const Player player, const double deltaTime
     camera->position.x = player.position.x + CAMERA_PLAYER_OFFSET_X;
 
     /// TODO: follow player on the y position
+    camera->position.y = player.position.y;
 
     // Make sure the bottom of the camera doesn't go below y=0
     if (camera->position.y - (camera->screenSizeAsCoord.y / 2) < 0) {

@@ -7,7 +7,9 @@
 #include <math.h>
 
 // I got this value using the 2.2 info label
-#define PLAYER_SPEED_X 311.63
+// #define PLAYER_SPEED_X 311.63
+// And I got this value by testing the stairs
+#define PLAYER_SPEED_X 323.6
 
 // These two values were found using trail and error knowing that:
 // - The lowest possible block to survive a jump under is three blocks in above the ground minus 5.5 coordinate points on the y axis
@@ -34,12 +36,14 @@ void playerUpdate(Player* player, const DAObjects objects, const double deltaTim
         player->velocity.y = PLAYER_JUMP_FORCE;
         player->isOnGround = false;
     }
-    // Using deltaTime like this is probably more accurate, but I should still look at the Jonas Tyroller video about deltaTIme again
-    double halfDeltaTime = deltaTime * 0.5;
-    player->position.y += player->velocity.y * halfDeltaTime;
-    // Add the gravity to the velocity
-    player->velocity.y -= PLAYER_GRAVITY_Y * deltaTime;
-    player->position.y += player->velocity.y * halfDeltaTime;
+    // Do exactly what was done in the Jonas Tyroller video, because even though my previous method provided the same results, this should be a little bit faster maybe I think
+    double halfAcceleration = PLAYER_GRAVITY_Y * deltaTime * 0.5;
+    // Add half the gravity to the velocity
+    player->velocity.y -= halfAcceleration;
+    // The player y velocity is now the average speed of last frame
+    player->position.y += player->velocity.y * deltaTime;
+    // Add half the gravity to the velocity again
+    player->velocity.y -= halfAcceleration;
 
     // Go over all objects to check for collisions
     for (size_t i = 0; i < objects.count; ++i) {

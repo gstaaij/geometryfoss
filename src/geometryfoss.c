@@ -16,7 +16,7 @@
 
 
 #include "raylib.h"
-// #define NOB_IMPLEMENTATION
+#define NOB_IMPLEMENTATION
 #include "nob.h"
 #include "dynamicarrays.h"
 #include "coord.h"
@@ -24,12 +24,12 @@
 #include "object.h"
 #include "ground.h"
 #include "player.h"
-#include <stdio.h>
+#include <math.h>
 
 #define TARGET_FPS 60
 #define TARGET_TPS 240
 
-#define TIME_SCALE 0.5
+#define TIME_SCALE 1.0
 
 static void update(const double deltaTime);
 static void draw();
@@ -39,6 +39,8 @@ Player player;
 GDFCamera camera;
 Color backgroundColor;
 Color groundColor;
+
+long tps = 0;
 
 int main(void) {
     // Initialize the window and make it resizable
@@ -117,11 +119,11 @@ int main(void) {
     // nob_da_append(&objects, lastSpike);
 
     // Add some blocks for the player to stand on
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
         Object block = {
             .position = {
-                .x = 615 + i * 30,
-                .y = 135,
+                .x = 615 + i * 30 * 4,
+                .y = 105 + i * 30,
             },
             .angle = 0,
             .scale = 1,
@@ -147,6 +149,7 @@ int main(void) {
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
             update(timeSinceLastUpdate * TIME_SCALE);
+            tps = roundl(1.0 / timeSinceLastUpdate);
             timeSinceLastUpdate = 0;
         }
 
@@ -165,7 +168,7 @@ int main(void) {
 
 static void update(const double deltaTime) {
     // Update the player
-    playerUpdate(&player, objects, deltaTime);
+    if (IsKeyPressed(KEY_P) || IsKeyDown(KEY_Q)) playerUpdate(&player, objects, deltaTime);
     // Update the camera
     cameraUpdate(&camera, player, deltaTime);
 
@@ -189,8 +192,10 @@ static void draw() {
         // Set the backgrond color
         ClearBackground(backgroundColor);
 
+        DrawText(nob_temp_sprintf("%d", tps), 10, 10, 24, WHITE);
+
         // Draw the player
-        playerDraw(player, camera);
+        // playerDraw(player, camera);
 
         // Draw the objects
         for (size_t i = 0; i < objects.count; ++i) {
