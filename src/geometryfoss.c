@@ -41,12 +41,15 @@ Color backgroundColor;
 Color groundColor;
 
 long tps = 0;
+bool frameStep = false;
 
 int main(void) {
     // Initialize the window and make it resizable
     InitWindow(1280, 720, "Geometry FOSS");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(800, 600);
+    // Disable raylib exiting the game when you press ESCAPE
+    SetExitKey(KEY_NULL);
 
     // We don't need to set the target FPS, because we limit the amount of updates and draw calls already
 
@@ -118,7 +121,7 @@ int main(void) {
     // };
     // nob_da_append(&objects, lastSpike);
 
-    // Add some blocks for the player to stand on
+    // Add stairs
     for (int i = 0; i < 100; i++) {
         Object block = {
             .position = {
@@ -166,15 +169,30 @@ int main(void) {
 }
 
 
+int currentKey = 0;
+int previousKey = 0;
+
+// This is needed because raylib doesn't like the seperate fps and tps
+static bool keyPressed(int key) {
+    return currentKey == key && previousKey != key;
+}
+
 static void update(const double deltaTime) {
+    previousKey = currentKey;
+    currentKey = GetKeyPressed();
+
     // Update the player
-    if (IsKeyPressed(KEY_P) || IsKeyDown(KEY_Q)) playerUpdate(&player, objects, deltaTime);
+    if (!frameStep || IsKeyDown(KEY_Q) || keyPressed(KEY_P)) playerUpdate(&player, objects, deltaTime);
     // Update the camera
     cameraUpdate(&camera, player, deltaTime);
 
     // Some key combinations that aren't handled by any of the other update loops
-    if (IsKeyPressed(KEY_R)) {
+    if (keyPressed(KEY_R)) {
         playerReset(&player);
+    }
+
+    if (keyPressed(KEY_F3)) {
+        frameStep = !frameStep;
     }
 }
 
@@ -195,7 +213,7 @@ static void draw() {
         DrawText(nob_temp_sprintf("%d", tps), 10, 10, 24, WHITE);
 
         // Draw the player
-        // playerDraw(player, camera);
+        playerDraw(player, camera);
 
         // Draw the objects
         for (size_t i = 0; i < objects.count; ++i) {
