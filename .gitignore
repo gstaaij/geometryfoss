@@ -1,6 +1,9 @@
 # vscode stuff
 .vscode
 
+# Geometry Dash levels
+*.gmd
+
 # Build process
 build
 nob
