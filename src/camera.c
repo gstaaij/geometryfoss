@@ -45,6 +45,16 @@ void cameraConvertScreenSize(GDFCamera* camera) {
     };
 }
 
+void cameraRecalculateScreenSize(GDFCamera* camera) {
+    // Set the screen size of the camera
+    camera->screenSize = (ScreenCoord){
+        .x = GetScreenWidth(),
+        .y = GetScreenHeight(),
+    };
+    // Convert the screen size to GD coordinates
+    cameraConvertScreenSize(camera);
+}
+
 ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {
     // Translate the coordinates so (0, 0) is the top left of the screen and y increases when going downward
     double xTranslated = coord.x - camera.position.x + (camera.screenSizeAsCoord.x / 2);
@@ -61,7 +71,7 @@ ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {
     return screenCoord;
 }
 
-long convertToScreen(double size, const GDFCamera camera) {
+long convertToScreen(const double size, const GDFCamera camera) {
     // Multiply the size by the ratio between the screen coordinates and the GD coordinates
     return roundl((double)camera.screenSize.x / camera.screenSizeAsCoord.x * size);
 }

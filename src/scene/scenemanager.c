@@ -22,6 +22,9 @@ void scenemanagerLoad(SceneManager* scenemanager, const SceneEnum scene) {
     case SCENE_LEVEL:
         scenemanager->scenelevel = scenelevelCreate();
         break;
+    case SCENE_LVLED:
+        scenemanager->scenelvled = scenelvledCreate();
+        break;
     default:
         assert(false && "NOT IMPLEMENTED: a scene is not implemented");
     }
@@ -32,6 +35,9 @@ void scenemanagerUnload(SceneManager* scenemanager) {
     switch (scenemanager->currentScene) {
     case SCENE_LEVEL:
         scenelevelDestroy(scenemanager->scenelevel);
+        break;
+    case SCENE_LVLED:
+        scenelvledDestroy(scenemanager->scenelvled);
         break;
     default:
         break;
@@ -46,6 +52,9 @@ void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime) {
     case SCENE_LEVEL:
         scenelevelUpdate(scenemanager->scenelevel, deltaTime);
         break;
+    case SCENE_LVLED:
+        scenelvledUpdate(scenemanager->scenelvled, deltaTime);
+        break;
     default:
         assert(false && "NOT IMPLEMENTED: a scene update loop is not implemented");
     }
@@ -58,6 +67,9 @@ void scenemanagerDraw(SceneManager* scenemanager) {
         break;
     case SCENE_LEVEL:
         scenelevelDraw(scenemanager->scenelevel);
+        break;
+    case SCENE_LVLED:
+        scenelvledDraw(scenemanager->scenelvled);
         break;
     default:
         assert(false && "NOT IMPLEMENTED: a scene draw loop is not implemented");

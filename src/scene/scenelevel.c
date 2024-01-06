@@ -102,14 +102,6 @@ void scenelevelDestroy(SceneLevel* scenelevel) {
 
 
 void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
-    // Set the screen size of the camera
-    scenelevel->camera.screenSize = (ScreenCoord){
-        .x = GetScreenWidth(),
-        .y = GetScreenHeight(),
-    };
-    // Convert the screen size to GD coordinates
-    cameraConvertScreenSize(&scenelevel->camera);
-
     // Update the player
     if (!scenelevel->frameStep || IsKeyDown(KEY_Q) || keyPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
     // Update the camera
@@ -126,6 +118,8 @@ void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
 }
 
 void scenelevelDraw(SceneLevel* scenelevel) {
+    cameraRecalculateScreenSize(&scenelevel->camera);
+
     // Set the backgrond color
     ClearBackground(scenelevel->backgroundColor);
 

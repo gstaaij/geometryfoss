@@ -52,7 +52,7 @@ int main(void) {
 
     // Initialize the Scene Manager
     scenemanager = scenemanagerCreate();
-    scenemanagerLoad(scenemanager, SCENE_LEVEL);
+    scenemanagerLoad(scenemanager, SCENE_LVLED);
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
