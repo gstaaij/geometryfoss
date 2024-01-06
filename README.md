@@ -44,7 +44,7 @@ Then, bootstrap nob:
 
 Finally, compile Geometry FOSS using this command:
 ```powershell
-> .\nob.exe build
+> ./nob.exe build
 ```
 
 There will be a `geometryfoss.exe` executable in the `build` directory.
