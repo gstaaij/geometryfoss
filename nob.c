@@ -110,11 +110,15 @@ defer:
 static const char* cFiles[] = {
     "geometryfoss.c",
     "camera.c",
-    "util.c",
-    "object.c",
-    "hitbox.c",
     "ground.c",
+    "hitbox.c",
+    "keyboard.c",
+    "object.c",
     "player.c",
+    "scene/scenemanager.c",
+    "scene/scenelevel.c",
+    "scene/scenelvled.c",
+    "util.c",
 };
 
 bool buildMain(Target target) {
@@ -127,6 +131,7 @@ bool buildMain(Target target) {
             nob_cmd_append(&cmd, "gcc");
             nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
+            nob_cmd_append(&cmd, "-I./src");
             nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
             for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
@@ -136,7 +141,7 @@ bool buildMain(Target target) {
             nob_cmd_append(&cmd,
                 nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
                 "-l:libraylib.a");
-            nob_cmd_append(&cmd, "-lm", "-ldl", "-lpthread");
+            nob_cmd_append(&cmd, "-lm");
         if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
         break;
     case TARGET_WIN32_MINGW:
@@ -144,6 +149,7 @@ bool buildMain(Target target) {
             nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
             nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
+            nob_cmd_append(&cmd, "-I./src");
             nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
             for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
