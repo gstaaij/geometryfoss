@@ -5,7 +5,7 @@ This is an Open Source clone of Geomety Dash written in C using [raylib](https:/
 
 ## Building
 
-I don't have any releases yet, so you have to compile GDF yourself for now.
+There aren't any releases yet, so you have to compile GDF yourself for now.
 
 ### Linux
 
@@ -44,7 +44,7 @@ Then, bootstrap nob:
 
 Finally, compile Geometry FOSS using this command:
 ```powershell
-> ./nob.exe build
+> .\nob.exe build
 ```
 
 There will be a `geometryfoss.exe` executable in the `build` directory.
