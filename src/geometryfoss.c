@@ -44,7 +44,7 @@ int main(void) {
     // Initialize the window and make it resizable
     InitWindow(1280, 720, "Geometry FOSS");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
-    SetWindowMinSize(800, 600);
+    SetWindowMinSize(640, 480);
     // Disable raylib exiting the game when you press ESCAPE
     SetExitKey(KEY_NULL);
 
