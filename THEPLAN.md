@@ -9,7 +9,7 @@ Here are some essential things we need to do:
 - [x] Use a practical coordinate system
 - [x] Dynamically calculate the size of a block based on the window size
 - [x] Figure out how to make the objects
-- [ ] Implement some physics
+- [x] Implement some physics
 - [ ] Add textures
 - [ ] Make the physics (almost) one to one compatible with Geometry Dash
 - [ ] Achieve feature parity with GD 1.0
