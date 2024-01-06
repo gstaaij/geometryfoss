@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "coord.h"
 #include "hitbox.h"
-#include "objdefspad.h"
+#include "objdefsutil.h"
 #include <stdbool.h>
 
 #define OBJECT_SOLID_HITBOX_COLOR   CLITERAL (Color){ 0,   0,   255, 255 }

@@ -2,7 +2,8 @@
 #define PAD(n) __PAD##n##__
 
 // Stupid stuff
-#define __PAD2__ {0}, {0}
+#define __PAD1__ {0}
+#define __PAD2__ {0}, __PAD1__
 #define __PAD3__ {0}, __PAD2__
 #define __PAD4__ {0}, __PAD3__
 #define __PAD5__ {0}, __PAD4__
