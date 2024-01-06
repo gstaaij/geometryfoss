@@ -3,6 +3,52 @@
 
 This is an Open Source clone of Geomety Dash written in C using [raylib](https://www.raylib.com/).
 
+## Building
+
+I don't have any releases yet, so you have to compile GDF yourself for now.
+
+### Linux
+
+First, bootstrap nob. You only have to do this once.
+
+```shell
+$ gcc -o nob nob.c
+```
+
+Then you can build Geometry FOSS by running
+
+```shell
+$ ./nob build
+```
+
+Now you can run the program using
+
+```shell
+$ ./build/geometryfoss
+```
+
+If you want to cross compile for Windows, install mingw and run
+
+```shell
+$ ./nob build win32-mingw
+```
+
+### Windows
+
+First, install [mingw](https://github.com/niXman/mingw-builds-binaries/releases).
+
+Then, bootstrap nob:
+```powershell
+> gcc -o nob nob.c
+```
+
+Finally, compile Geometry FOSS using this command:
+```powershell
+> ./nob.exe build
+```
+
+There will be a `geometryfoss.exe` executable in the `build` directory.
+
 ## Disclaimer
 
 Geometry Dash is made by RobTop Games.
