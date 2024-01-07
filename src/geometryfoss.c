@@ -89,8 +89,6 @@ int main(void) {
 
 
 static void update(const double deltaTime) {
-    keyboardUpdate();
-
     scenemanagerUpdate(scenemanager, deltaTime);
 }
 
