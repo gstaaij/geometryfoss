@@ -75,3 +75,8 @@ long convertToScreen(const double size, const GDFCamera camera) {
     // Multiply the size by the ratio between the screen coordinates and the GD coordinates
     return roundl((double)camera.screenSize.x / camera.screenSizeAsCoord.x * size);
 }
+
+double convertToGD(const double size, const GDFCamera camera) {
+    // Multiply the size by the ratio between the GD coordinates and the screen coordinates
+    return camera.screenSizeAsCoord.x / camera.screenSize.x * size;
+}
