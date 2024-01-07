@@ -112,7 +112,6 @@ static const char* cFiles[] = {
     "camera.c",
     "ground.c",
     "hitbox.c",
-    "keyboard.c",
     "object.c",
     "player.c",
     "scene/scenemanager.c",
