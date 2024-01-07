@@ -19,7 +19,6 @@
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 #include "scene/scenemanager.h"
-#include "keyboard.h"
 #include "dynamicarrays.h"
 #include "coord.h"
 #include "camera.h"
@@ -70,6 +69,7 @@ int main(void) {
         
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
+            PollInputEvents();
             update(timeSinceLastUpdate * TIME_SCALE);
             tps = roundl(1.0 / timeSinceLastUpdate);
             timeSinceLastUpdate = 0;

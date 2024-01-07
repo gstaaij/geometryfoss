@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include "raylib.h"
 #include "nob.h"
-#include "keyboard.h"
 #include "ground.h"
 
 SceneLevel* scenelevelCreate() {
@@ -103,17 +102,18 @@ void scenelevelDestroy(SceneLevel* scenelevel) {
 
 void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
     // Update the player
-    if (!scenelevel->frameStep || IsKeyDown(KEY_Q) || keyPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
+    if (!scenelevel->frameStep || IsKeyDown(KEY_Q) || IsKeyPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
     // Update the camera
     cameraUpdate(&scenelevel->camera, scenelevel->player, deltaTime);
 
     // Some key combinations that aren't handled by any of the other update loops
-    if (keyPressed(KEY_R)) {
+    if (IsKeyPressed(KEY_R)) {
         playerReset(&scenelevel->player);
     }
 
-    if (keyPressed(KEY_F3)) {
+    if (IsKeyPressed(KEY_F3)) {
         scenelevel->frameStep = !scenelevel->frameStep;
+        printf("F3 has been pressed!\n");
     }
 }
 
