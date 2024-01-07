@@ -98,7 +98,8 @@ static void draw() {
 
         scenemanagerDraw(scenemanager);
 
-        DrawText(nob_temp_sprintf("%ld", tps), 10, 10, 24, WHITE);
+        DrawText(nob_temp_sprintf("TPS: %ld", tps), 10, 10, 24, WHITE);
+        DrawText(nob_temp_sprintf("FPS: %ld", GetFPS()), 10, 34, 24, WHITE);
 
     EndDrawing();
 }
