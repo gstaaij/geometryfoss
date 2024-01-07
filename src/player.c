@@ -1,5 +1,6 @@
 #include "player.h"
 #include "raylib.h"
+#include "stb_ds.h"
 #include "camera.h"
 #include "object.h"
 #include "ground.h"
@@ -19,7 +20,7 @@
 #define PLAYER_GRAVITY_Y 2800
 #define PLAYER_JUMP_FORCE 600
 
-void playerUpdate(Player* player, const DAObjects objects, const double deltaTime) {
+void playerUpdate(Player* player, const Object* objects, const double deltaTime) {
     if (player->isDead) {
         player->deadTime += deltaTime;
         if (player->deadTime > 1.0) {
@@ -46,8 +47,8 @@ void playerUpdate(Player* player, const DAObjects objects, const double deltaTim
     player->velocity.y -= halfAcceleration;
 
     // Go over all objects to check for collisions
-    for (size_t i = 0; i < objects.count; ++i) {
-        Object object = objects.items[i];
+    for (size_t i = 0; i < arrlenu(objects); ++i) {
+        Object object = objects[i];
         ObjectDefinition def = objectDefenitions[object.id];
 
         switch(def.type) {

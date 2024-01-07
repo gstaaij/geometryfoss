@@ -1,6 +1,6 @@
 #pragma once
-#include "dynamicarrays.h"
 #include "coord.h"
+#include "object.h"
 #include "hitbox.h"
 #include <stdbool.h>
 
@@ -22,7 +22,7 @@ typedef struct {
 } Player;
 
 // Player update loop
-void playerUpdate(Player* player, const DAObjects objects, const double deltaTime);
+void playerUpdate(Player* player, const Object* objects, const double deltaTime);
 
 // Draw the player
 void playerDraw(const Player player, const GDFCamera camera);

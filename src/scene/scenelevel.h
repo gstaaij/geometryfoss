@@ -1,10 +1,10 @@
 #pragma once
-#include "dynamicarrays.h"
+#include "object.h"
 #include "player.h"
 #include "camera.h"
 
 typedef struct {
-    DAObjects objects;
+    Object* objects;
     Player player;
     GDFCamera camera;
     Color backgroundColor;

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "raylib.h"
 #include "nob.h"
+#include "stb_ds.h"
 #include "ground.h"
 
 SceneLevel* scenelevelCreate() {
@@ -12,7 +13,7 @@ SceneLevel* scenelevelCreate() {
     memset(scenelevel, 0, sizeof(SceneLevel));
 
     // Initialize the dynamic array of objects, the player and the camera, and colors
-    scenelevel->objects = (DAObjects){0};
+    scenelevel->objects = NULL;
     scenelevel->player = (Player){
         .position = {
             .x = 0,
@@ -53,7 +54,7 @@ SceneLevel* scenelevelCreate() {
         .scale = 1,
         .id = 1,
     };
-    nob_da_append(&scenelevel->objects, testBlock);
+    arrput(scenelevel->objects, testBlock);
     // Add a triple spike
     for (size_t i = 345; i < 345+90; i += 30) {
         Object spike = {
@@ -65,7 +66,7 @@ SceneLevel* scenelevelCreate() {
             .scale = 1,
             .id = 8,
         };
-        nob_da_append(&scenelevel->objects, spike);
+        arrput(scenelevel->objects, spike);
     }
     // Add another spike that should make it just barely possible to jump over the spikes
     // Object lastSpike = {
@@ -77,7 +78,7 @@ SceneLevel* scenelevelCreate() {
     //     .scale = 1,
     //     .id = 8,
     // };
-    // nob_da_append(&scenelevel->objects, lastSpike);
+    // arrput(scenelevel->objects, lastSpike);
 
     // Add stairs
     for (int i = 0; i < 100; i++) {
@@ -90,7 +91,7 @@ SceneLevel* scenelevelCreate() {
             .scale = 1,
             .id = 1,
         };
-        nob_da_append(&scenelevel->objects, block);
+        arrput(scenelevel->objects, block);
     }
 
     return scenelevel;
@@ -127,13 +128,14 @@ void scenelevelDraw(SceneLevel* scenelevel) {
     playerDraw(scenelevel->player, scenelevel->camera);
 
     // Draw the objects
-    for (size_t i = 0; i < scenelevel->objects.count; ++i) {
-        objectDraw(scenelevel->objects.items[i], scenelevel->camera);
+    size_t objectsLen = arrlenu(scenelevel->objects);
+    for (size_t i = 0; i < objectsLen; ++i) {
+        objectDraw(scenelevel->objects[i], scenelevel->camera);
     }
 
     // Draw the hitboxes
-    for (size_t i = 0; i < scenelevel->objects.count; ++i) {
-        objectDrawHitbox(scenelevel->objects.items[i], true, scenelevel->camera);
+    for (size_t i = 0; i < objectsLen; ++i) {
+        objectDrawHitbox(scenelevel->objects[i], true, scenelevel->camera);
     }
     playerDrawHitboxes(scenelevel->player, true, scenelevel->camera);
 

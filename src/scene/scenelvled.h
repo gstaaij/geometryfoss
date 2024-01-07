@@ -1,9 +1,9 @@
 #pragma once
-#include "dynamicarrays.h"
+#include "object.h"
 #include "camera.h"
 
 typedef struct {
-    DAObjects objects;
+    Object* objects;
     GDFCamera camera;
 } SceneLevelEditor;
 

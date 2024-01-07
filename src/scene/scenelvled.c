@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "stb_ds.h"
 #include "ground.h"
 #include "camera.h"
 

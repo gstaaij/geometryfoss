@@ -18,8 +18,9 @@
 #include "raylib.h"
 #define NOB_IMPLEMENTATION
 #include "nob.h"
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
 #include "scene/scenemanager.h"
-#include "dynamicarrays.h"
 #include "coord.h"
 #include "camera.h"
 #include "object.h"
@@ -96,6 +97,8 @@ static void draw() {
     BeginDrawing();
 
         scenemanagerDraw(scenemanager);
+
+        DrawText(nob_temp_sprintf("%ld", tps), 10, 10, 24, WHITE);
 
     EndDrawing();
 }
