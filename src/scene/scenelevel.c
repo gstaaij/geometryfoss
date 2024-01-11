@@ -7,6 +7,8 @@
 #include "stb_ds.h"
 #include "ground.h"
 
+// #define STRESS_TEST
+
 SceneLevel* scenelevelCreate() {
     SceneLevel* scenelevel = (SceneLevel*) malloc(sizeof(SceneLevel));
     assert(scenelevel != NULL && "You don't have enough RAM");
@@ -93,6 +95,7 @@ SceneLevel* scenelevelCreate() {
         };
         arrput(scenelevel->objects, block);
     }
+#ifdef STRESS_TEST
     // Stress test
     for (int i = 0; i < 20000; i++) {
         Object block = {
@@ -116,6 +119,7 @@ SceneLevel* scenelevelCreate() {
         arrput(scenelevel->objects, block);
         arrput(scenelevel->objects, spike);
     }
+#endif // STRESS_TEST
 
     return scenelevel;
 }

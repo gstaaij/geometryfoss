@@ -130,6 +130,9 @@ bool buildMain(Target target) {
             nob_cmd_append(&cmd, "gcc");
             nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
 
+            // Disable warnings from raygui
+            nob_cmd_append(&cmd, "-isystem", "./src/ray");
+
             // Disable some warnings from stb_ds
             nob_cmd_append(&cmd, "-isystem", "./src/stb");
             nob_cmd_append(&cmd, "-Wno-missing-field-initializers");

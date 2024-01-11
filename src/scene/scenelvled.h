@@ -6,6 +6,8 @@
 typedef struct {
     Object* objects;
     GDFCamera camera;
+    Color backgroundColor;
+    Color groundColor;
 } SceneLevelEditor;
 
 SceneLevelEditor* scenelvledCreate();

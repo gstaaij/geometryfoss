@@ -16,6 +16,8 @@
 
 
 #include "raylib.h"
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 #define STB_DS_IMPLEMENTATION
