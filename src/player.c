@@ -47,6 +47,7 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
     player->velocity.y -= halfAcceleration;
 
     // Go over all objects to check for collisions
+    bool onBlock = false;
     for (size_t i = 0; i < arrlenu(objects); ++i) {
         Object object = objects[i];
         ObjectDefinition def = objectDefenitions[object.id];
@@ -75,17 +76,20 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
                     // Reset the y position and set isOnGround to true
                     player->velocity.y = 0;
                     player->isOnGround = true;
-                }
-            } else {
-                // If you are underneath the ground level, you are grounded, otherwise, you aren't.
-                if (player->position.y < GROUND_Y + (PLAYER_SIZE / 2)) {
-                    player->velocity.y = 0;
-                    player->position.y = GROUND_Y + (PLAYER_SIZE / 2);
-                    player->isOnGround = true;
-                } else if (player->wasOnGround) {
-                    player->isOnGround = false;
+                    onBlock = true;
                 }
             }
+            // Why did I check for ground collisions for every block?
+            // else {
+            //     // If you are underneath the ground level, you are grounded, otherwise, you aren't.
+            //     if (player->position.y < GROUND_Y + (PLAYER_SIZE / 2)) {
+            //         player->velocity.y = 0;
+            //         player->position.y = GROUND_Y + (PLAYER_SIZE / 2);
+            //         player->isOnGround = true;
+            //     } else if (player->wasOnGround) {
+            //         player->isOnGround = false;
+            //     }
+            // }
             break;
         case OBJECT_HAZARD:
             // Die if the outer hitbox hits the hitbox of the hazard
@@ -95,6 +99,18 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
         default:
             /// TODO: handle the other object types
             break;
+        }
+    }
+
+    
+    if (!onBlock) {
+        // If you are underneath the ground level, you are grounded, otherwise, you aren't.
+        if (player->position.y < GROUND_Y + (PLAYER_SIZE / 2)) {
+            player->velocity.y = 0;
+            player->position.y = GROUND_Y + (PLAYER_SIZE / 2);
+            player->isOnGround = true;
+        } else if (player->wasOnGround) {
+            player->isOnGround = false;
         }
     }
 

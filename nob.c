@@ -129,6 +129,11 @@ bool buildMain(Target target) {
         cmd.count = 0;
             nob_cmd_append(&cmd, "gcc");
             nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
+
+            // Disable some warnings from stb_ds
+            nob_cmd_append(&cmd, "-isystem", "./src/stb");
+            nob_cmd_append(&cmd, "-Wno-missing-field-initializers");
+            
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
             nob_cmd_append(&cmd, "-I./src");
             nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
@@ -147,6 +152,10 @@ bool buildMain(Target target) {
         cmd.count = 0;
             nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
             nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
+
+            // Disable some warnings from stb_ds
+            nob_cmd_append(&cmd, "-isystem", "./src/stb");
+            
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
             nob_cmd_append(&cmd, "-I./src");
             nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);

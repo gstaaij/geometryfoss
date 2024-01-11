@@ -93,6 +93,29 @@ SceneLevel* scenelevelCreate() {
         };
         arrput(scenelevel->objects, block);
     }
+    // Stress test
+    for (int i = 0; i < 20000; i++) {
+        Object block = {
+            .position = {
+                .x = 990 + i * 30 * 5,
+                .y = 105,
+            },
+            .angle = 0,
+            .scale = 1,
+            .id = 1,
+        };
+        Object spike = {
+            .position = {
+                .x = 990 + i * 30 * 5,
+                .y = 135,
+            },
+            .angle = 0,
+            .scale = 1,
+            .id = 8,
+        };
+        arrput(scenelevel->objects, block);
+        arrput(scenelevel->objects, spike);
+    }
 
     return scenelevel;
 }

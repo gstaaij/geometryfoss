@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 #include "stb_ds.h"
 #include "ground.h"
 #include "camera.h"
@@ -45,6 +46,20 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     } else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
         
         /// TODO: do stuff
+        ScreenCoord clickScreenCoord = {
+            .x = GetMouseX(),
+            .y = GetMouseY(),
+        };
+        Coord clickPos = getGDCoord(clickScreenCoord, scenelvled->camera);
+        clickPos.x = floor(clickPos.x / 30) * 30 + 15;
+        clickPos.y = floor(clickPos.y / 30) * 30 + 15;
+        Object newObject = {
+            .id = 1,
+            .position = clickPos,
+            .angle = 0,
+            .scale = 1.0,
+        };
+        arrput(scenelvled->objects, newObject);
 
     } else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         holdTime += deltaTime;
@@ -52,7 +67,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
         int deltaY = GetMouseY() - startMouseY;
         int mouseDeltaLengthSq = deltaX*deltaX + deltaY*deltaY;
         
-        if (mouseDeltaLengthSq > 15000 || holdTime > 0.25) {
+        if (mouseDeltaLengthSq > 15625) {
             isDragging = true;
         }
     }
@@ -71,6 +86,12 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
 
     ScreenCoord whitelinesPos = getScreenCoord((Coord){0, GROUND_Y}, scenelvled->camera);
 
+    // Draw the objects
+    for (size_t i = 0; i < arrlenu(scenelvled->objects); ++i) {
+        objectDraw(scenelvled->objects[i], scenelvled->camera);
+        objectDrawHitbox(scenelvled->objects[i], true, scenelvled->camera);
+    }
+
     DrawLine(
         whitelinesPos.x, 0,
         whitelinesPos.x, scenelvled->camera.screenSize.y,
@@ -81,4 +102,5 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
         scenelvled->camera.screenSize.x, whitelinesPos.y,
         WHITE
     );
+
 }

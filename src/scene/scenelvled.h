@@ -1,6 +1,7 @@
 #pragma once
 #include "object.h"
 #include "camera.h"
+// #include "hashmaps.h"
 
 typedef struct {
     Object* objects;

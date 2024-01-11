@@ -71,6 +71,21 @@ ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {
     return screenCoord;
 }
 
+Coord getGDCoord(const ScreenCoord screenCoord, const GDFCamera camera) {
+    double xTemp = (double)screenCoord.x / (double)camera.screenSize.x * camera.screenSizeAsCoord.x;
+    double yTemp = (double)screenCoord.y / (double)camera.screenSize.y * camera.screenSizeAsCoord.y;
+
+    double xGD = xTemp - (camera.screenSizeAsCoord.x / 2) + camera.position.x;
+    double yGD = -(yTemp - (camera.screenSizeAsCoord.y / 2)) + camera.position.y;
+
+    // Put the coordinates in a Coord and return it
+    Coord coord = {
+        .x = xGD,
+        .y = yGD,
+    };
+    return coord;
+}
+
 long convertToScreen(const double size, const GDFCamera camera) {
     // Multiply the size by the ratio between the screen coordinates and the GD coordinates
     return roundl((double)camera.screenSize.x / camera.screenSizeAsCoord.x * size);
