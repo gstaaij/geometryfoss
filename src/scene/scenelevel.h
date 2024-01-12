@@ -19,4 +19,6 @@ void scenelevelDestroy(SceneLevel* scenelevel);
 
 void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime);
 
+void scenelevelUpdateUI(SceneLevel* scenelevel);
+
 void scenelevelDraw(SceneLevel* scenelevel);

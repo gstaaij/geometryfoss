@@ -36,6 +36,7 @@
 #define TIME_SCALE 1.0
 
 static void update(const double deltaTime);
+static void updateUI();
 static void draw();
 
 long tps = 0;
@@ -69,17 +70,20 @@ int main(void) {
         timeSinceLastUpdate += deltaTime;
         // Increase the time since we last ran draw
         timeSinceLastDraw += deltaTime;
+
+        bool shouldDraw = timeSinceLastDraw >= 1.0/(double)TARGET_FPS;
         
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
             PollInputEvents();
             update(timeSinceLastUpdate * TIME_SCALE);
+            if (!shouldDraw) updateUI();
             tps = roundl(1.0 / timeSinceLastUpdate);
             timeSinceLastUpdate = 0;
         }
 
         // If enough time has elapsed, draw
-        if (timeSinceLastDraw >= 1.0/(double)TARGET_FPS) {
+        if (shouldDraw) {
             draw();
             timeSinceLastDraw = 0;
         }
@@ -95,10 +99,15 @@ static void update(const double deltaTime) {
     scenemanagerUpdate(scenemanager, deltaTime);
 }
 
+static void updateUI() {
+    scenemanagerUpdateUI(scenemanager);
+}
+
 static void draw() {
     BeginDrawing();
 
         scenemanagerDraw(scenemanager);
+        updateUI();
 
         DrawText(nob_temp_sprintf("TPS: %ld", tps), 10, 10, 24, WHITE);
         DrawText(nob_temp_sprintf("FPS: %ld", GetFPS()), 10, 34, 24, WHITE);

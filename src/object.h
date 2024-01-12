@@ -53,6 +53,8 @@ void objectDraw(const Object object, const GDFCamera camera);
 // Draws an Object's hitbox
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera);
 
+bool objectMouseOver(const Object object, const Coord clickPos);
+
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {
     {0}, // ID 0 is nothing

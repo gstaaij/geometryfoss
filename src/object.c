@@ -83,3 +83,13 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
         hitboxDraw(def.hitbox, object.position, object.scale, hitboxColor, camera);
     }
 }
+
+bool objectMouseOver(const Object object, const Coord clickPos) {
+    // Get the Object Defenition tied to this Object
+    ObjectDefinition def = objectDefenitions[object.id];
+
+    if (clickPos.x > object.position.x - def.shape.scale * 15.0 && clickPos.x < object.position.x + def.shape.scale * 15.0) {
+        return clickPos.y > object.position.y - def.shape.scale * 15.0 && clickPos.y < object.position.y + def.shape.scale * 15.0;
+    }
+    return false;
+}

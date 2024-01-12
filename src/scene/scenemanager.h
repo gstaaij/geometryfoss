@@ -23,4 +23,6 @@ void scenemanagerUnload(SceneManager* scenemanager);
 
 void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime);
 
+void scenemanagerUpdateUI(SceneManager* scenemanager);
+
 void scenemanagerDraw(SceneManager* scenemanager);

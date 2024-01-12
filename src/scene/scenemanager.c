@@ -60,6 +60,21 @@ void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime) {
     }
 }
 
+void scenemanagerUpdateUI(SceneManager* scenemanager) {
+    switch (scenemanager->currentScene) {
+    case SCENE_NONE:
+        break;
+    case SCENE_LEVEL:
+        scenelevelUpdateUI(scenemanager->scenelevel);
+        break;
+    case SCENE_LVLED:
+        scenelvledUpdateUI(scenemanager->scenelvled);
+        break;
+    default:
+        assert(false && "NOT IMPLEMENTED: a scene update UI loop is not implemented");
+    }
+}
+
 void scenemanagerDraw(SceneManager* scenemanager) {
     switch (scenemanager->currentScene) {
     case SCENE_NONE:

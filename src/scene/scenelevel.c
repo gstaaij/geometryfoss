@@ -145,6 +145,10 @@ void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
     }
 }
 
+void scenelevelUpdateUI(SceneLevel* scenelevel) {
+    (void) scenelevel;
+}
+
 void scenelevelDraw(SceneLevel* scenelevel) {
     cameraRecalculateScreenSize(&scenelevel->camera);
 
