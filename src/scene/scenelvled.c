@@ -4,14 +4,23 @@
 #include <stdlib.h>
 #include <math.h>
 #include "stb_ds.h"
+#include "nob.h"
 #include "raygui.h"
 #include "ground.h"
 #include "camera.h"
 
-#define MODE_BUTTON_OFFSET 5
-#define MODE_BUTTON_WIDTH 65
-#define MODE_BUTTON_HEIGHT 20
-#define MOUSE_DEAD_ZONE_UPPER_Y (3 * MODE_BUTTON_HEIGHT + 4 * MODE_BUTTON_OFFSET)
+#define MODE_BUTTON_OFFSET 5.0
+#define MOUSE_DEAD_ZONE_UPPER_Y 90
+#define MODE_BUTTON_WIDTH 75.0
+#define MODE_BUTTON_HEIGHT ((MOUSE_DEAD_ZONE_UPPER_Y - MODE_BUTTON_OFFSET*4) / 3)
+
+#define BUTTON_GRID_COLUMNS 6.0
+#define BUTTON_GRID_ROWS 2.0
+
+#define BUTTON_GRID_OFFSET 5.0
+#define BUTTON_GRID_HEIGHT (MOUSE_DEAD_ZONE_UPPER_Y - 2.0 * BUTTON_GRID_OFFSET)
+#define BUTTON_GRID_BUTTON_SIZE (BUTTON_GRID_HEIGHT / BUTTON_GRID_ROWS - (BUTTON_GRID_ROWS * BUTTON_GRID_OFFSET) / 4)
+#define BUTTON_GRID_WIDTH (BUTTON_GRID_COLUMNS * BUTTON_GRID_BUTTON_SIZE + (BUTTON_GRID_COLUMNS - 1) * BUTTON_GRID_OFFSET)
 
 SceneLevelEditor* scenelvledCreate() {
     SceneLevelEditor* scenelvled = (SceneLevelEditor*) malloc(sizeof(SceneLevelEditor));
@@ -19,8 +28,8 @@ SceneLevelEditor* scenelvledCreate() {
     memset(scenelvled, 0, sizeof(SceneLevelEditor));
 
     cameraRecalculateScreenSize(&scenelvled->camera);
-    scenelvled->camera.position.x = scenelvled->camera.screenSizeAsCoord.x / 2 - 60;
-    scenelvled->camera.position.y = scenelvled->camera.screenSizeAsCoord.y / 2;
+    scenelvled->camera.position.x = scenelvled->camera.screenSizeAsCoord.x / 2 - 110;
+    scenelvled->camera.position.y = scenelvled->camera.screenSizeAsCoord.y / 2 - 20;
 
     scenelvled->objects = NULL;
     scenelvled->selectedObjects = NULL;
@@ -195,7 +204,41 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
 
     switch (scenelvled->uiMode) {
     case EDITOR_UI_MODE_BUILD:
-        DrawText("You are in BUILD MODE!", scenelvled->camera.screenSize.x / 2, scenelvled->camera.screenSize.y / 2, 30, WHITE);
+        buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, scenelvled->camera);
+        buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, scenelvled->camera);
+        buttonHeight = buttonWidth;
+
+        double buttonGridCenterX = scenelvled->camera.screenSizeAsCoord.x / 2;
+        double buttonGridCenterY = scenelvled->camera.screenSizeAsCoord.y - (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET);
+
+        DrawRectangle(
+            convertToScreen(buttonGridCenterX - BUTTON_GRID_WIDTH / 2, scenelvled->camera),
+            convertToScreen(buttonGridCenterY - BUTTON_GRID_HEIGHT / 2, scenelvled->camera),
+            convertToScreen(BUTTON_GRID_WIDTH, scenelvled->camera),
+            convertToScreen(BUTTON_GRID_HEIGHT, scenelvled->camera),
+            RED
+        );
+
+        int row = 0;
+        int column = 0;
+        for (size_t i = 0; i < BUTTON_GRID_COLUMNS * BUTTON_GRID_ROWS; ++i) {
+            // if (!objectDefenitions[i].exists) continue;
+            double buttonX = buttonGridCenterX + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2;
+            double buttonY = buttonGridCenterY + (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2;
+            long x = convertToScreen(buttonX, scenelvled->camera);
+            long y = convertToScreen(buttonY, scenelvled->camera);
+            GuiButton((Rectangle) {
+                .x = x - buttonWidth / 2,
+                .y = y - buttonHeight / 2,
+                .width = buttonWidth,
+                .height = buttonHeight,
+            }, "");
+            ++column;
+            if (column >= BUTTON_GRID_COLUMNS) {
+                column = 0;
+                ++row;
+            }
+        }
         break;
     case EDITOR_UI_MODE_EDIT:
         DrawText("You are in EDIT MODE!", scenelvled->camera.screenSize.x / 2, scenelvled->camera.screenSize.y / 2, 30, WHITE);

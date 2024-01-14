@@ -46,6 +46,7 @@ typedef struct {
     ObjectType type;
     ObjectShape shape;
     Hitbox hitbox;
+    bool exists;
 } ObjectDefinition;
 
 // Draws an Object
@@ -70,7 +71,7 @@ static const ObjectDefinition objectDefenitions[] = {
             .width = 30,
             .height = 30,
         },
-
+        .exists = true,
     },
     PAD(6), // Until ID 7, we currently only need the default spike and the default block
     { // ID 8, default spike
@@ -84,6 +85,7 @@ static const ObjectDefinition objectDefenitions[] = {
             .offset = {0},
             .width = 6,
             .height = 12,
-        }
+        },
+        .exists = true,
     },
 };
