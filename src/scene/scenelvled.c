@@ -6,6 +6,7 @@
 #include "stb_ds.h"
 #include "nob.h"
 #include "raygui.h"
+#include "grid.h"
 #include "ground.h"
 #include "camera.h"
 
@@ -257,7 +258,20 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
 
     drawGround(scenelvled->groundColor, scenelvled->camera);
 
+    gridDraw(scenelvled->camera);
+
     ScreenCoord whitelinesPos = getScreenCoord((Coord){0, GROUND_Y}, scenelvled->camera);
+
+    DrawLine(
+        whitelinesPos.x, 0,
+        whitelinesPos.x, scenelvled->camera.screenSize.y,
+        WHITE
+    );
+    DrawLine(
+        0, whitelinesPos.y,
+        scenelvled->camera.screenSize.x, whitelinesPos.y,
+        WHITE
+    );
 
     // Draw the objects
     for (size_t i = 0; i < arrlenu(scenelvled->objects); ++i) {
@@ -290,15 +304,4 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
         }
         objectDrawHitbox(object, true, scenelvled->camera);
     }
-
-    DrawLine(
-        whitelinesPos.x, 0,
-        whitelinesPos.x, scenelvled->camera.screenSize.y,
-        WHITE
-    );
-    DrawLine(
-        0, whitelinesPos.y,
-        scenelvled->camera.screenSize.x, whitelinesPos.y,
-        WHITE
-    );
 }
