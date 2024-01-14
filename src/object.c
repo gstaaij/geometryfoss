@@ -31,6 +31,11 @@ void objectDraw(const Object object, const GDFCamera camera) {
         // Draw a black square with a white outline
         DrawRectangleRec(recBlock, BLACK);
         DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
+        if (object.selected) {
+            BeginBlendMode(BLEND_MULTIPLIED);
+                DrawRectangleRec(recBlock, GREEN);
+            EndBlendMode();
+        }
         break;
     case OBJSHAPE_SPIKE:
         Vector2 vecSpikePoint1 = {
@@ -47,6 +52,11 @@ void objectDraw(const Object object, const GDFCamera camera) {
         };
         DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
         DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
+        if (object.selected) {
+            BeginBlendMode(BLEND_MULTIPLIED);
+                DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, GREEN);
+            EndBlendMode();
+        }
         break;
     }
 }

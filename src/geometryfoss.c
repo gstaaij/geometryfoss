@@ -75,9 +75,11 @@ int main(void) {
         
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
-            PollInputEvents();
             update(timeSinceLastUpdate * TIME_SCALE);
-            if (!shouldDraw) updateUI();
+            if (!shouldDraw) {
+                updateUI();
+                PollInputEvents();
+            }
             tps = roundl(1.0 / timeSinceLastUpdate);
             timeSinceLastUpdate = 0;
         }

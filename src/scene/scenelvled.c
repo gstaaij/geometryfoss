@@ -8,6 +8,7 @@
 #include "raygui.h"
 #include "grid.h"
 #include "ground.h"
+#include "select.h"
 #include "camera.h"
 
 #define MODE_BUTTON_OFFSET 5.0
@@ -84,25 +85,28 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
                 clickPos.x = floor(clickPos.x / 30) * 30 + 15;
                 clickPos.y = floor(clickPos.y / 30) * 30 + 15;
                 Object newObject = {
-                    .id = 8,
+                    .id = 1,
                     .position = clickPos,
                     .angle = 0,
                     .scale = 1.0,
                 };
                 arrput(scenelvled->objects, newObject);
+                selectAddObjectIndex(scenelvled->objects, arrlen(scenelvled->objects) - 1, false);
                 break;
             case EDITOR_UI_MODE_EDIT:
 
-                for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
-                    if (objectMouseOver(scenelvled->objects[i], clickPos)) {
-                        if (!IsKeyDown(KEY_LEFT_SHIFT)) {
-                            arrfree(scenelvled->selectedObjects);
-                            scenelvled->selectedObjects = NULL;
-                        }
-                        arrput(scenelvled->selectedObjects, i);
-                        break;
-                    }
-                }
+                selectAddObjectClicked(scenelvled->objects, clickPos, IsKeyDown(KEY_LEFT_SHIFT));
+
+                // for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
+                //     if (objectMouseOver(scenelvled->objects[i], clickPos)) {
+                //         if (!IsKeyDown(KEY_LEFT_SHIFT)) {
+                //             arrfree(scenelvled->selectedObjects);
+                //             scenelvled->selectedObjects = NULL;
+                //         }
+                //         arrput(scenelvled->selectedObjects, i);
+                //         break;
+                //     }
+                // }
 
                 break;
             case EDITOR_UI_MODE_DELETE:
@@ -136,33 +140,40 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 
 
 
+    bool shiftDown = IsKeyDown(KEY_LEFT_SHIFT);
+    bool keyPressedW = IsKeyPressed(KEY_W);
+    bool keyPressedS = IsKeyPressed(KEY_S);
+    bool keyPressedA = IsKeyPressed(KEY_A);
+    bool keyPressedD = IsKeyPressed(KEY_D);
+    bool keyPressedDel = IsKeyPressed(KEY_DELETE);
+    bool usefulKeyPressed = keyPressedW || keyPressedS || keyPressedA || keyPressedD || keyPressedDel;
+    if (usefulKeyPressed) {
+        for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
+            Object* object = &scenelvled->objects[i];
+            if (object->selected) {
+                if (keyPressedW) {
+                    object->position.y += 2 + !shiftDown * 28;
+                }
+                if (keyPressedS) {
+                    object->position.y -= 2 + !shiftDown * 28;
+                }
+                if (keyPressedA) {
+                    object->position.x -= 2 + !shiftDown * 28;
+                }
+                if (keyPressedD) {
+                    object->position.x += 2 + !shiftDown * 28;
+                }
+                if (keyPressedDel) {
+                    arrdel(scenelvled->objects, i);
+                }
+            }
+        }
+    }
+
     switch (scenelvled->uiMode) {
     case EDITOR_UI_MODE_BUILD:
         break;
     case EDITOR_UI_MODE_EDIT:
-
-        for (int i = arrlen(scenelvled->selectedObjects) - 1; i >= 0; --i) {
-            size_t index = scenelvled->selectedObjects[i];
-            bool shiftDown = IsKeyDown(KEY_LEFT_SHIFT);
-            if (IsKeyPressed(KEY_W)) {
-                scenelvled->objects[index].position.y += 2 + !shiftDown * 28;
-            }
-            if (IsKeyPressed(KEY_S)) {
-                scenelvled->objects[index].position.y -= 2 + !shiftDown * 28;
-            }
-            if (IsKeyPressed(KEY_A)) {
-                scenelvled->objects[index].position.x -= 2 + !shiftDown * 28;
-            }
-            if (IsKeyPressed(KEY_D)) {
-                scenelvled->objects[index].position.x += 2 + !shiftDown * 28;
-            }
-            if (IsKeyPressed(KEY_DELETE)) {
-                /// TODO: this is broken, it deletes things and then doesn't consider that things move around, but it works for just one object
-                arrdel(scenelvled->objects, index);
-                arrdel(scenelvled->selectedObjects, i);
-            }
-        }
-
         break;
     case EDITOR_UI_MODE_DELETE:
         break;
@@ -277,31 +288,6 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     for (size_t i = 0; i < arrlenu(scenelvled->objects); ++i) {
         Object object = scenelvled->objects[i];
         objectDraw(object, scenelvled->camera);
-        for (size_t j = 0; j < arrlenu(scenelvled->selectedObjects); ++j) {
-            if (i == scenelvled->selectedObjects[j]) {
-                BeginBlendMode(BLEND_MULTIPLIED);
-                    // Get the Object Defenition tied to this Object
-                    ObjectDefinition def = objectDefenitions[object.id];
-
-                    // Calculate the size of the block based on the Object Defenition and the Object's scale
-                    double scale = def.shape.scale * object.scale;
-                    double blockSize = scale * 30;
-
-                    // Convert some values to Screen Coordinates
-                    ScreenCoord scBlock = getScreenCoord(object.position, scenelvled->camera);
-                    long scBlockSize = convertToScreen(blockSize, scenelvled->camera);
-
-                    DrawRectangle(
-                        scBlock.x - scBlockSize / 2,
-                        scBlock.y - scBlockSize / 2,
-                        scBlockSize,
-                        scBlockSize,
-                        GREEN
-                    );
-                EndBlendMode();
-                break;
-            }
-        }
-        objectDrawHitbox(object, true, scenelvled->camera);
+        objectDrawHitbox(object, false, scenelvled->camera);
     }
 }

@@ -16,6 +16,7 @@ typedef struct {
     Coord position;
     double angle;
     double scale;
+    bool selected;
     int id;
 } Object;
 
