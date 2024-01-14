@@ -20,6 +20,14 @@ void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double sc
         // Convert the absolute position to Screen Coordinates
         ScreenCoord scHitbox = getScreenCoord(hitboxCoord, camera);
 
+        if (
+            // Don't divide the width and height by 2 because it's integer division
+            scHitbox.x + scHitboxWidth  < 0 || scHitbox.x - scHitboxWidth  > camera.screenSize.x ||
+            scHitbox.y + scHitboxHeight < 0 || scHitbox.y - scHitboxHeight > camera.screenSize.y
+        ) {
+            return;
+        }
+
         // Define a raylib Rectangle for the hitbox
         Rectangle recHitbox = {
             .x = scHitbox.x - (scHitboxWidth / 2),

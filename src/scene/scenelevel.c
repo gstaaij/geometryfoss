@@ -97,7 +97,7 @@ SceneLevel* scenelevelCreate() {
     }
 #ifdef STRESS_TEST
     // Stress test
-    for (int i = 0; i < 20000; i++) {
+    for (int i = 0; i < 40000; i++) {
         Object block = {
             .position = {
                 .x = 990 + i * 30 * 5,

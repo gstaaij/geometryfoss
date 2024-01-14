@@ -17,8 +17,8 @@
 // - The hardest possible triple spike you can survive has the last spike offset by +13 coordinate points on the x axis
 // Given that they're round values, they probably are the real values, but I will have to confirm that once I get
 // around to making a GD mod to show me or once hacks come to GD 2.2
-#define PLAYER_GRAVITY_Y 2800
-#define PLAYER_JUMP_FORCE 600
+#define PLAYER_GRAVITY_Y 2800.0
+#define PLAYER_JUMP_FORCE 600.0
 
 void playerUpdate(Player* player, const Object* objects, const double deltaTime) {
     if (player->isDead) {
@@ -79,17 +79,6 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
                     onBlock = true;
                 }
             }
-            // Why did I check for ground collisions for every block?
-            // else {
-            //     // If you are underneath the ground level, you are grounded, otherwise, you aren't.
-            //     if (player->position.y < GROUND_Y + (PLAYER_SIZE / 2)) {
-            //         player->velocity.y = 0;
-            //         player->position.y = GROUND_Y + (PLAYER_SIZE / 2);
-            //         player->isOnGround = true;
-            //     } else if (player->wasOnGround) {
-            //         player->isOnGround = false;
-            //     }
-            // }
             break;
         case OBJECT_HAZARD:
             // Die if the outer hitbox hits the hitbox of the hazard

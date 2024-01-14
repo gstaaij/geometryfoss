@@ -19,6 +19,14 @@ void objectDraw(const Object object, const GDFCamera camera) {
     long scBlockSize = convertToScreen(blockSize, camera);
     long scBlockLineThick = convertToScreen(scale * 1.5, camera);
 
+    if (
+        // Don't divide the size by 2 because it's integer division
+        scBlock.x + blockSize < 0 || scBlock.x - blockSize > camera.screenSize.x ||
+        scBlock.y + blockSize < 0 || scBlock.y - blockSize > camera.screenSize.y
+    ) {
+        return;
+    }
+
     switch (def.shape.type) {
     case OBJSHAPE_BLOCK:
         // Define a raylib Rectangle for the block
@@ -62,10 +70,12 @@ void objectDraw(const Object object, const GDFCamera camera) {
 }
 
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera) {
+    if (!drawHitbox) return;
+
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefenitions[object.id];
 
-    if (drawHitbox && def.type != OBJECT_NONSOLID) {
+    if (def.type != OBJECT_NONSOLID) {
         // Determine the hitbox color
         Color hitboxColor;
         switch (def.type) {
