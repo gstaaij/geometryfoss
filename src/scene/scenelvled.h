@@ -14,6 +14,7 @@ typedef struct {
     Object* objects;
     size_t* selectedObjects;
     GDFCamera camera;
+    GDFCamera uiCamera;
     EditorUIMode uiMode;
     Color backgroundColor;
     Color groundColor;

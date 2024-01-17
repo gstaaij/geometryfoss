@@ -33,6 +33,8 @@ SceneLevelEditor* scenelvledCreate() {
     scenelvled->camera.position.x = scenelvled->camera.screenSizeAsCoord.x / 2 - 110;
     scenelvled->camera.position.y = scenelvled->camera.screenSizeAsCoord.y / 2 - 20;
 
+    scenelvled->uiCamera.position = (Coord){0};
+
     scenelvled->objects = NULL;
     scenelvled->selectedObjects = NULL;
 
@@ -181,19 +183,21 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 }
 
 void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
-    long buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, scenelvled->camera);
-    long buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, scenelvled->camera);
-    long buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, scenelvled->camera);
-    long fontSize = convertToScreen(18, scenelvled->camera);
-    long upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, scenelvled->camera);
+    cameraRecalculateScreenSize(&scenelvled->uiCamera);
 
-    DrawRectangle(0, scenelvled->camera.screenSize.y - upperY, scenelvled->camera.screenSize.x, upperY, (Color) { 0, 0, 0, 128 });
+    long buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, scenelvled->uiCamera);
+    long buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, scenelvled->uiCamera);
+    long buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, scenelvled->uiCamera);
+    long fontSize = convertToScreen(18, scenelvled->uiCamera);
+    long upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, scenelvled->uiCamera);
+
+    DrawRectangle(0, scenelvled->uiCamera.screenSize.y - upperY, scenelvled->uiCamera.screenSize.x, upperY, (Color) { 0, 0, 0, 128 });
 
     GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
 
     Rectangle currentButtonRect = {
         .x = buttonOffset,
-        .y = scenelvled->camera.screenSize.y - buttonOffset - buttonHeight,
+        .y = scenelvled->uiCamera.screenSize.y - buttonOffset - buttonHeight,
         .width = buttonWidth,
         .height = buttonHeight,
     };
@@ -216,35 +220,47 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
 
     switch (scenelvled->uiMode) {
     case EDITOR_UI_MODE_BUILD:
-        buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, scenelvled->camera);
-        buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, scenelvled->camera);
+        buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, scenelvled->uiCamera);
+        buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, scenelvled->uiCamera);
         buttonHeight = buttonWidth;
 
-        double buttonGridCenterX = scenelvled->camera.screenSizeAsCoord.x / 2;
-        double buttonGridCenterY = scenelvled->camera.screenSizeAsCoord.y - (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET);
+        Coord buttonGridCenter = {
+            .x = 0,
+            .y = (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET) - scenelvled->uiCamera.screenSizeAsCoord.y / 2,
+        };
 
+        ScreenCoord rectTopLeft = getScreenCoord((Coord) { buttonGridCenter.x - BUTTON_GRID_WIDTH / 2, buttonGridCenter.y + BUTTON_GRID_HEIGHT / 2 }, scenelvled->uiCamera);
         DrawRectangle(
-            convertToScreen(buttonGridCenterX - BUTTON_GRID_WIDTH / 2, scenelvled->camera),
-            convertToScreen(buttonGridCenterY - BUTTON_GRID_HEIGHT / 2, scenelvled->camera),
-            convertToScreen(BUTTON_GRID_WIDTH, scenelvled->camera),
-            convertToScreen(BUTTON_GRID_HEIGHT, scenelvled->camera),
+            rectTopLeft.x,
+            rectTopLeft.y,
+            convertToScreen(BUTTON_GRID_WIDTH, scenelvled->uiCamera),
+            convertToScreen(BUTTON_GRID_HEIGHT, scenelvled->uiCamera),
             RED
         );
 
         int row = 0;
         int column = 0;
         for (size_t i = 0; i < BUTTON_GRID_COLUMNS * BUTTON_GRID_ROWS; ++i) {
-            // if (!objectDefenitions[i].exists) continue;
-            double buttonX = buttonGridCenterX + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2;
-            double buttonY = buttonGridCenterY + (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2;
-            long x = convertToScreen(buttonX, scenelvled->camera);
-            long y = convertToScreen(buttonY, scenelvled->camera);
+            if (!objectDefenitions[i].exists) continue;
+            Coord buttonPos = {
+                .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
+                .y = buttonGridCenter.y - (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) - BUTTON_GRID_BUTTON_SIZE/2,
+            };
+            ScreenCoord scButtonPos = getScreenCoord(buttonPos, scenelvled->uiCamera);
             GuiButton((Rectangle) {
-                .x = x - buttonWidth / 2,
-                .y = y - buttonHeight / 2,
+                .x = scButtonPos.x - buttonWidth / 2,
+                .y = scButtonPos.y - buttonHeight / 2,
                 .width = buttonWidth,
                 .height = buttonHeight,
-            }, "");
+            }, NULL);
+            Object buttonObject = {
+                .position = buttonPos,
+                .scale = 30.0 / BUTTON_GRID_BUTTON_SIZE,
+                .angle = 0,
+                .selected = false,
+                .id = i,
+            };
+            objectDraw(buttonObject, scenelvled->uiCamera);
             ++column;
             if (column >= BUTTON_GRID_COLUMNS) {
                 column = 0;
@@ -253,10 +269,10 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
         }
         break;
     case EDITOR_UI_MODE_EDIT:
-        DrawText("You are in EDIT MODE!", scenelvled->camera.screenSize.x / 2, scenelvled->camera.screenSize.y / 2, 30, WHITE);
+        DrawText("You are in EDIT MODE!", scenelvled->uiCamera.screenSize.x / 2, scenelvled->uiCamera.screenSize.y / 2, 30, WHITE);
         break;
     case EDITOR_UI_MODE_DELETE:
-        DrawText("You are in DELETE MODE!", scenelvled->camera.screenSize.x / 2, scenelvled->camera.screenSize.y / 2, 30, WHITE);
+        DrawText("You are in DELETE MODE!", scenelvled->uiCamera.screenSize.x / 2, scenelvled->uiCamera.screenSize.y / 2, 30, WHITE);
         break;
     }
 }
