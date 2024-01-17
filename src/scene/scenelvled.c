@@ -36,12 +36,15 @@ SceneLevelEditor* scenelvledCreate() {
     scenelvled->uiCamera.position = (Coord){0};
 
     scenelvled->objects = NULL;
-    scenelvled->selectedObjects = NULL;
 
     scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
 
     scenelvled->backgroundColor = GetColor(0x287dffff);
     scenelvled->groundColor = GetColor(0x0066ffff);
+
+    // Build Mode
+
+    scenelvled->blockBuildId = 1;
 
     return scenelvled;
 }
@@ -76,7 +79,6 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
             scenelvled->camera.position.y += deltaYCoord;
         } else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
             
-            /// TODO: do more stuff
             ScreenCoord clickScreenCoord = {
                 .x = GetMouseX(),
                 .y = GetMouseY(),
@@ -87,7 +89,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
                 clickPos.x = floor(clickPos.x / 30) * 30 + 15;
                 clickPos.y = floor(clickPos.y / 30) * 30 + 15;
                 Object newObject = {
-                    .id = 1,
+                    .id = scenelvled->blockBuildId,
                     .position = clickPos,
                     .angle = 0,
                     .scale = 1.0,
@@ -98,17 +100,6 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
             case EDITOR_UI_MODE_EDIT:
 
                 selectAddObjectClicked(scenelvled->objects, clickPos, IsKeyDown(KEY_LEFT_SHIFT));
-
-                // for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
-                //     if (objectMouseOver(scenelvled->objects[i], clickPos)) {
-                //         if (!IsKeyDown(KEY_LEFT_SHIFT)) {
-                //             arrfree(scenelvled->selectedObjects);
-                //             scenelvled->selectedObjects = NULL;
-                //         }
-                //         arrput(scenelvled->selectedObjects, i);
-                //         break;
-                //     }
-                // }
 
                 break;
             case EDITOR_UI_MODE_DELETE:
@@ -229,30 +220,31 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
             .y = (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET) - scenelvled->uiCamera.screenSizeAsCoord.y / 2,
         };
 
-        ScreenCoord rectTopLeft = getScreenCoord((Coord) { buttonGridCenter.x - BUTTON_GRID_WIDTH / 2, buttonGridCenter.y + BUTTON_GRID_HEIGHT / 2 }, scenelvled->uiCamera);
-        DrawRectangle(
-            rectTopLeft.x,
-            rectTopLeft.y,
-            convertToScreen(BUTTON_GRID_WIDTH, scenelvled->uiCamera),
-            convertToScreen(BUTTON_GRID_HEIGHT, scenelvled->uiCamera),
-            RED
-        );
-
         int row = 0;
         int column = 0;
-        for (size_t i = 0; i < BUTTON_GRID_COLUMNS * BUTTON_GRID_ROWS; ++i) {
+        int len = NOB_ARRAY_LEN(objectDefenitions);
+        for (int i = 0; i < len; ++i) {
             if (!objectDefenitions[i].exists) continue;
             Coord buttonPos = {
                 .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
                 .y = buttonGridCenter.y - (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) - BUTTON_GRID_BUTTON_SIZE/2,
             };
             ScreenCoord scButtonPos = getScreenCoord(buttonPos, scenelvled->uiCamera);
-            GuiButton((Rectangle) {
+            if (i == scenelvled->blockBuildId) {
+                GuiSetAlpha(0.75);
+                GuiLock();
+            }
+            bool clicked = GuiButton((Rectangle) {
                 .x = scButtonPos.x - buttonWidth / 2,
                 .y = scButtonPos.y - buttonHeight / 2,
                 .width = buttonWidth,
                 .height = buttonHeight,
             }, NULL);
+            if (i == scenelvled->blockBuildId) {
+                GuiUnlock();
+                GuiSetAlpha(1);
+            }
+
             Object buttonObject = {
                 .position = buttonPos,
                 .scale = 30.0 / BUTTON_GRID_BUTTON_SIZE,
@@ -261,6 +253,11 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
                 .id = i,
             };
             objectDraw(buttonObject, scenelvled->uiCamera);
+
+            if (clicked) {
+                scenelvled->blockBuildId = i;
+            }
+
             ++column;
             if (column >= BUTTON_GRID_COLUMNS) {
                 column = 0;

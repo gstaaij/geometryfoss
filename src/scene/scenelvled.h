@@ -12,12 +12,15 @@ typedef enum {
 
 typedef struct {
     Object* objects;
-    size_t* selectedObjects;
     GDFCamera camera;
     GDFCamera uiCamera;
     EditorUIMode uiMode;
     Color backgroundColor;
     Color groundColor;
+
+    // Build Mode
+
+    int blockBuildId;
 } SceneLevelEditor;
 
 SceneLevelEditor* scenelvledCreate();
