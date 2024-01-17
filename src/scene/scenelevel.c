@@ -141,7 +141,6 @@ void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
 
     if (IsKeyPressed(KEY_F3)) {
         scenelevel->frameStep = !scenelevel->frameStep;
-        printf("F3 has been pressed!\n");
     }
 }
 
