@@ -39,6 +39,7 @@ static void update(const double deltaTime);
 static void updateUI();
 static void draw();
 
+double targetTps = TARGET_TPS;
 long tps = 0;
 
 SceneManager* scenemanager;
@@ -74,7 +75,7 @@ int main(void) {
         bool shouldDraw = timeSinceLastDraw >= 1.0/(double)TARGET_FPS;
         
         // If enough time has elapsed, update
-        if (timeSinceLastUpdate >= 1.0/(double)TARGET_TPS) {
+        if (timeSinceLastUpdate >= 1.0/targetTps) {
             update(timeSinceLastUpdate * TIME_SCALE);
             if (!shouldDraw) {
                 updateUI();
@@ -98,6 +99,9 @@ int main(void) {
 
 
 static void update(const double deltaTime) {
+    // Make the TPS the same as the FPS when not in a level, to make the UI more consistent
+    targetTps = scenemanager->currentScene == SCENE_LEVEL ? TARGET_TPS : TARGET_FPS;
+    
     scenemanagerUpdate(scenemanager, deltaTime);
 }
 
