@@ -124,19 +124,19 @@ Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
     // Angle
     serializeTAB(&objectJson, tabSize + 1);
     serializePROPERTY(&objectJson, "angle");
-    nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%lf", object.angle));
+    nob_sb_append_cstr(&objectJson, TextFormat("%lf", object.angle));
     nob_sb_append_cstr(&objectJson, ",\n");
 
     // Scale
     serializeTAB(&objectJson, tabSize + 1);
     serializePROPERTY(&objectJson, "scale");
-    nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%lf", object.scale));
+    nob_sb_append_cstr(&objectJson, TextFormat("%lf", object.scale));
     nob_sb_append_cstr(&objectJson, ",\n");
 
     // ID
     serializeTAB(&objectJson, tabSize + 1);
     serializePROPERTY(&objectJson, "id");
-    nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%d", object.id));
+    nob_sb_append_cstr(&objectJson, TextFormat("%d", object.id));
     nob_da_append(&objectJson, '\n');
 
     // End block

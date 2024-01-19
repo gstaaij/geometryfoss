@@ -117,9 +117,8 @@ static void draw() {
         updateUI();
 
         // Display the FPS and TPS on the top left of the screen
-        /// TODO: make this not use nob temp
-        DrawText(nob_temp_sprintf("TPS: %ld", tps), 10, 10, 24, WHITE);
-        DrawText(nob_temp_sprintf("FPS: %ld", GetFPS()), 10, 34, 24, WHITE);
+        DrawText(TextFormat("TPS: %ld", tps), 10, 10, 24, WHITE);
+        DrawText(TextFormat("FPS: %ld", GetFPS()), 10, 34, 24, WHITE);
 
     EndDrawing();
 }

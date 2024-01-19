@@ -15,6 +15,7 @@
 #define MOUSE_DEAD_ZONE_UPPER_Y 90
 #define MODE_BUTTON_WIDTH 75.0
 #define MODE_BUTTON_HEIGHT ((MOUSE_DEAD_ZONE_UPPER_Y - MODE_BUTTON_OFFSET*4) / 3)
+#define MODE_BUTTON_FONT_SIZE 18.0
 
 #define BUTTON_GRID_COLUMNS 6.0
 #define BUTTON_GRID_ROWS 2.0
@@ -55,9 +56,11 @@ void scenelvledDestroy(SceneLevelEditor* scenelvled) {
 Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int tabSize) {
     Nob_String_Builder lvlJson = {0};
 
+    // Begin block
     nob_sb_append_cstr(&lvlJson, "{\n");
     ++tabSize;
 
+    // Begin bjects array
     serializeTAB(&lvlJson, tabSize);
     serializePROPERTY(&lvlJson, "objects");
     nob_sb_append_cstr(&lvlJson, "[\n");
@@ -73,16 +76,20 @@ Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int t
         nob_sb_append_cstr(&lvlJson, i == len-1 ? "\n" : ",\n");
     }
 
+    // End objects array
     --tabSize;
     serializeTAB(&lvlJson, tabSize);
     nob_sb_append_cstr(&lvlJson, "]\n");
 
+    // End block
     --tabSize;
     serializeTAB(&lvlJson, tabSize);
     nob_da_append(&lvlJson, '}');
 
     return lvlJson;
 }
+
+// Some global variables needed for the update loop
 
 bool isDragging;
 bool isValidClick;
@@ -164,7 +171,6 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     }
 
 
-
     bool shiftDown = IsKeyDown(KEY_LEFT_SHIFT);
     bool keyPressedW = IsKeyPressed(KEY_W);
     bool keyPressedS = IsKeyPressed(KEY_S);
@@ -172,6 +178,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     bool keyPressedD = IsKeyPressed(KEY_D);
     bool keyPressedDel = IsKeyPressed(KEY_DELETE);
     bool usefulKeyPressed = keyPressedW || keyPressedS || keyPressedA || keyPressedD || keyPressedDel;
+    // Move or delete selected blocks if the correct key is pressed
     if (usefulKeyPressed) {
         for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
             Object* object = &scenelvled->objects[i];
@@ -195,6 +202,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
         }
     }
 
+    // Save the level
     if (IsKeyPressed(KEY_F2)) {
         Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled, 0);
         nob_sb_append_null(&lvlJson);
@@ -214,16 +222,21 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
     cameraRecalculateScreenSize(&scenelvled->uiCamera);
 
+    // Convert some sizes from GD coordinates to screen coordinates
+
     long buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, scenelvled->uiCamera);
     long buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, scenelvled->uiCamera);
     long buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, scenelvled->uiCamera);
-    long fontSize = convertToScreen(18, scenelvled->uiCamera);
+    long fontSize = convertToScreen(MODE_BUTTON_FONT_SIZE, scenelvled->uiCamera);
     long upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, scenelvled->uiCamera);
 
+    // Draw the bottom button pane
     DrawRectangle(0, scenelvled->uiCamera.screenSize.y - upperY, scenelvled->uiCamera.screenSize.x, upperY, (Color) { 0, 0, 0, 128 });
 
+    // Set the font size
     GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
 
+    // The rectangle for the current button to draw
     Rectangle currentButtonRect = {
         .x = buttonOffset,
         .y = scenelvled->uiCamera.screenSize.y - buttonOffset - buttonHeight,
@@ -231,18 +244,23 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
         .height = buttonHeight,
     };
 
+    // Draw the Delete button
     if (GuiButton(currentButtonRect, "Delete")) {
         scenelvled->uiMode = EDITOR_UI_MODE_DELETE;
     }
 
+    // Change the y position for the Edit button
     currentButtonRect.y -= buttonOffset + buttonHeight;
 
+    // Draw the Edit button
     if (GuiButton(currentButtonRect, "Edit")) {
         scenelvled->uiMode = EDITOR_UI_MODE_EDIT;
     }
 
+    // Change the y position for the Build button
     currentButtonRect.y -= buttonOffset + buttonHeight;
     
+    // Draw the Build button
     if (GuiButton(currentButtonRect, "Build")) {
         scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
     }
@@ -304,10 +322,14 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
         }
         break;
     case EDITOR_UI_MODE_EDIT:
-        DrawText("You are in EDIT MODE!", scenelvled->uiCamera.screenSize.x / 2, scenelvled->uiCamera.screenSize.y / 2, 30, WHITE);
+        // Draw text telling the user that they're in edit mode
+        // This is temporary and will be removed once I add buttons to edit mode
+        DrawText("You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         break;
     case EDITOR_UI_MODE_DELETE:
-        DrawText("You are in DELETE MODE!", scenelvled->uiCamera.screenSize.x / 2, scenelvled->uiCamera.screenSize.y / 2, 30, WHITE);
+        // Draw text telling the user that they're in delete mode
+        // This is temporary and will be removed once I add buttons to delete mode
+        DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         break;
     }
 }
@@ -315,13 +337,16 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
 void scenelvledDraw(SceneLevelEditor* scenelvled) {
     cameraRecalculateScreenSize(&scenelvled->camera);
     
-
+    // Draw the background
     ClearBackground(scenelvled->backgroundColor);
 
+    // Draw the ground
     drawGround(scenelvled->groundColor, scenelvled->camera);
 
+    // Draw the grid
     gridDraw(scenelvled->camera);
 
+    // Draw the white begin and ground lines
     ScreenCoord whitelinesPos = getScreenCoord((Coord){0, GROUND_Y}, scenelvled->camera);
 
     DrawLine(
