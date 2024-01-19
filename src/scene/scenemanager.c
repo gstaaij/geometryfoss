@@ -43,6 +43,7 @@ void scenemanagerUnload(SceneManager* scenemanager) {
         break;
     }
     scenemanager->currentScene = SCENE_NONE;
+    nob_temp_reset();
 }
 
 void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime) {

@@ -54,6 +54,10 @@ void scenelvledDestroy(SceneLevelEditor* scenelvled) {
 
 Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int tabSize) {
     Nob_String_Builder lvlJson = {0};
+
+    nob_sb_append_cstr(&lvlJson, "{\n");
+    ++tabSize;
+
     serializeTAB(&lvlJson, tabSize);
     serializePROPERTY(&lvlJson, "objects");
     nob_sb_append_cstr(&lvlJson, "[\n");
@@ -71,7 +75,11 @@ Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int t
 
     --tabSize;
     serializeTAB(&lvlJson, tabSize);
-    nob_da_append(&lvlJson, ']');
+    nob_sb_append_cstr(&lvlJson, "]\n");
+
+    --tabSize;
+    serializeTAB(&lvlJson, tabSize);
+    nob_da_append(&lvlJson, '}');
 
     return lvlJson;
 }
