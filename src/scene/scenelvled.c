@@ -106,6 +106,11 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 
                 for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
                     if (objectMouseOver(scenelvled->objects[i], clickPos)) {
+                        // Temporary serialize test
+                        Nob_String_Builder objectJson = objectSerialize(scenelvled->objects[i], 0);
+                        nob_sb_append_null(&objectJson);
+                        printf("%s\n", objectJson.items);
+
                         arrdel(scenelvled->objects, i);
                         break;
                     }

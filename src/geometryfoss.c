@@ -18,8 +18,6 @@
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
-#define NOB_IMPLEMENTATION
-#include "nob.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 #include "scene/scenemanager.h"
@@ -29,6 +27,8 @@
 #include "ground.h"
 #include "player.h"
 #include <math.h>
+#define NOB_IMPLEMENTATION
+#include "nob.h"
 
 #define TARGET_FPS 60
 #define TARGET_TPS 240

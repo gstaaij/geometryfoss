@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "nob.h"
 #include "coord.h"
 #include "hitbox.h"
 #include "objdefsutil.h"
@@ -56,6 +57,8 @@ void objectDraw(const Object object, const GDFCamera camera);
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera);
 
 bool objectMouseOver(const Object object, const Coord clickPos);
+
+Nob_String_Builder objectSerialize(const Object object, const int tabSize);
 
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {

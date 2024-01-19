@@ -1,4 +1,5 @@
 #pragma once
+#include "nob.h"
 
 // Defines a position or size in screen coordinates
 typedef struct {
@@ -18,3 +19,5 @@ typedef struct {
     Coord screenSizeAsCoord;
     ScreenCoord screenSize;
 } GDFCamera;
+
+Nob_String_Builder coordSerialize(const Coord coord, const int tabSize);

@@ -1,7 +1,7 @@
 #include "object.h"
-#include "nob.h"
 #include "raylib.h"
 #include "camera.h"
+#include "serialize.h"
 #include <stdio.h>
 
 void objectDraw(const Object object, const GDFCamera camera) {
@@ -102,6 +102,42 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
         // Call the hitboxDraw function to do the work for us
         hitboxDraw(def.hitbox, object.position, object.scale, hitboxColor, camera);
     }
+}
+
+Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
+    Nob_String_Builder objectJson = {0};
+    nob_sb_append_cstr(&objectJson, "{\n");
+
+    // Position
+    serializeTAB(&objectJson, tabSize + 1);
+    serializePROPERTY(&objectJson, "position");
+    Nob_String_Builder posJson = coordSerialize(object.position, tabSize + 1);
+    nob_sb_append_buf(&objectJson, posJson.items, posJson.count);
+    nob_sb_free(posJson);
+    nob_sb_append_cstr(&objectJson, ",\n");
+
+    // Angle
+    serializeTAB(&objectJson, tabSize + 1);
+    serializePROPERTY(&objectJson, "angle");
+    nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%lf", object.angle));
+    nob_sb_append_cstr(&objectJson, ",\n");
+
+    // Scale
+    serializeTAB(&objectJson, tabSize + 1);
+    serializePROPERTY(&objectJson, "scale");
+    nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%lf", object.scale));
+    nob_sb_append_cstr(&objectJson, ",\n");
+
+    // ID
+    serializeTAB(&objectJson, tabSize + 1);
+    serializePROPERTY(&objectJson, "id");
+    nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%d", object.id));
+    nob_da_append(&objectJson, '\n');
+
+    serializeTAB(&objectJson, tabSize);
+    nob_da_append(&objectJson, '}');
+
+    return objectJson;
 }
 
 bool objectMouseOver(const Object object, const Coord clickPos) {
