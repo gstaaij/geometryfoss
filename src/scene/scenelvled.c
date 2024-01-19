@@ -5,6 +5,7 @@
 #include <math.h>
 #include "stb_ds.h"
 #include "raygui.h"
+#include "cJSON/cJSON.h"
 #include "grid.h"
 #include "ground.h"
 #include "select.h"
@@ -60,7 +61,17 @@ Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int t
     nob_sb_append_cstr(&lvlJson, "{\n");
     ++tabSize;
 
-    // Begin bjects array
+    // Background color
+    serializeTAB(&lvlJson, tabSize);
+    serializePROPERTY(&lvlJson, "backgroundColor");
+    nob_sb_append_cstr(&lvlJson, TextFormat("%d,\n", ColorToInt(scenelvled->backgroundColor)));
+
+    // Ground color
+    serializeTAB(&lvlJson, tabSize);
+    serializePROPERTY(&lvlJson, "groundColor");
+    nob_sb_append_cstr(&lvlJson, TextFormat("%d,\n", ColorToInt(scenelvled->groundColor)));
+
+    // Begin objects array
     serializeTAB(&lvlJson, tabSize);
     serializePROPERTY(&lvlJson, "objects");
     nob_sb_append_cstr(&lvlJson, "[\n");
@@ -87,6 +98,51 @@ Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int t
     nob_da_append(&lvlJson, '}');
 
     return lvlJson;
+}
+
+bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builder lvlJsonString) {
+    bool result = true;
+
+    Object* newObjects = NULL;
+
+    cJSON* lvlJson = cJSON_ParseWithLength(lvlJsonString.items, lvlJsonString.count);
+    if (lvlJson == NULL) {
+        const char* errorPtr = cJSON_GetErrorPtr();
+        nob_log(NOB_ERROR, "Failed parsing level JSON", errorPtr);
+        if (errorPtr != NULL) {
+            nob_log(NOB_ERROR, "cJSON error pointer: %s", errorPtr);
+        }
+        nob_return_defer(false);
+    }
+
+    const cJSON* backgroundColor = cJSON_GetObjectItemCaseSensitive(lvlJson, "backgroundColor");
+    if (cJSON_IsNumber(backgroundColor)) {
+        scenelvled->backgroundColor = GetColor((unsigned int) backgroundColor->valueint);
+    }
+
+    const cJSON* groundColor = cJSON_GetObjectItemCaseSensitive(lvlJson, "groundColor");
+    if (cJSON_IsNumber(groundColor)) {
+        scenelvled->groundColor = GetColor((unsigned int) groundColor->valueint);
+    }
+
+    const cJSON* objects = cJSON_GetObjectItemCaseSensitive(lvlJson, "objects");
+    const cJSON* object;
+    if (cJSON_IsArray(objects)) {
+        cJSON_ArrayForEach(object, objects) {
+            Object newObject = {0};
+            if (!objectDeserialize(&newObject, object))
+                nob_log(NOB_WARNING, "Failed to parse object, skipping...");
+            arrput(newObjects, newObject);
+        }
+    }
+    arrfree(scenelvled->objects);
+    scenelvled->objects = newObjects;
+
+    nob_log(NOB_INFO, "Loaded %d objects", arrlen(scenelvled->objects));
+
+defer:
+    cJSON_Delete(lvlJson);
+    return result;
 }
 
 // Some global variables needed for the update loop
@@ -205,8 +261,18 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     // Save the level
     if (IsKeyPressed(KEY_F2)) {
         Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled, 0);
-        nob_sb_append_null(&lvlJson);
-        printf("%s\n", lvlJson.items);
+        nob_write_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), lvlJson.items, lvlJson.count);
+        // nob_sb_append_null(&lvlJson);
+        // printf("%s\n", lvlJson.items);
+    }
+
+    // Load the level
+    if (IsKeyPressed(KEY_F3)) {
+        Nob_String_Builder lvlJson = {0};
+        nob_read_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), &lvlJson);
+
+        if (!scenelvledDeserialize(scenelvled, lvlJson))
+            nob_log(NOB_ERROR, "Couldn't load save");
     }
 
     switch (scenelvled->uiMode) {

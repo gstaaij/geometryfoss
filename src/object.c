@@ -146,6 +146,27 @@ Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
     return objectJson;
 }
 
+bool objectDeserialize(Object* object, const cJSON* objectJson) {
+    /// TODO: position
+
+    const cJSON* angleJson = cJSON_GetObjectItemCaseSensitive(objectJson, "angle");
+    if (cJSON_IsNumber(angleJson)) {
+        object->angle = angleJson->valuedouble;
+    }
+
+    const cJSON* scaleJson = cJSON_GetObjectItemCaseSensitive(objectJson, "scale");
+    if (cJSON_IsNumber(scaleJson)) {
+        object->scale = scaleJson->valuedouble;
+    }
+
+    const cJSON* idJson = cJSON_GetObjectItemCaseSensitive(objectJson, "id");
+    if (cJSON_IsNumber(idJson)) {
+        object->id = idJson->valueint;
+    }
+
+    return true;
+}
+
 bool objectMouseOver(const Object object, const Coord clickPos) {
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefenitions[object.id];

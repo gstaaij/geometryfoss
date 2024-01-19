@@ -1,0 +1,6 @@
+
+TODO: put this in the game in some way
+
+raylib: Ray (github.com/raysan5)
+stb: Sean Barrett (github.com/nothings)
+cJSON: Dave Gamble (github.com/DaveGamble)

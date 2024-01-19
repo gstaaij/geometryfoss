@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "nob.h"
+#include "cJSON/cJSON.h"
 #include "coord.h"
 #include "hitbox.h"
 #include "objdefsutil.h"
@@ -55,10 +56,14 @@ typedef struct {
 void objectDraw(const Object object, const GDFCamera camera);
 // Draws an Object's hitbox
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera);
+
 // Check if the mouse is hovering over this object
 bool objectMouseOver(const Object object, const Coord clickPos);
+
 // Serialize an Object to a JSON string builder
 Nob_String_Builder objectSerialize(const Object object, const int tabSize);
+// Deserialize an Object from cJSON
+bool objectDeserialize(Object* object, const cJSON* objectJson);
 
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {
