@@ -147,7 +147,13 @@ Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
 }
 
 bool objectDeserialize(Object* object, const cJSON* objectJson) {
-    /// TODO: position
+    const cJSON* posJson = cJSON_GetObjectItemCaseSensitive(objectJson, "position");
+    if (cJSON_IsObject(posJson)) {
+        Coord newPosition = {0};
+        if (!coordDeserialize(&newPosition, posJson))
+            nob_log(NOB_WARNING, "Failed to parse object position, skipping...");
+        object->position = newPosition;
+    }
 
     const cJSON* angleJson = cJSON_GetObjectItemCaseSensitive(objectJson, "angle");
     if (cJSON_IsNumber(angleJson)) {

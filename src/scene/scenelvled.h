@@ -26,7 +26,10 @@ typedef struct {
 SceneLevelEditor* scenelvledCreate();
 void scenelvledDestroy(SceneLevelEditor* scenelvled);
 
+/// TODO: use cJSON
 Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, const int tabSize);
+// Deserialize a LevelEditorScene from cJSON
+bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builder lvlJsonString);
 
 void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime);
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "nob.h"
+#include "cJSON/cJSON.h"
 
 // Defines a position or size in screen coordinates
 typedef struct {
@@ -22,3 +23,5 @@ typedef struct {
 
 // Serialize a Coord to a JSON string builder
 Nob_String_Builder coordSerialize(const Coord coord, const int tabSize);
+// Deserialize a Coord from cJSON
+bool coordDeserialize(Coord* coord, const cJSON* coordJson);

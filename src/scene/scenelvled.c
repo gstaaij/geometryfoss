@@ -103,8 +103,6 @@ Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int t
 bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builder lvlJsonString) {
     bool result = true;
 
-    Object* newObjects = NULL;
-
     cJSON* lvlJson = cJSON_ParseWithLength(lvlJsonString.items, lvlJsonString.count);
     if (lvlJson == NULL) {
         const char* errorPtr = cJSON_GetErrorPtr();
@@ -127,16 +125,15 @@ bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builde
 
     const cJSON* objects = cJSON_GetObjectItemCaseSensitive(lvlJson, "objects");
     const cJSON* object;
+    arrfree(scenelvled->objects);
     if (cJSON_IsArray(objects)) {
         cJSON_ArrayForEach(object, objects) {
             Object newObject = {0};
             if (!objectDeserialize(&newObject, object))
                 nob_log(NOB_WARNING, "Failed to parse object, skipping...");
-            arrput(newObjects, newObject);
+            arrput(scenelvled->objects, newObject);
         }
     }
-    arrfree(scenelvled->objects);
-    scenelvled->objects = newObjects;
 
     nob_log(NOB_INFO, "Loaded %d objects", arrlen(scenelvled->objects));
 

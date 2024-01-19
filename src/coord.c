@@ -26,3 +26,17 @@ Nob_String_Builder coordSerialize(const Coord coord, const int tabSize) {
 
     return coordJson;
 }
+
+bool coordDeserialize(Coord* coord, const cJSON* coordJson) {
+    const cJSON* xJson = cJSON_GetObjectItemCaseSensitive(coordJson, "x");
+    if (cJSON_IsNumber(xJson)) {
+        coord->x = xJson->valueint;
+    }
+
+    const cJSON* yJson = cJSON_GetObjectItemCaseSensitive(coordJson, "y");
+    if (cJSON_IsNumber(yJson)) {
+        coord->y = yJson->valueint;
+    }
+
+    return true;
+}
