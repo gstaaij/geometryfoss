@@ -39,6 +39,7 @@ void objectDraw(const Object object, const GDFCamera camera) {
         // Draw a black square with a white outline
         DrawRectangleRec(recBlock, BLACK);
         DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
+
         if (object.selected) {
             BeginBlendMode(BLEND_MULTIPLIED);
                 DrawRectangleRec(recBlock, GREEN);
@@ -59,7 +60,9 @@ void objectDraw(const Object object, const GDFCamera camera) {
             .y = scBlock.y + (scBlockSize / 2),
         };
         DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
+        // No defining thickness of lines :(
         DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
+
         if (object.selected) {
             BeginBlendMode(BLEND_MULTIPLIED);
                 DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, GREEN);
@@ -106,6 +109,8 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
 
 Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
     Nob_String_Builder objectJson = {0};
+
+    // Begin block
     nob_sb_append_cstr(&objectJson, "{\n");
 
     // Position
@@ -134,6 +139,7 @@ Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
     nob_sb_append_cstr(&objectJson, nob_temp_sprintf("%d", object.id));
     nob_da_append(&objectJson, '\n');
 
+    // End block
     serializeTAB(&objectJson, tabSize);
     nob_da_append(&objectJson, '}');
 

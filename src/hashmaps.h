@@ -2,6 +2,17 @@
 #include <stdint.h>
 #include "object.h"
 
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+// Please ignore this file, too
+
 // The location of the block in grid spaces ( floor(gdcoord/30) )
 typedef struct {
     int32_t x, y;

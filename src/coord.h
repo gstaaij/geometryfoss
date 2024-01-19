@@ -20,4 +20,5 @@ typedef struct {
     ScreenCoord screenSize;
 } GDFCamera;
 
+// Serialize a Coord to a JSON string builder
 Nob_String_Builder coordSerialize(const Coord coord, const int tabSize);

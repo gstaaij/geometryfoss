@@ -1,6 +1,17 @@
 #include "hashmaps.h"
 #include "stb_ds.h"
 
+// Please ignore this file
+// Please ignore this file
+// Please ignore this file
+// Please ignore this file
+// Please ignore this file for now
+// Please ignore this file
+// Please ignore this file
+// Please ignore this file
+// Please ignore this file
+// Please ignore this file
+
 #ifdef __GNUC__
 // Disable stupid warnings that complain about some things in stb_ds.h
 #pragma GCC diagnostic push

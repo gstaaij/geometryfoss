@@ -4,20 +4,22 @@
 Nob_String_Builder coordSerialize(const Coord coord, const int tabSize) {
     Nob_String_Builder coordJson = {0};
 
+    // Begin block
     nob_sb_append_cstr(&coordJson, "{\n");
 
-    // X
+    // x
     serializeTAB(&coordJson, tabSize + 1);
     serializePROPERTY(&coordJson, "x");
     nob_sb_append_cstr(&coordJson, nob_temp_sprintf("%lf", coord.x));
     nob_sb_append_cstr(&coordJson, ",\n");
 
-    // Y
+    // y
     serializeTAB(&coordJson, tabSize + 1);
     serializePROPERTY(&coordJson, "y");
     nob_sb_append_cstr(&coordJson, nob_temp_sprintf("%lf", coord.y));
     nob_da_append(&coordJson, '\n');
 
+    // End block
     serializeTAB(&coordJson, tabSize);
     nob_da_append(&coordJson, '}');
 

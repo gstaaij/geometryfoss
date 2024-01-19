@@ -55,9 +55,9 @@ typedef struct {
 void objectDraw(const Object object, const GDFCamera camera);
 // Draws an Object's hitbox
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera);
-
+// Check if the mouse is hovering over this object
 bool objectMouseOver(const Object object, const Coord clickPos);
-
+// Serialize an Object to a JSON string builder
 Nob_String_Builder objectSerialize(const Object object, const int tabSize);
 
 // An array of Object Defenitions to define all objects

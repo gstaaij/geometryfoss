@@ -72,6 +72,8 @@ ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {
 }
 
 Coord getGDCoord(const ScreenCoord screenCoord, const GDFCamera camera) {
+    // The reverse of what getScreenCoord does
+    
     double xTemp = (double)screenCoord.x / (double)camera.screenSize.x * camera.screenSizeAsCoord.x;
     double yTemp = (double)screenCoord.y / (double)camera.screenSize.y * camera.screenSizeAsCoord.y;
 
