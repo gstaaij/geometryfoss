@@ -26,6 +26,8 @@ typedef struct {
 SceneLevelEditor* scenelvledCreate();
 void scenelvledDestroy(SceneLevelEditor* scenelvled);
 
+Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, const int tabSize);
+
 void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime);
 
 void scenelvledUpdateUI(SceneLevelEditor* scenelvled);

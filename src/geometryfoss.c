@@ -16,10 +16,6 @@
 
 
 #include "raylib.h"
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
-#define STB_DS_IMPLEMENTATION
-#include "stb_ds.h"
 #include "scene/scenemanager.h"
 #include "coord.h"
 #include "camera.h"
@@ -27,6 +23,11 @@
 #include "ground.h"
 #include "player.h"
 #include <math.h>
+
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 

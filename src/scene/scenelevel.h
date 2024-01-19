@@ -1,4 +1,5 @@
 #pragma once
+#include "nob.h"
 #include "object.h"
 #include "player.h"
 #include "camera.h"

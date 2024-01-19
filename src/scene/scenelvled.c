@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include "stb_ds.h"
-#include "nob.h"
 #include "raygui.h"
 #include "grid.h"
 #include "ground.h"
 #include "select.h"
 #include "camera.h"
+#include "serialize.h"
 
 #define MODE_BUTTON_OFFSET 5.0
 #define MOUSE_DEAD_ZONE_UPPER_Y 90
@@ -50,6 +50,30 @@ SceneLevelEditor* scenelvledCreate() {
 }
 void scenelvledDestroy(SceneLevelEditor* scenelvled) {
     free(scenelvled);
+}
+
+Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int tabSize) {
+    Nob_String_Builder lvlJson = {0};
+    serializeTAB(&lvlJson, tabSize);
+    serializePROPERTY(&lvlJson, "objects");
+    nob_sb_append_cstr(&lvlJson, "[\n");
+    ++tabSize;
+
+    size_t len = arrlenu(scenelvled->objects);
+    // Add every object to the JSON array
+    for (size_t i = 0; i < len; ++i) {
+        serializeTAB(&lvlJson, tabSize);
+        Nob_String_Builder objectJson = objectSerialize(scenelvled->objects[i], tabSize);
+        nob_sb_append_buf(&lvlJson, objectJson.items, objectJson.count);
+        nob_sb_free(objectJson);
+        nob_sb_append_cstr(&lvlJson, i == len-1 ? "\n" : ",\n");
+    }
+
+    --tabSize;
+    serializeTAB(&lvlJson, tabSize);
+    nob_da_append(&lvlJson, ']');
+
+    return lvlJson;
 }
 
 bool isDragging;
@@ -106,11 +130,6 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 
                 for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
                     if (objectMouseOver(scenelvled->objects[i], clickPos)) {
-                        // Temporary serialize test
-                        Nob_String_Builder objectJson = objectSerialize(scenelvled->objects[i], 0);
-                        nob_sb_append_null(&objectJson);
-                        printf("%s\n", objectJson.items);
-
                         arrdel(scenelvled->objects, i);
                         break;
                     }
@@ -166,6 +185,12 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
                 }
             }
         }
+    }
+
+    if (IsKeyPressed(KEY_F2)) {
+        Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled, 0);
+        nob_sb_append_null(&lvlJson);
+        printf("%s\n", lvlJson.items);
     }
 
     switch (scenelvled->uiMode) {
