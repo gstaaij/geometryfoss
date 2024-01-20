@@ -60,8 +60,8 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
 // Check if the mouse is hovering over this object
 bool objectMouseOver(const Object object, const Coord clickPos);
 
-// Serialize an Object to a JSON string builder
-Nob_String_Builder objectSerialize(const Object object, const int tabSize);
+// Serialize an Object to cJSON
+cJSON* objectSerialize(const Object object);
 // Deserialize an Object from cJSON
 bool objectDeserialize(Object* object, const cJSON* objectJson);
 

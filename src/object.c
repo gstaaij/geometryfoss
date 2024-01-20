@@ -107,43 +107,38 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
     }
 }
 
-Nob_String_Builder objectSerialize(const Object object, const int tabSize) {
-    Nob_String_Builder objectJson = {0};
+cJSON* objectSerialize(const Object object) {
 
-    // Begin block
-    nob_sb_append_cstr(&objectJson, "{\n");
+    cJSON* objectJson = cJSON_CreateObject();
 
-    // Position
-    serializeTAB(&objectJson, tabSize + 1);
-    serializePROPERTY(&objectJson, "position");
-    Nob_String_Builder posJson = coordSerialize(object.position, tabSize + 1);
-    nob_sb_append_buf(&objectJson, posJson.items, posJson.count);
-    nob_sb_free(posJson);
-    nob_sb_append_cstr(&objectJson, ",\n");
+    cJSON* result = objectJson;
 
-    // Angle
-    serializeTAB(&objectJson, tabSize + 1);
-    serializePROPERTY(&objectJson, "angle");
-    nob_sb_append_cstr(&objectJson, TextFormat("%lf", object.angle));
-    nob_sb_append_cstr(&objectJson, ",\n");
+    cJSON* posJson = coordSerialize(object.position);
+    if (posJson == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize object position");
+        nob_return_defer(NULL);
+    }
+    cJSON_AddItemToObject(objectJson, "position", posJson);
 
-    // Scale
-    serializeTAB(&objectJson, tabSize + 1);
-    serializePROPERTY(&objectJson, "scale");
-    nob_sb_append_cstr(&objectJson, TextFormat("%lf", object.scale));
-    nob_sb_append_cstr(&objectJson, ",\n");
+    if (cJSON_AddNumberToObject(objectJson, "angle", object.angle) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize object angle");
+        nob_return_defer(NULL);
+    }
 
-    // ID
-    serializeTAB(&objectJson, tabSize + 1);
-    serializePROPERTY(&objectJson, "id");
-    nob_sb_append_cstr(&objectJson, TextFormat("%d", object.id));
-    nob_da_append(&objectJson, '\n');
+    if (cJSON_AddNumberToObject(objectJson, "scale", object.scale) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize object scale");
+        nob_return_defer(NULL);
+    }
 
-    // End block
-    serializeTAB(&objectJson, tabSize);
-    nob_da_append(&objectJson, '}');
+    if (cJSON_AddNumberToObject(objectJson, "id", object.id) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize object id");
+        nob_return_defer(NULL);
+    }
 
-    return objectJson;
+defer:
+    if (result == NULL)
+        cJSON_Delete(objectJson);
+    return result;
 }
 
 bool objectDeserialize(Object* object, const cJSON* objectJson) {

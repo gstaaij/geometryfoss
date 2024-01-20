@@ -54,50 +54,53 @@ void scenelvledDestroy(SceneLevelEditor* scenelvled) {
     free(scenelvled);
 }
 
-Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled, int tabSize) {
-    Nob_String_Builder lvlJson = {0};
+Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled) {
+    Nob_String_Builder stringbJson = {0};
 
-    // Begin block
-    nob_sb_append_cstr(&lvlJson, "{\n");
-    ++tabSize;
+    cJSON* lvlJson = cJSON_CreateObject();
 
-    // Background color
-    serializeTAB(&lvlJson, tabSize);
-    serializePROPERTY(&lvlJson, "backgroundColor");
-    nob_sb_append_cstr(&lvlJson, TextFormat("%d,\n", ColorToInt(scenelvled->backgroundColor)));
-
-    // Ground color
-    serializeTAB(&lvlJson, tabSize);
-    serializePROPERTY(&lvlJson, "groundColor");
-    nob_sb_append_cstr(&lvlJson, TextFormat("%d,\n", ColorToInt(scenelvled->groundColor)));
-
-    // Begin objects array
-    serializeTAB(&lvlJson, tabSize);
-    serializePROPERTY(&lvlJson, "objects");
-    nob_sb_append_cstr(&lvlJson, "[\n");
-    ++tabSize;
-
-    size_t len = arrlenu(scenelvled->objects);
-    // Add every object to the JSON array
-    for (size_t i = 0; i < len; ++i) {
-        serializeTAB(&lvlJson, tabSize);
-        Nob_String_Builder objectJson = objectSerialize(scenelvled->objects[i], tabSize);
-        nob_sb_append_buf(&lvlJson, objectJson.items, objectJson.count);
-        nob_sb_free(objectJson);
-        nob_sb_append_cstr(&lvlJson, i == len-1 ? "\n" : ",\n");
+    if (cJSON_AddNumberToObject(lvlJson, "backgroundColor", ColorToInt(scenelvled->backgroundColor)) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize level background color");
+        goto defer;
     }
 
-    // End objects array
-    --tabSize;
-    serializeTAB(&lvlJson, tabSize);
-    nob_sb_append_cstr(&lvlJson, "]\n");
+    if (cJSON_AddNumberToObject(lvlJson, "groundColor", ColorToInt(scenelvled->groundColor)) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize level ground color");
+        goto defer;
+    }
 
-    // End block
-    --tabSize;
-    serializeTAB(&lvlJson, tabSize);
-    nob_da_append(&lvlJson, '}');
+    cJSON* objectsJson = cJSON_AddArrayToObject(lvlJson, "objects");
+    if (objectsJson == NULL) {
+        nob_log(NOB_ERROR, "Couldn't add level object array");
+        goto defer;
+    }
 
-    return lvlJson;
+    const size_t len = arrlenu(scenelvled->objects);
+    for (size_t i = 0; i < len; ++i) {
+        cJSON* objectJson = objectSerialize(scenelvled->objects[i]);
+
+        if (objectJson == NULL) {
+            nob_log(NOB_ERROR, "Couldn't serialize level object %d", i);
+            goto defer;
+        }
+
+        cJSON_AddItemToArray(objectsJson, objectJson);
+    }
+
+    /// TODO: once this all works perfectly, replace cJSON_Print with cJSON_PrintUnformatted to reduce file size
+    char* string = cJSON_Print(lvlJson);
+    if (string == NULL) {
+        nob_log(NOB_ERROR, "Couldn't print level JSON to string");
+        goto defer;
+    }
+
+    nob_sb_append_cstr(&stringbJson, string);
+
+    free(string);
+
+defer:
+    cJSON_Delete(lvlJson);
+    return stringbJson;
 }
 
 bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builder lvlJsonString) {
@@ -257,7 +260,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 
     // Save the level
     if (IsKeyPressed(KEY_F2)) {
-        Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled, 0);
+        Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled);
         nob_write_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), lvlJson.items, lvlJson.count);
         // nob_sb_append_null(&lvlJson);
         // printf("%s\n", lvlJson.items);

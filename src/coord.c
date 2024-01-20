@@ -2,29 +2,26 @@
 #include "coord.h"
 #include "serialize.h"
 
-Nob_String_Builder coordSerialize(const Coord coord, const int tabSize) {
-    Nob_String_Builder coordJson = {0};
+cJSON* coordSerialize(const Coord coord) {
 
-    // Begin block
-    nob_sb_append_cstr(&coordJson, "{\n");
+    cJSON* coordJson = cJSON_CreateObject();
 
-    // x
-    serializeTAB(&coordJson, tabSize + 1);
-    serializePROPERTY(&coordJson, "x");
-    nob_sb_append_cstr(&coordJson, TextFormat("%lf", coord.x));
-    nob_sb_append_cstr(&coordJson, ",\n");
+    cJSON* result = coordJson;
 
-    // y
-    serializeTAB(&coordJson, tabSize + 1);
-    serializePROPERTY(&coordJson, "y");
-    nob_sb_append_cstr(&coordJson, TextFormat("%lf", coord.y));
-    nob_da_append(&coordJson, '\n');
+    if (cJSON_AddNumberToObject(coordJson, "x", coord.x) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize coord x");
+        nob_return_defer(NULL);
+    }
 
-    // End block
-    serializeTAB(&coordJson, tabSize);
-    nob_da_append(&coordJson, '}');
+    if (cJSON_AddNumberToObject(coordJson, "y", coord.y) == NULL) {
+        nob_log(NOB_ERROR, "Couldn't serialize coord y");
+        nob_return_defer(NULL);
+    }
 
-    return coordJson;
+defer:
+    if (result == NULL)
+        cJSON_Delete(coordJson);
+    return result;
 }
 
 bool coordDeserialize(Coord* coord, const cJSON* coordJson) {

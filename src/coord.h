@@ -21,7 +21,7 @@ typedef struct {
     ScreenCoord screenSize;
 } GDFCamera;
 
-// Serialize a Coord to a JSON string builder
-Nob_String_Builder coordSerialize(const Coord coord, const int tabSize);
+// Serialize a Coord to cJSON
+cJSON* coordSerialize(const Coord coord);
 // Deserialize a Coord from cJSON
 bool coordDeserialize(Coord* coord, const cJSON* coordJson);
