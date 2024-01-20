@@ -261,9 +261,12 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     // Save the level
     if (IsKeyPressed(KEY_F2)) {
         Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled);
-        nob_write_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), lvlJson.items, lvlJson.count);
-        // nob_sb_append_null(&lvlJson);
-        // printf("%s\n", lvlJson.items);
+        if (lvlJson.count != 0) {
+            nob_write_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), lvlJson.items, lvlJson.count);
+        } else {
+            nob_log(NOB_ERROR, "Couldn't save level");
+            /// TODO: show a popup to the user telling them the level couldn't be saved
+        }
     }
 
     // Load the level
