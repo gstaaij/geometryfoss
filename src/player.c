@@ -37,6 +37,7 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
         player->velocity.y = PLAYER_JUMP_FORCE;
         player->isOnGround = false;
     }
+
     // Do exactly what was done in the Jonas Tyroller video, because even though my previous method provided the same results, this should be a little bit faster maybe I think
     double halfAcceleration = PLAYER_GRAVITY_Y * deltaTime * 0.5;
     // Add half the gravity to the velocity
@@ -98,13 +99,13 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
             player->velocity.y = 0;
             player->position.y = GROUND_Y + (PLAYER_SIZE / 2);
             player->isOnGround = true;
-        } else if (player->wasOnGround) {
+        } else {
             player->isOnGround = false;
         }
     }
 
     // If the player is not on the ground, rotate
-    if (!player->isOnGround && !player->wasOnGround) {
+    if (!player->isOnGround) {
         player->angle += 360.0 * deltaTime;
         while (player->angle >= 360)
             player->angle -= 360;
@@ -113,8 +114,6 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
         /// TODO: ease this
         player->angle = round(player->angle / 90) * 90;
     }
-
-    player->wasOnGround = player->isOnGround;
 }
 
 void playerDraw(const Player player, const GDFCamera camera) {

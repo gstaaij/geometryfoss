@@ -12,7 +12,6 @@ typedef struct {
     double angle;
 
     bool isOnGround;
-    bool wasOnGround;
     bool isDead;
 
     double deadTime;
