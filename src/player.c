@@ -33,12 +33,13 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
     player->position.x += PLAYER_SPEED_X * deltaTime;
 
     // If we are on the ground, and we press one of the jump keys or click with the mouse, jump
-    if (player->isOnGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP) || IsKeyDown(KEY_W) || IsKeyDown(KEY_KP_5) || IsMouseButtonDown(MOUSE_BUTTON_LEFT))) {
-        player->velocity.y = PLAYER_JUMP_FORCE;
+    bool jump = player->isOnGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP) || IsKeyDown(KEY_W) || IsKeyDown(KEY_KP_5) || IsMouseButtonDown(MOUSE_BUTTON_LEFT));
+    if (jump) {
+        player->velocity.y = PLAYER_JUMP_FORCE / 2;
         player->isOnGround = false;
     }
 
-    // Do exactly what was done in the Jonas Tyroller video, because even though my previous method provided the same results, this should be a little bit faster maybe I think
+    // Do exactly what was done in the Jonas Tyroller video
     double halfAcceleration = PLAYER_GRAVITY_Y * deltaTime * 0.5;
     // Add half the gravity to the velocity
     player->velocity.y -= halfAcceleration;
@@ -46,6 +47,8 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
     player->position.y += player->velocity.y * deltaTime;
     // Add half the gravity to the velocity again
     player->velocity.y -= halfAcceleration;
+
+    if (jump) player->velocity.y += PLAYER_JUMP_FORCE / 2;
 
     // Go over all objects to check for collisions
     bool onBlock = false;
