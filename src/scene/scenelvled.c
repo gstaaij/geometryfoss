@@ -11,6 +11,7 @@
 #include "select.h"
 #include "camera.h"
 #include "serialize.h"
+#include "level.h"
 
 #define MODE_BUTTON_OFFSET 5.0
 #define MOUSE_DEAD_ZONE_UPPER_Y 90
@@ -54,96 +55,6 @@ void scenelvledDestroy(SceneLevelEditor* scenelvled) {
     free(scenelvled);
 }
 
-Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled) {
-    Nob_String_Builder stringbJson = {0};
-
-    cJSON* lvlJson = cJSON_CreateObject();
-
-    if (cJSON_AddNumberToObject(lvlJson, "backgroundColor", ColorToInt(scenelvled->backgroundColor)) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize level background color");
-        goto defer;
-    }
-
-    if (cJSON_AddNumberToObject(lvlJson, "groundColor", ColorToInt(scenelvled->groundColor)) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize level ground color");
-        goto defer;
-    }
-
-    cJSON* objectsJson = cJSON_AddArrayToObject(lvlJson, "objects");
-    if (objectsJson == NULL) {
-        nob_log(NOB_ERROR, "Couldn't add level object array");
-        goto defer;
-    }
-
-    const size_t len = arrlenu(scenelvled->objects);
-    for (size_t i = 0; i < len; ++i) {
-        cJSON* objectJson = objectSerialize(scenelvled->objects[i]);
-
-        if (objectJson == NULL) {
-            nob_log(NOB_ERROR, "Couldn't serialize level object %d", i);
-            goto defer;
-        }
-
-        cJSON_AddItemToArray(objectsJson, objectJson);
-    }
-
-    /// TODO: once this all works perfectly, replace cJSON_Print with cJSON_PrintUnformatted to reduce file size
-    char* string = cJSON_Print(lvlJson);
-    if (string == NULL) {
-        nob_log(NOB_ERROR, "Couldn't print level JSON to string");
-        goto defer;
-    }
-
-    nob_sb_append_cstr(&stringbJson, string);
-
-    free(string);
-
-defer:
-    cJSON_Delete(lvlJson);
-    return stringbJson;
-}
-
-bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builder lvlJsonString) {
-    bool result = true;
-
-    cJSON* lvlJson = cJSON_ParseWithLength(lvlJsonString.items, lvlJsonString.count);
-    if (lvlJson == NULL) {
-        const char* errorPtr = cJSON_GetErrorPtr();
-        nob_log(NOB_ERROR, "Failed parsing level JSON", errorPtr);
-        if (errorPtr != NULL) {
-            nob_log(NOB_ERROR, "cJSON error pointer: %s", errorPtr);
-        }
-        nob_return_defer(false);
-    }
-
-    const cJSON* backgroundColor = cJSON_GetObjectItemCaseSensitive(lvlJson, "backgroundColor");
-    if (cJSON_IsNumber(backgroundColor)) {
-        scenelvled->backgroundColor = GetColor((unsigned int) backgroundColor->valueint);
-    }
-
-    const cJSON* groundColor = cJSON_GetObjectItemCaseSensitive(lvlJson, "groundColor");
-    if (cJSON_IsNumber(groundColor)) {
-        scenelvled->groundColor = GetColor((unsigned int) groundColor->valueint);
-    }
-
-    const cJSON* objects = cJSON_GetObjectItemCaseSensitive(lvlJson, "objects");
-    const cJSON* object;
-    arrfree(scenelvled->objects);
-    if (cJSON_IsArray(objects)) {
-        cJSON_ArrayForEach(object, objects) {
-            Object newObject = {0};
-            if (!objectDeserialize(&newObject, object))
-                nob_log(NOB_WARNING, "Failed to parse object, skipping...");
-            arrput(scenelvled->objects, newObject);
-        }
-    }
-
-    nob_log(NOB_INFO, "Loaded %d objects", arrlen(scenelvled->objects));
-
-defer:
-    cJSON_Delete(lvlJson);
-    return result;
-}
 
 // Some global variables needed for the update loop
 

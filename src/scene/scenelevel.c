@@ -6,6 +6,7 @@
 #include "nob.h"
 #include "stb_ds.h"
 #include "ground.h"
+#include "level.h"
 
 // #define STRESS_TEST
 
@@ -120,6 +121,12 @@ SceneLevel* scenelevelCreate() {
         arrput(scenelevel->objects, spike);
     }
 #endif // STRESS_TEST
+
+    Nob_String_Builder lvlJson = {0};
+    nob_read_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), &lvlJson);
+
+    if (!scenelevelDeserialize(scenelevel, lvlJson))
+        nob_log(NOB_ERROR, "Couldn't load save");
 
     return scenelevel;
 }

@@ -115,6 +115,7 @@ static const char* cFiles[] = {
     "grid.c",
     "ground.c",
     "hitbox.c",
+    "level.c",
     "object.c",
     "player.c",
     "scene/scenemanager.c",
