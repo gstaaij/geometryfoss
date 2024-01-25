@@ -18,6 +18,7 @@ Here are some essential things we need to do:
   - [ ] Robot
   - [ ] Spider
 - [ ] Add textures
+- [ ] Make the physics consistent regardless of TPS
 - [ ] Make the physics (almost) one to one compatible with Geometry Dash
 - [ ] Achieve feature parity with GD 1.0
 - [ ] Add some extra features
