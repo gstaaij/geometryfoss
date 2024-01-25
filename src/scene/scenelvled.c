@@ -6,6 +6,8 @@
 #include "stb_ds.h"
 #include "raygui.h"
 #include "cJSON/cJSON.h"
+#include "input/keyboard.h"
+#include "input/mouse.h"
 #include "grid.h"
 #include "ground.h"
 #include "select.h"
@@ -65,7 +67,7 @@ int startMouseX;
 int startMouseY;
 
 void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    if (mousePressed(MOUSE_BUTTON_LEFT)) {
         startMouseX = GetMouseX();
         startMouseY = GetMouseY();
         holdTime = 0.0;
@@ -77,13 +79,13 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
         if (isDragging) {
             holdTime += deltaTime;
             
-            Vector2 mouseDelta = GetMouseDelta();
+            Vector2 mouseDelta = mouseGetDelta();
             double deltaXCoord = convertToGD(mouseDelta.x, scenelvled->camera);
             double deltaYCoord = convertToGD(mouseDelta.y, scenelvled->camera);
 
             scenelvled->camera.position.x -= deltaXCoord;
             scenelvled->camera.position.y += deltaYCoord;
-        } else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+        } else if (mouseReleased(MOUSE_BUTTON_LEFT)) {
             
             ScreenCoord clickScreenCoord = {
                 .x = GetMouseX(),
@@ -120,7 +122,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
                 break;
             }
 
-        } else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        } else if (mouseDown(MOUSE_BUTTON_LEFT)) {
             holdTime += deltaTime;
             int deltaX = GetMouseX() - startMouseX;
             int deltaY = GetMouseY() - startMouseY;
@@ -132,18 +134,18 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
         }
     }
 
-    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+    if (mouseReleased(MOUSE_BUTTON_LEFT)) {
         startMouseX = startMouseY = -1;
         isDragging = false;
     }
 
 
-    bool shiftDown = IsKeyDown(KEY_LEFT_SHIFT);
-    bool keyPressedW = IsKeyPressed(KEY_W);
-    bool keyPressedS = IsKeyPressed(KEY_S);
-    bool keyPressedA = IsKeyPressed(KEY_A);
-    bool keyPressedD = IsKeyPressed(KEY_D);
-    bool keyPressedDel = IsKeyPressed(KEY_DELETE);
+    bool shiftDown = keyboardDown(KEY_LEFT_SHIFT);
+    bool keyPressedW = keyboardPressed(KEY_W);
+    bool keyPressedS = keyboardPressed(KEY_S);
+    bool keyPressedA = keyboardPressed(KEY_A);
+    bool keyPressedD = keyboardPressed(KEY_D);
+    bool keyPressedDel = keyboardPressed(KEY_DELETE);
     bool usefulKeyPressed = keyPressedW || keyPressedS || keyPressedA || keyPressedD || keyPressedDel;
     // Move or delete selected blocks if the correct key is pressed
     if (usefulKeyPressed) {

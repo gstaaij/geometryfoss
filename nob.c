@@ -71,7 +71,7 @@ bool buildRaylib(Target target) {
             default: NOB_ASSERT(0 && "unreachable");
             }
             nob_cmd_append(&cmd, "-ggdb", "-DPLATFORM_DESKTOP", "-fPIC"); // Remove -ggdb for a miniscule amount of extra performance
-            nob_cmd_append(&cmd, "-O1");
+            nob_cmd_append(&cmd, "-O2");
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src/external/glfw/include");
             nob_cmd_append(&cmd, "-c", inputPath);
             nob_cmd_append(&cmd, "-o", outputPath);
@@ -115,6 +115,8 @@ static const char* cFiles[] = {
     "grid.c",
     "ground.c",
     "hitbox.c",
+    "input/keyboard.c",
+    "input/mouse.c",
     "level.c",
     "object.c",
     "player.c",

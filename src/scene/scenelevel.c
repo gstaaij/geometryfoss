@@ -5,6 +5,7 @@
 #include "raylib.h"
 #include "nob.h"
 #include "stb_ds.h"
+#include "input/keyboard.h"
 #include "ground.h"
 #include "level.h"
 
@@ -137,16 +138,16 @@ void scenelevelDestroy(SceneLevel* scenelevel) {
 
 void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
     // Update the player
-    if (!scenelevel->frameStep || IsKeyDown(KEY_Q) || IsKeyPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
+    if (!scenelevel->frameStep || keyboardDown(KEY_Q) || keyboardPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
     // Update the camera
     cameraUpdate(&scenelevel->camera, scenelevel->player, deltaTime);
 
     // Some key combinations that aren't handled by any of the other update loops
-    if (IsKeyPressed(KEY_R)) {
+    if (keyboardPressed(KEY_R)) {
         playerReset(&scenelevel->player);
     }
 
-    if (IsKeyPressed(KEY_F3)) {
+    if (keyboardPressed(KEY_F3)) {
         scenelevel->frameStep = !scenelevel->frameStep;
     }
 }

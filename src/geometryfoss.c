@@ -15,14 +15,22 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+#include <math.h>
 #include "raylib.h"
 #include "scene/scenemanager.h"
+#include "input/keyboard.h"
+#include "input/mouse.h"
 #include "coord.h"
 #include "camera.h"
 #include "object.h"
 #include "ground.h"
 #include "player.h"
-#include <math.h>
+
+// Make raygui use our own mouse and keyboard functions
+#define IsMouseButtonReleased mouseReleased
+#define IsMouseButtonPressed mouseReleased
+#define IsKeyReleased keyboardReleased
+#define IsKeyPressed keyboardReleased
 
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
@@ -40,7 +48,6 @@ static void update(const double deltaTime);
 static void updateUI();
 static void draw();
 
-double targetTps = TARGET_TPS;
 long tps = 0;
 
 SceneManager* scenemanager;
@@ -57,7 +64,7 @@ int main(void) {
 
     // Initialize the Scene Manager
     scenemanager = scenemanagerCreate();
-    scenemanagerLoad(scenemanager, SCENE_LEVEL);
+    scenemanagerLoad(scenemanager, SCENE_LVLED);
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
@@ -76,7 +83,7 @@ int main(void) {
         bool shouldDraw = timeSinceLastDraw >= 1.0/(double)TARGET_FPS;
         
         // If enough time has elapsed, update
-        if (timeSinceLastUpdate >= 1.0/targetTps) {
+        if (timeSinceLastUpdate >= 1.0/TARGET_TPS) {
             update(timeSinceLastUpdate * TIME_SCALE);
             if (!shouldDraw) {
                 updateUI();
@@ -100,8 +107,8 @@ int main(void) {
 
 
 static void update(const double deltaTime) {
-    // Make the TPS the same as the FPS when not in a level, to make the UI more consistent
-    targetTps = scenemanager->currentScene == SCENE_LEVEL ? TARGET_TPS : TARGET_FPS;
+    keyboardUpdate();
+    mouseUpdate();
     
     scenemanagerUpdate(scenemanager, deltaTime);
 }
