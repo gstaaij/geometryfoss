@@ -1,6 +1,6 @@
 
 #define NOB_IMPLEMENTATION
-#include "src/nob.h"
+#include "src/nob/nob.h"
 
 #define EXECUTABLE_NAME "geometryfoss"
 #define RAYLIB_VERSION "5.0"
@@ -146,6 +146,7 @@ bool buildMain(Target target) {
             
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
             nob_cmd_append(&cmd, "-I./src");
+            nob_cmd_append(&cmd, "-I./src/nob");
             nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
             for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
@@ -168,6 +169,7 @@ bool buildMain(Target target) {
             
             nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
             nob_cmd_append(&cmd, "-I./src");
+            nob_cmd_append(&cmd, "-I./src/nob");
             nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
             for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {

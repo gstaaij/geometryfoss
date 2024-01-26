@@ -10,3 +10,5 @@ nob
 nob.old
 nob.exe
 nob.exe.old
+
+!src/nob

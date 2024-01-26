@@ -2,5 +2,6 @@
 TODO: put this in the game in some way
 
 raylib: Ray (github.com/raysan5)
+nob: Alexey Kutepov (github.com/rexim and github.com/tsoding)
 stb: Sean Barrett (github.com/nothings)
 cJSON: Dave Gamble (github.com/DaveGamble)
