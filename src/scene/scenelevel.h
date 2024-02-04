@@ -3,13 +3,14 @@
 #include "object.h"
 #include "player.h"
 #include "camera.h"
+#include "level/levelsettings.h"
 
 typedef struct {
     Object* objects;
     Player player;
     GDFCamera camera;
-    Color backgroundColor;
-    Color groundColor;
+    
+    LevelSettings levelSettings;
 
     // Hacks (will be a better system at some point)
     bool frameStep;

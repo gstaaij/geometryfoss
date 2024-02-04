@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "object.h"
 #include "camera.h"
+#include "level/levelsettings.h"
 // #include "hashmaps.h"
 
 typedef enum {
@@ -15,8 +16,8 @@ typedef struct {
     GDFCamera camera;
     GDFCamera uiCamera;
     EditorUIMode uiMode;
-    Color backgroundColor;
-    Color groundColor;
+
+    LevelSettings levelSettings;
 
     // Build Mode
 

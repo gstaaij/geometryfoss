@@ -13,7 +13,7 @@
 #include "select.h"
 #include "camera.h"
 #include "serialize.h"
-#include "level.h"
+#include "level/level.h"
 
 #define MODE_BUTTON_OFFSET 5.0
 #define MOUSE_DEAD_ZONE_UPPER_Y 90
@@ -44,8 +44,8 @@ SceneLevelEditor* scenelvledCreate() {
 
     scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
 
-    scenelvled->backgroundColor = GetColor(0x287dffff);
-    scenelvled->groundColor = GetColor(0x0066ffff);
+    scenelvled->levelSettings.backgroundColor = GetColor(0x287dffff);
+    scenelvled->levelSettings.groundColor = GetColor(0x0066ffff);
 
     // Build Mode
 
@@ -172,8 +172,8 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     }
 
     // Save the level
-    if (IsKeyPressed(KEY_F2)) {
-        Nob_String_Builder lvlJson = scenelvledSerialize(scenelvled);
+    if (keyboardPressed(KEY_F2)) {
+        Nob_String_Builder lvlJson = levelSerializeStringBuilder(scenelvled->levelSettings, scenelvled->objects);
         if (lvlJson.count != 0) {
             nob_write_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), lvlJson.items, lvlJson.count);
         } else {
@@ -183,12 +183,12 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     }
 
     // Load the level
-    if (IsKeyPressed(KEY_F3)) {
+    if (keyboardPressed(KEY_F3)) {
         Nob_String_Builder lvlJson = {0};
         nob_read_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), &lvlJson);
 
-        if (!scenelvledDeserialize(scenelvled, lvlJson))
-            nob_log(NOB_ERROR, "Couldn't load save");
+        if (!levelDeserialize(&scenelvled->levelSettings, &scenelvled->objects, lvlJson))
+            nob_log(NOB_ERROR, "Couldn't load save!");
     }
 
     switch (scenelvled->uiMode) {
@@ -320,10 +320,10 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     cameraRecalculateScreenSize(&scenelvled->camera);
     
     // Draw the background
-    ClearBackground(scenelvled->backgroundColor);
+    ClearBackground(scenelvled->levelSettings.backgroundColor);
 
     // Draw the ground
-    drawGround(scenelvled->groundColor, scenelvled->camera);
+    drawGround(scenelvled->levelSettings.groundColor, scenelvled->camera);
 
     // Draw the grid
     gridDraw(scenelvled->camera);

@@ -7,7 +7,7 @@
 #include "stb_ds.h"
 #include "input/keyboard.h"
 #include "ground.h"
-#include "level.h"
+#include "level/level.h"
 
 // #define STRESS_TEST
 
@@ -45,8 +45,8 @@ SceneLevel* scenelevelCreate() {
         },
     };
     scenelevel->camera = (GDFCamera){0};
-    scenelevel->backgroundColor = GetColor(0x287dffff);
-    scenelevel->groundColor = GetColor(0x0066ffff);
+    scenelevel->levelSettings.backgroundColor = GetColor(0x287dffff);
+    scenelevel->levelSettings.groundColor = GetColor(0x0066ffff);
 
     // Add a test block to the objects DA
     Object testBlock = {
@@ -126,8 +126,8 @@ SceneLevel* scenelevelCreate() {
     Nob_String_Builder lvlJson = {0};
     nob_read_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), &lvlJson);
 
-    if (!scenelevelDeserialize(scenelevel, lvlJson))
-        nob_log(NOB_ERROR, "Couldn't load save");
+    if (!levelDeserialize(&scenelevel->levelSettings, &scenelevel->objects, lvlJson))
+        nob_log(NOB_ERROR, "Couldn't load save!");
 
     return scenelevel;
 }
@@ -160,7 +160,7 @@ void scenelevelDraw(SceneLevel* scenelevel) {
     cameraRecalculateScreenSize(&scenelevel->camera);
 
     // Set the backgrond color
-    ClearBackground(scenelevel->backgroundColor);
+    ClearBackground(scenelevel->levelSettings.backgroundColor);
 
     // Draw the player
     playerDraw(scenelevel->player, scenelevel->camera);
@@ -178,5 +178,5 @@ void scenelevelDraw(SceneLevel* scenelevel) {
     playerDrawHitboxes(scenelevel->player, true, scenelevel->camera);
 
     // Draw the ground
-    drawGround(scenelevel->groundColor, scenelevel->camera);
+    drawGround(scenelevel->levelSettings.groundColor, scenelevel->camera);
 }
