@@ -321,6 +321,8 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     
     // Draw the background
     ClearBackground(scenelvled->levelSettings.backgroundColor);
+    // Temporary fix for the weird transparency issue
+    DrawRectangle(0, 0, scenelvled->camera.screenSize.x, scenelvled->camera.screenSize.y, scenelvled->levelSettings.backgroundColor);
 
     // Draw the ground
     drawGround(scenelvled->levelSettings.groundColor, scenelvled->camera);
