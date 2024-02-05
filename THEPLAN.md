@@ -100,24 +100,8 @@ If anyone has a better approach, feel free to create a pull request.
 
 ### Add textures
 
-> ALSO TODO
+When the user starts the game for the first time, there will be a screen prompting the user to drag & drop the Geometry Dash executable into the game window.
+The game will then copy the needed assets from Geometry Dash to the GDF resources folder.
 
-
-
-<!-- This is for later maybe
-## How are we going to make the objects?
-
-We first have to think of what values are needed to define an object:
-
-- Type (Solid/Static or Hazard or Decoration/Nonsolid)
-- Hitbox (top left x & y, width, height)
-- Texture
-- Texture Size
-
-And some things that are not neccesary, but are nice to have:
-
-- Groups
-- Editor Layer
-- Z-Layer
-- Z-Index
- -->
+Using this approach, RobTop probably won't come after me for stealing textures, because everyone who wants to use them needs to own Geometry Dash.
+If someone doesn't have Geometry Dash, they will see default shapes for the objects with a hitbox, and they will not be able to see any of the decorations.
