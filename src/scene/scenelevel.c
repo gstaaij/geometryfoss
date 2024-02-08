@@ -1,7 +1,7 @@
 #include "scenelevel.h"
-#include <memory.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <memory.h>
 #include "raylib.h"
 #include "nob.h"
 #include "stb_ds.h"
@@ -123,10 +123,7 @@ SceneLevel* scenelevelCreate() {
     }
 #endif // STRESS_TEST
 
-    Nob_String_Builder lvlJson = {0};
-    nob_read_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), &lvlJson);
-
-    if (!levelDeserialize(&scenelevel->levelSettings, &scenelevel->objects, lvlJson))
+    if (!levelLoadFromFile("level.json", &scenelevel->levelSettings, &scenelevel->objects))
         nob_log(NOB_ERROR, "Couldn't load save!");
 
     return scenelevel;
@@ -136,11 +133,21 @@ void scenelevelDestroy(SceneLevel* scenelevel) {
 }
 
 
-void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
+void scenelevelUpdate(SceneLevel* scenelevel, SceneState* sceneState, double deltaTime) {
+    // Don't update anything except the camera
+    if (sceneState->transition.transitioning)
+        goto updateCamera;
+
     // Update the player
     if (!scenelevel->frameStep || keyboardDown(KEY_Q) || keyboardPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
+
     // Update the camera
+updateCamera:
     cameraUpdate(&scenelevel->camera, scenelevel->player, deltaTime);
+
+    // Don't update anything except the camera
+    if (sceneState->transition.transitioning)
+        return;
 
     // Some key combinations that aren't handled by any of the other update loops
     if (keyboardPressed(KEY_R)) {
@@ -150,10 +157,15 @@ void scenelevelUpdate(SceneLevel* scenelevel, double deltaTime) {
     if (keyboardPressed(KEY_F3)) {
         scenelevel->frameStep = !scenelevel->frameStep;
     }
+
+    if (keyboardPressedMod(KEY_ESCAPE, false, true)) {
+        sceneswitcherTransitionTo(sceneState, SCENE_LVLED);
+    }
 }
 
-void scenelevelUpdateUI(SceneLevel* scenelevel) {
+void scenelevelUpdateUI(SceneLevel* scenelevel, SceneState* sceneState) {
     (void) scenelevel;
+    (void) sceneState;
 }
 
 void scenelevelDraw(SceneLevel* scenelevel) {

@@ -1,16 +1,13 @@
 #pragma once
 #include "camera.h"
-#include "scene/scenelevel.h"
+#include "scene/sceneswitcher.h"
 #include "scene/scenelvled.h"
+#include "scene/scenelevel.h"
 
-typedef enum {
-    SCENE_NONE = 0,
-    SCENE_LEVEL,
-    SCENE_LVLED,
-} SceneEnum; // I'm very good at naming things
 
 typedef struct {
-    SceneEnum currentScene;
+    SceneState* state;
+
     SceneLevelEditor* scenelvled;
     SceneLevel* scenelevel;
 } SceneManager;

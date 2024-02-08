@@ -1,5 +1,6 @@
 #pragma once
 #include <stdlib.h>
+#include "scene/sceneswitcher.h"
 #include "object.h"
 #include "camera.h"
 #include "level/levelsettings.h"
@@ -22,18 +23,18 @@ typedef struct {
     // Build Mode
 
     int blockBuildId;
+
+    // General state management stuff
+
+    bool isPaused;
+    bool clickedButton;
 } SceneLevelEditor;
 
 SceneLevelEditor* scenelvledCreate();
 void scenelvledDestroy(SceneLevelEditor* scenelvled);
 
-// Serialize a LevelEditorScene to a JSON string builder using cJSON
-Nob_String_Builder scenelvledSerialize(const SceneLevelEditor* scenelvled);
-// Deserialize a LevelEditorScene from cJSON
-bool scenelvledDeserialize(SceneLevelEditor* scenelvled, const Nob_String_Builder lvlJsonString);
+void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, double deltaTime);
 
-void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime);
-
-void scenelvledUpdateUI(SceneLevelEditor* scenelvled);
+void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState);
 
 void scenelvledDraw(SceneLevelEditor* scenelvled);

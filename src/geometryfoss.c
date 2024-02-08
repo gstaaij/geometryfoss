@@ -64,7 +64,7 @@ int main(void) {
 
     // Initialize the Scene Manager
     scenemanager = scenemanagerCreate();
-    scenemanagerLoad(scenemanager, SCENE_LVLED);
+    sceneswitcherTransitionEx(scenemanager->state, SCENE_LVLED, 1.0, 0.5);
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
@@ -99,6 +99,8 @@ int main(void) {
             timeSinceLastDraw = 0;
         }
     }
+
+    scenemanagerDestroy(scenemanager);
 
     CloseWindow();
 

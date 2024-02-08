@@ -1,8 +1,8 @@
 #include "scenelvled.h"
-#include <memory.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <math.h>
+#include <memory.h>
 #include "stb_ds.h"
 #include "raygui.h"
 #include "cJSON/cJSON.h"
@@ -29,6 +29,29 @@
 #define BUTTON_GRID_BUTTON_SIZE (BUTTON_GRID_HEIGHT / BUTTON_GRID_ROWS - (BUTTON_GRID_ROWS * BUTTON_GRID_OFFSET) / 4)
 #define BUTTON_GRID_WIDTH (BUTTON_GRID_COLUMNS * BUTTON_GRID_BUTTON_SIZE + (BUTTON_GRID_COLUMNS - 1) * BUTTON_GRID_OFFSET)
 
+// Pause menu macros
+#define PAUSE_MENU_BUTTON_WIDTH 200.0
+#define PAUSE_MENU_BUTTON_HEIGHT 20.0
+#define PAUSE_MENU_BUTTON_OFFSET 5.0
+typedef enum {
+    PAUSE_MENU_BUTTON_RESUME = 0,
+    PAUSE_MENU_BUTTON_SAVE,
+    PAUSE_MENU_BUTTON_EXIT,
+    PAUSE_MENU_BUTTON_SAVE_AND_EXIT,
+    PAUSE_MENU_BUTTON_SAVE_AND_PLAY,
+
+    PAUSE_MENU_BUTTON_COUNT,
+} PauseMenuButton;
+static const char* pauseMenuButtonTexts[] = {
+    [PAUSE_MENU_BUTTON_RESUME] = "Resume",
+    [PAUSE_MENU_BUTTON_SAVE] = "Save",
+    [PAUSE_MENU_BUTTON_EXIT] = "Exit",
+    [PAUSE_MENU_BUTTON_SAVE_AND_EXIT] = "Save & Exit",
+    [PAUSE_MENU_BUTTON_SAVE_AND_PLAY] = "Save & Play",
+
+    [PAUSE_MENU_BUTTON_COUNT] = "INVALID BUTTON",
+};
+
 SceneLevelEditor* scenelvledCreate() {
     SceneLevelEditor* scenelvled = (SceneLevelEditor*) malloc(sizeof(SceneLevelEditor));
     assert(scenelvled != NULL && "You don't have enough RAM");
@@ -51,6 +74,11 @@ SceneLevelEditor* scenelvledCreate() {
 
     scenelvled->blockBuildId = 1;
 
+
+    // Load the level
+    if (!levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects))
+        nob_log(NOB_WARNING, "Couldn't load save! This is likely due to the save not existing yet");
+
     return scenelvled;
 }
 void scenelvledDestroy(SceneLevelEditor* scenelvled) {
@@ -66,7 +94,15 @@ double holdTime;
 int startMouseX;
 int startMouseY;
 
-void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
+void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, double deltaTime) {
+    (void) sceneState;
+
+    if (scenelvled->isPaused || scenelvled->clickedButton) {
+        /// TODO: fix the bug where you place something when clicking the pause button
+        scenelvled->clickedButton = false;
+        return;
+    }
+    
     if (mousePressed(MOUSE_BUTTON_LEFT)) {
         startMouseX = GetMouseX();
         startMouseY = GetMouseY();
@@ -85,7 +121,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 
             scenelvled->camera.position.x -= deltaXCoord;
             scenelvled->camera.position.y += deltaYCoord;
-        } else if (mouseReleased(MOUSE_BUTTON_LEFT)) {
+        } else if (mouseReleased(MOUSE_BUTTON_LEFT) && !scenelvled->clickedButton) {
             
             ScreenCoord clickScreenCoord = {
                 .x = GetMouseX(),
@@ -173,21 +209,15 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
 
     // Save the level
     if (keyboardPressed(KEY_F2)) {
-        Nob_String_Builder lvlJson = levelSerializeStringBuilder(scenelvled->levelSettings, scenelvled->objects);
-        if (lvlJson.count != 0) {
-            nob_write_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), lvlJson.items, lvlJson.count);
-        } else {
-            nob_log(NOB_ERROR, "Couldn't save level");
+        if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+            nob_log(NOB_ERROR, "Couldn't save the level");
             /// TODO: show a popup to the user telling them the level couldn't be saved
         }
     }
 
     // Load the level
     if (keyboardPressed(KEY_F3)) {
-        Nob_String_Builder lvlJson = {0};
-        nob_read_entire_file(TextFormat("%s/level.json", GetApplicationDirectory()), &lvlJson);
-
-        if (!levelDeserialize(&scenelvled->levelSettings, &scenelvled->objects, lvlJson))
+        if (!levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects))
             nob_log(NOB_ERROR, "Couldn't load save!");
     }
 
@@ -201,8 +231,11 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, double deltaTime) {
     }
 }
 
-void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
+void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     cameraRecalculateScreenSize(&scenelvled->uiCamera);
+
+    if (scenelvled->isPaused)
+        GuiLock();
 
     // Convert some sizes from GD coordinates to screen coordinates
 
@@ -279,7 +312,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
                 .height = buttonHeight,
             }, NULL);
             if (i == scenelvled->blockBuildId) {
-                GuiUnlock();
+                if (!scenelvled->isPaused) GuiUnlock();
                 GuiSetAlpha(1);
             }
 
@@ -314,6 +347,84 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled) {
         DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         break;
     }
+
+    // Draw the pause button and/or menu
+
+    double pauseButtonSize = 20.0;
+    double pauseIconSize = 1.0;
+    Coord pauseButtonTopLeftCoord = {
+        scenelvled->uiCamera.screenSizeAsCoord.x / 2 - pauseButtonSize * 1.5,
+        scenelvled->uiCamera.screenSizeAsCoord.y / 2 - pauseButtonSize * 0.5,
+    };
+    ScreenCoord pauseButtonSCoord = getScreenCoord(pauseButtonTopLeftCoord, scenelvled->uiCamera);
+    long pauseButtonSSize = convertToScreen(pauseButtonSize, scenelvled->uiCamera);
+    long pauseIconSSize = convertToScreen(pauseIconSize, scenelvled->uiCamera);
+
+
+    Rectangle pauseButtonRect = {
+        pauseButtonSCoord.x, pauseButtonSCoord.y,
+        pauseButtonSSize, pauseButtonSSize,
+    };
+
+    if (keyboardPressed(KEY_ESCAPE)) {
+        scenelvled->isPaused = !scenelvled->isPaused;
+    }
+
+    GuiSetIconScale(pauseIconSSize);
+    if (GuiButton(pauseButtonRect, GuiIconText(ICON_PLAYER_PAUSE, ""))) {
+        scenelvled->isPaused = true;
+        scenelvled->clickedButton = true;
+    }
+
+    if (scenelvled->isPaused) {
+        DrawRectangle(0, 0, scenelvled->uiCamera.screenSize.x, scenelvled->uiCamera.screenSize.y, (Color) { 0, 0, 0, 128 });
+
+        GuiUnlock();
+
+        double firstButtonY = (PAUSE_MENU_BUTTON_COUNT / 2) * PAUSE_MENU_BUTTON_HEIGHT + (PAUSE_MENU_BUTTON_COUNT / 2 - 0.5) * PAUSE_MENU_BUTTON_OFFSET;
+        Coord firstButtonTopLeftCoord = {
+            -PAUSE_MENU_BUTTON_WIDTH / 2,
+            firstButtonY + PAUSE_MENU_BUTTON_HEIGHT / 2,
+        };
+        ScreenCoord firstButtonTopLeftSCoord = getScreenCoord(firstButtonTopLeftCoord, scenelvled->uiCamera);
+
+        Rectangle pauseMenuButtonRect = {
+            firstButtonTopLeftSCoord.x,
+            firstButtonTopLeftSCoord.y,
+            convertToScreen(PAUSE_MENU_BUTTON_WIDTH, scenelvled->uiCamera),
+            convertToScreen(PAUSE_MENU_BUTTON_HEIGHT, scenelvled->uiCamera),
+        };
+
+        long pauseMenuButtonYIncrement = convertToScreen(PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_OFFSET, scenelvled->uiCamera);
+
+        PauseMenuButton pauseMenuActiveButton = PAUSE_MENU_BUTTON_COUNT;
+        for (int i = 0; i < PAUSE_MENU_BUTTON_COUNT; ++i) {
+            if (GuiButton(pauseMenuButtonRect, pauseMenuButtonTexts[i])) {
+                pauseMenuActiveButton = i;
+            }
+            pauseMenuButtonRect.y += pauseMenuButtonYIncrement;
+        }
+
+        switch (pauseMenuActiveButton) {
+            case PAUSE_MENU_BUTTON_RESUME: {
+                scenelvled->isPaused = false;
+            } break;
+            case PAUSE_MENU_BUTTON_SAVE_AND_PLAY: {
+                if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    /// TODO: show a popup to the user telling them the level couldn't be saved
+                } else {
+                    sceneswitcherTransitionTo(sceneState, SCENE_LEVEL);
+                }
+            } break;
+            case PAUSE_MENU_BUTTON_COUNT: {
+                // No button has been pressed
+            } break;
+            default: {
+                assert(0 && "NOT IMPLEMENTED: Pause Menu Button");
+            } break;
+        }
+    }
 }
 
 void scenelvledDraw(SceneLevelEditor* scenelvled) {
@@ -321,7 +432,7 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     
     // Draw the background
     ClearBackground(scenelvled->levelSettings.backgroundColor);
-    // Temporary fix for the weird transparency issue
+    // Temporary fix for a weird transparency issue
     DrawRectangle(0, 0, scenelvled->camera.screenSize.x, scenelvled->camera.screenSize.y, scenelvled->levelSettings.backgroundColor);
 
     // Draw the ground

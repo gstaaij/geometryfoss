@@ -98,3 +98,24 @@ defer:
     cJSON_Delete(lvlJson);
     return result;
 }
+
+bool levelSaveToFile(const char* relativeFilePath, const LevelSettings levelSettings, const Object* objects) {
+    Nob_String_Builder lvlJson = levelSerializeStringBuilder(levelSettings, objects);
+    const char* levelFilePath = TextFormat("%s/%s", GetApplicationDirectory(), relativeFilePath);
+    if (lvlJson.count != 0) {
+        return nob_write_entire_file(levelFilePath, lvlJson.items, lvlJson.count);
+    }
+    nob_log(NOB_ERROR, "Couldn't save level \"%s\"", levelFilePath);
+    return false;
+}
+
+bool levelLoadFromFile(const char* relativeFilePath, LevelSettings* levelSettings, Object** objects) {
+    Nob_String_Builder lvlJson = {0};
+
+    const char* levelFilePath = TextFormat("%s/%s", GetApplicationDirectory(), relativeFilePath);
+    if (nob_read_entire_file(levelFilePath, &lvlJson)) {
+        return levelDeserialize(levelSettings, objects, lvlJson);
+    }
+    nob_log(NOB_ERROR, "Couldn't load level \"%s\"", levelFilePath);
+    return false;
+}
