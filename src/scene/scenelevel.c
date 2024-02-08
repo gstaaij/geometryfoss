@@ -173,6 +173,8 @@ void scenelevelDraw(SceneLevel* scenelevel) {
 
     // Set the backgrond color
     ClearBackground(scenelevel->levelSettings.backgroundColor);
+    // Temporary fix for a weird transparency issue
+    DrawRectangle(0, 0, scenelevel->camera.screenSize.x, scenelevel->camera.screenSize.y, scenelevel->levelSettings.backgroundColor);
 
     // Draw the player
     playerDraw(scenelevel->player, scenelevel->camera);
