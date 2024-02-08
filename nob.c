@@ -62,13 +62,14 @@ bool buildRaylib(Target target) {
         if (nob_needs_rebuild1(outputPath, inputPath)) {
             cmd.count = 0;
             switch (target) {
-            case TARGET_LINUX:
-                nob_cmd_append(&cmd, "gcc");
-                break;
-            case TARGET_WIN32_MINGW:
-                nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
-                break;
-            default: NOB_ASSERT(0 && "unreachable");
+                case TARGET_LINUX: {
+                    nob_cmd_append(&cmd, "gcc");
+                } break;
+                case TARGET_WIN32_MINGW: {
+                    nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
+                } break;
+
+                default: NOB_ASSERT(0 && "unreachable");
             }
             nob_cmd_append(&cmd, "-ggdb", "-DPLATFORM_DESKTOP", "-fPIC"); // Remove -ggdb for a miniscule amount of extra performance
             nob_cmd_append(&cmd, "-O2");
@@ -85,20 +86,21 @@ bool buildRaylib(Target target) {
     if (!nob_procs_wait(procs)) nob_return_defer(false);
 
     switch (target) {
-    case TARGET_WIN32_MINGW:
-    case TARGET_LINUX:
-        const char* libraylibPath = nob_temp_sprintf("%s/libraylib.a", buildPath);
+        case TARGET_WIN32_MINGW:
+        case TARGET_LINUX: {
+            const char* libraylibPath = nob_temp_sprintf("%s/libraylib.a", buildPath);
 
-        if (nob_needs_rebuild(libraylibPath, objectFiles.items, objectFiles.count)) {
-            nob_cmd_append(&cmd, "ar", "-crs", libraylibPath);
-            for (size_t i = 0; i < NOB_ARRAY_LEN(raylibModules); ++i) {
-                const char* inputPath = nob_temp_sprintf("%s/%s.o", buildPath, raylibModules[i]);
-                nob_cmd_append(&cmd, inputPath);
+            if (nob_needs_rebuild(libraylibPath, objectFiles.items, objectFiles.count)) {
+                nob_cmd_append(&cmd, "ar", "-crs", libraylibPath);
+                for (size_t i = 0; i < NOB_ARRAY_LEN(raylibModules); ++i) {
+                    const char* inputPath = nob_temp_sprintf("%s/%s.o", buildPath, raylibModules[i]);
+                    nob_cmd_append(&cmd, inputPath);
+                }
+                if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
             }
-            if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
-        }
-        break;
-    default: NOB_ASSERT(0 && "unreachable");
+        } break;
+        
+        default: NOB_ASSERT(0 && "unreachable");
     }
 
 defer:
@@ -134,58 +136,60 @@ bool buildMain(Target target) {
 
     Nob_Cmd cmd = {0};
     switch (target) {
-    case TARGET_LINUX:
-        cmd.count = 0;
-            nob_cmd_append(&cmd, "gcc");
-            nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
+        case TARGET_LINUX: {
+            cmd.count = 0;
+                nob_cmd_append(&cmd, "gcc");
+                nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
 
-            // Disable warnings from raygui
-            nob_cmd_append(&cmd, "-isystem", "./src/ray");
+                // Disable warnings from raygui
+                nob_cmd_append(&cmd, "-isystem", "./src/ray");
 
-            // Disable some warnings from stb_ds
-            nob_cmd_append(&cmd, "-isystem", "./src/stb");
-            nob_cmd_append(&cmd, "-Wno-missing-field-initializers");
-            
-            nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
-            nob_cmd_append(&cmd, "-I./src");
-            nob_cmd_append(&cmd, "-I./src/nob");
-            nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
+                // Disable some warnings from stb_ds
+                nob_cmd_append(&cmd, "-isystem", "./src/stb");
+                nob_cmd_append(&cmd, "-Wno-missing-field-initializers");
+                
+                nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
+                nob_cmd_append(&cmd, "-I./src");
+                nob_cmd_append(&cmd, "-I./src/nob");
+                nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
-            for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
-                nob_cmd_append(&cmd, nob_temp_sprintf("src/%s", cFiles[i]));
-            }
-            
-            nob_cmd_append(&cmd,
-                nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
-                "-l:libraylib.a");
-            nob_cmd_append(&cmd, "-lm");
-        if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
-        break;
-    case TARGET_WIN32_MINGW:
-        cmd.count = 0;
-            nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
-            nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
+                for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
+                    nob_cmd_append(&cmd, nob_temp_sprintf("src/%s", cFiles[i]));
+                }
+                
+                nob_cmd_append(&cmd,
+                    nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
+                    "-l:libraylib.a");
+                nob_cmd_append(&cmd, "-lm");
+            if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
+        } break;
 
-            // Disable some warnings from stb_ds
-            nob_cmd_append(&cmd, "-isystem", "./src/stb");
-            
-            nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
-            nob_cmd_append(&cmd, "-I./src");
-            nob_cmd_append(&cmd, "-I./src/nob");
-            nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
+        case TARGET_WIN32_MINGW: {
+            cmd.count = 0;
+                nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
+                nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
 
-            for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
-                nob_cmd_append(&cmd, nob_temp_sprintf("src/%s", cFiles[i]));
-            }
-            
-            nob_cmd_append(&cmd,
-                nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
-                "-l:libraylib.a");
-            nob_cmd_append(&cmd, "-lwinmm", "-lgdi32");
-            nob_cmd_append(&cmd, "-static");
-        if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
-        break;
-    default: NOB_ASSERT(0 && "unreachable");
+                // Disable some warnings from stb_ds
+                nob_cmd_append(&cmd, "-isystem", "./src/stb");
+                
+                nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
+                nob_cmd_append(&cmd, "-I./src");
+                nob_cmd_append(&cmd, "-I./src/nob");
+                nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
+
+                for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
+                    nob_cmd_append(&cmd, nob_temp_sprintf("src/%s", cFiles[i]));
+                }
+                
+                nob_cmd_append(&cmd,
+                    nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
+                    "-l:libraylib.a");
+                nob_cmd_append(&cmd, "-lwinmm", "-lgdi32");
+                nob_cmd_append(&cmd, "-static");
+            if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
+        } break;
+
+        default: NOB_ASSERT(0 && "unreachable");
     }
 
 defer:

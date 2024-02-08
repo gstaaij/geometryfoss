@@ -129,33 +129,31 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             };
             Coord clickPos = getGDCoord(clickScreenCoord, scenelvled->camera);
             switch (scenelvled->uiMode) {
-            case EDITOR_UI_MODE_BUILD:
-                clickPos.x = floor(clickPos.x / 30) * 30 + 15;
-                clickPos.y = floor(clickPos.y / 30) * 30 + 15;
-                Object newObject = {
-                    .id = scenelvled->blockBuildId,
-                    .position = clickPos,
-                    .angle = 0,
-                    .scale = 1.0,
-                };
-                arrput(scenelvled->objects, newObject);
-                selectAddObjectIndex(scenelvled->objects, arrlen(scenelvled->objects) - 1, false);
-                break;
-            case EDITOR_UI_MODE_EDIT:
+                case EDITOR_UI_MODE_BUILD: {
+                    clickPos.x = floor(clickPos.x / 30) * 30 + 15;
+                    clickPos.y = floor(clickPos.y / 30) * 30 + 15;
+                    Object newObject = {
+                        .id = scenelvled->blockBuildId,
+                        .position = clickPos,
+                        .angle = 0,
+                        .scale = 1.0,
+                    };
+                    arrput(scenelvled->objects, newObject);
+                    selectAddObjectIndex(scenelvled->objects, arrlen(scenelvled->objects) - 1, false);
+                } break;
 
-                selectAddObjectClicked(scenelvled->objects, clickPos, IsKeyDown(KEY_LEFT_SHIFT));
+                case EDITOR_UI_MODE_EDIT: {
+                    selectAddObjectClicked(scenelvled->objects, clickPos, IsKeyDown(KEY_LEFT_SHIFT));
+                } break;
 
-                break;
-            case EDITOR_UI_MODE_DELETE:
-
-                for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
-                    if (objectMouseOver(scenelvled->objects[i], clickPos)) {
-                        arrdel(scenelvled->objects, i);
-                        break;
+                case EDITOR_UI_MODE_DELETE: {
+                    for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
+                        if (objectMouseOver(scenelvled->objects[i], clickPos)) {
+                            arrdel(scenelvled->objects, i);
+                            break;
+                        }
                     }
-                }
-
-                break;
+                } break;
             }
 
         } else if (mouseDown(MOUSE_BUTTON_LEFT)) {
@@ -222,12 +220,9 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
     }
 
     switch (scenelvled->uiMode) {
-    case EDITOR_UI_MODE_BUILD:
-        break;
-    case EDITOR_UI_MODE_EDIT:
-        break;
-    case EDITOR_UI_MODE_DELETE:
-        break;
+        case EDITOR_UI_MODE_BUILD: {} break;
+        case EDITOR_UI_MODE_EDIT: {} break;
+        case EDITOR_UI_MODE_DELETE: {} break;
     }
 }
 
@@ -281,71 +276,71 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     }
 
     switch (scenelvled->uiMode) {
-    case EDITOR_UI_MODE_BUILD:
-        buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, scenelvled->uiCamera);
-        buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, scenelvled->uiCamera);
-        buttonHeight = buttonWidth;
+        case EDITOR_UI_MODE_BUILD: {
+            buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, scenelvled->uiCamera);
+            buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, scenelvled->uiCamera);
+            buttonHeight = buttonWidth;
 
-        Coord buttonGridCenter = {
-            .x = 0,
-            .y = (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET) - scenelvled->uiCamera.screenSizeAsCoord.y / 2,
-        };
-
-        int row = 0;
-        int column = 0;
-        int len = NOB_ARRAY_LEN(objectDefenitions);
-        for (int i = 0; i < len; ++i) {
-            if (!objectDefenitions[i].exists) continue;
-            Coord buttonPos = {
-                .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
-                .y = buttonGridCenter.y - (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) - BUTTON_GRID_BUTTON_SIZE/2,
+            Coord buttonGridCenter = {
+                .x = 0,
+                .y = (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET) - scenelvled->uiCamera.screenSizeAsCoord.y / 2,
             };
-            ScreenCoord scButtonPos = getScreenCoord(buttonPos, scenelvled->uiCamera);
-            if (i == scenelvled->blockBuildId) {
-                GuiSetAlpha(0.75);
-                GuiLock();
-            }
-            bool clicked = GuiButton((Rectangle) {
-                .x = scButtonPos.x - buttonWidth / 2,
-                .y = scButtonPos.y - buttonHeight / 2,
-                .width = buttonWidth,
-                .height = buttonHeight,
-            }, NULL);
-            if (i == scenelvled->blockBuildId) {
-                if (!scenelvled->isPaused) GuiUnlock();
-                GuiSetAlpha(1);
-            }
 
-            Object buttonObject = {
-                .position = buttonPos,
-                .scale = 30.0 / BUTTON_GRID_BUTTON_SIZE,
-                .angle = 0,
-                .selected = false,
-                .id = i,
-            };
-            objectDraw(buttonObject, scenelvled->uiCamera);
+            int row = 0;
+            int column = 0;
+            int len = NOB_ARRAY_LEN(objectDefenitions);
+            for (int i = 0; i < len; ++i) {
+                if (!objectDefenitions[i].exists) continue;
+                Coord buttonPos = {
+                    .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
+                    .y = buttonGridCenter.y - (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) - BUTTON_GRID_BUTTON_SIZE/2,
+                };
+                ScreenCoord scButtonPos = getScreenCoord(buttonPos, scenelvled->uiCamera);
+                if (i == scenelvled->blockBuildId) {
+                    GuiSetAlpha(0.75);
+                    GuiLock();
+                }
+                bool clicked = GuiButton((Rectangle) {
+                    .x = scButtonPos.x - buttonWidth / 2,
+                    .y = scButtonPos.y - buttonHeight / 2,
+                    .width = buttonWidth,
+                    .height = buttonHeight,
+                }, NULL);
+                if (i == scenelvled->blockBuildId) {
+                    if (!scenelvled->isPaused) GuiUnlock();
+                    GuiSetAlpha(1);
+                }
 
-            if (clicked) {
-                scenelvled->blockBuildId = i;
-            }
+                Object buttonObject = {
+                    .position = buttonPos,
+                    .scale = 30.0 / BUTTON_GRID_BUTTON_SIZE,
+                    .angle = 0,
+                    .selected = false,
+                    .id = i,
+                };
+                objectDraw(buttonObject, scenelvled->uiCamera);
 
-            ++column;
-            if (column >= BUTTON_GRID_COLUMNS) {
-                column = 0;
-                ++row;
+                if (clicked) {
+                    scenelvled->blockBuildId = i;
+                }
+
+                ++column;
+                if (column >= BUTTON_GRID_COLUMNS) {
+                    column = 0;
+                    ++row;
+                }
             }
-        }
-        break;
-    case EDITOR_UI_MODE_EDIT:
-        // Draw text telling the user that they're in edit mode
-        // This is temporary and will be removed once I add buttons to edit mode
-        DrawText("You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
-        break;
-    case EDITOR_UI_MODE_DELETE:
-        // Draw text telling the user that they're in delete mode
-        // This is temporary and will be removed once I add buttons to delete mode
-        DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
-        break;
+        } break;
+        case EDITOR_UI_MODE_EDIT: {
+            // Draw text telling the user that they're in edit mode
+            // This is temporary and will be removed once I add buttons to edit mode
+            DrawText("You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
+        } break;
+        case EDITOR_UI_MODE_DELETE: {
+            // Draw text telling the user that they're in delete mode
+            // This is temporary and will be removed once I add buttons to delete mode
+            DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
+        } break;
     }
 
     // Draw the pause button and/or menu

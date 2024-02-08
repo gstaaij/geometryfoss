@@ -28,47 +28,47 @@ void objectDraw(const Object object, const GDFCamera camera) {
     }
 
     switch (def.shape.type) {
-    case OBJSHAPE_BLOCK:
-        // Define a raylib Rectangle for the block
-        Rectangle recBlock = {
-            .x = scBlock.x - (scBlockSize / 2),
-            .y = scBlock.y - (scBlockSize / 2),
-            .width = scBlockSize,
-            .height = scBlockSize,
-        };
-        // Draw a black square with a white outline
-        DrawRectangleRec(recBlock, BLACK);
-        DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
+        case OBJSHAPE_BLOCK: {
+            // Define a raylib Rectangle for the block
+            Rectangle recBlock = {
+                .x = scBlock.x - (scBlockSize / 2),
+                .y = scBlock.y - (scBlockSize / 2),
+                .width = scBlockSize,
+                .height = scBlockSize,
+            };
+            // Draw a black square with a white outline
+            DrawRectangleRec(recBlock, BLACK);
+            DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
 
-        if (object.selected) {
-            BeginBlendMode(BLEND_MULTIPLIED);
-                DrawRectangleRec(recBlock, GREEN);
-            EndBlendMode();
-        }
-        break;
-    case OBJSHAPE_SPIKE:
-        Vector2 vecSpikePoint1 = {
-            .x = scBlock.x,
-            .y = scBlock.y - (scBlockSize / 2),
-        };
-        Vector2 vecSpikePoint2 = {
-            .x = scBlock.x - (scBlockSize / 2),
-            .y = scBlock.y + (scBlockSize / 2),
-        };
-        Vector2 vecSpikePoint3 = {
-            .x = scBlock.x + (scBlockSize / 2),
-            .y = scBlock.y + (scBlockSize / 2),
-        };
-        DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
-        // No defining thickness of lines :(
-        DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
+            if (object.selected) {
+                BeginBlendMode(BLEND_MULTIPLIED);
+                    DrawRectangleRec(recBlock, GREEN);
+                EndBlendMode();
+            }
+        } break;
+        case OBJSHAPE_SPIKE: {
+            Vector2 vecSpikePoint1 = {
+                .x = scBlock.x,
+                .y = scBlock.y - (scBlockSize / 2),
+            };
+            Vector2 vecSpikePoint2 = {
+                .x = scBlock.x - (scBlockSize / 2),
+                .y = scBlock.y + (scBlockSize / 2),
+            };
+            Vector2 vecSpikePoint3 = {
+                .x = scBlock.x + (scBlockSize / 2),
+                .y = scBlock.y + (scBlockSize / 2),
+            };
+            DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
+            // No defining thickness of lines :(
+            DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
 
-        if (object.selected) {
-            BeginBlendMode(BLEND_MULTIPLIED);
-                DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, GREEN);
-            EndBlendMode();
-        }
-        break;
+            if (object.selected) {
+                BeginBlendMode(BLEND_MULTIPLIED);
+                    DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, GREEN);
+                EndBlendMode();
+            }
+        } break;
     }
 }
 
@@ -82,24 +82,24 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
         // Determine the hitbox color
         Color hitboxColor;
         switch (def.type) {
-        case OBJECT_SOLID:
-            hitboxColor = OBJECT_SOLID_HITBOX_COLOR;
-            break;
-        case OBJECT_HAZARD:
-            hitboxColor = OBJECT_HAZARD_HITBOX_COLOR;
-            break;
-        case OBJECT_PORTAL:
-            hitboxColor = OBJECT_PORTAL_HITBOX_COLOR;
-            break;
-        case OBJECT_PAD:
-            hitboxColor = OBJECT_PAD_HITBOX_COLOR;
-            break;
-        case OBJECT_RING:
-            hitboxColor = OBJECT_RING_HITBOX_COLOR;
-            break;
-        default:
-            hitboxColor = WHITE;
-            break;
+            case OBJECT_SOLID: {
+                hitboxColor = OBJECT_SOLID_HITBOX_COLOR;
+            } break;
+            case OBJECT_HAZARD: {
+                hitboxColor = OBJECT_HAZARD_HITBOX_COLOR;
+            } break;
+            case OBJECT_PORTAL: {
+                hitboxColor = OBJECT_PORTAL_HITBOX_COLOR;
+            } break;
+            case OBJECT_PAD: {
+                hitboxColor = OBJECT_PAD_HITBOX_COLOR;
+            } break;
+            case OBJECT_RING: {
+                hitboxColor = OBJECT_RING_HITBOX_COLOR;
+            } break;
+            default: {
+                hitboxColor = WHITE;
+            } break;
         }
 
         // Call the hitboxDraw function to do the work for us
