@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "raylib.h"
+#include "ui/popup.h"
 
 SceneManager* scenemanagerCreate() {
     SceneManager* scenemanager = (SceneManager*) malloc(sizeof(SceneManager));

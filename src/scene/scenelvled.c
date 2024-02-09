@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "serialize.h"
 #include "level/level.h"
+#include "ui/popup.h"
 
 #define MODE_BUTTON_OFFSET 5.0
 #define MOUSE_DEAD_ZONE_UPPER_Y 90
@@ -30,6 +31,11 @@
 #define BUTTON_GRID_WIDTH (BUTTON_GRID_COLUMNS * BUTTON_GRID_BUTTON_SIZE + (BUTTON_GRID_COLUMNS - 1) * BUTTON_GRID_OFFSET)
 
 #define DESELECTED_BUTTON_ALPHA 0.8
+
+#define POPUP_MESSAGE_COULDNT_SAVE "The level couldn't be saved"
+#define POPUP_MESSAGE_COULDNT_LOAD "The level couldn't be loaded"
+
+#define POPUP_MESSAGE_NOT_IMPLEMENTED "This feature isn't implemented yet :)"
 
 // Pause menu macros
 #define PAUSE_MENU_BUTTON_WIDTH 200.0
@@ -53,6 +59,15 @@ static const char* pauseMenuButtonTexts[] = {
 
     [PAUSE_MENU_BUTTON_COUNT] = "INVALID BUTTON",
 };
+
+// Popup stuff
+typedef enum {
+    POPUP_QUESTION_NONE = -1,
+
+    POPUP_QUESTION_SAVE,
+    POPUP_QUESTION_LOAD,
+} PopupQuestion;
+PopupQuestion popupQuestion = POPUP_QUESTION_NONE;
 
 SceneLevelEditor* scenelvledCreate() {
     SceneLevelEditor* scenelvled = (SceneLevelEditor*) malloc(sizeof(SceneLevelEditor));
@@ -98,6 +113,32 @@ int startMouseY;
 
 void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, double deltaTime) {
     (void) sceneState;
+
+    popupUpdate(deltaTime);
+    if (popupIsShown())
+        return;
+
+    PopupButton popupResult = popupGetChoiceResult();
+    if (popupResult != POPUP_BUTTON_NONE) {
+        switch (popupQuestion) {
+            case POPUP_QUESTION_NONE: {} break;
+            case POPUP_QUESTION_SAVE: {
+                bool shouldSave = popupResult == POPUP_BUTTON_ONE;
+                if (shouldSave && !levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    popupShow(POPUP_MESSAGE_COULDNT_SAVE);
+                }
+            } break;
+            case POPUP_QUESTION_LOAD: {
+                bool shouldLoad = popupResult == POPUP_BUTTON_ONE;
+                if (shouldLoad && !levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects)) {
+                    nob_log(NOB_ERROR, "Couldn't load save!");
+                    popupShow(POPUP_MESSAGE_COULDNT_LOAD);
+                }
+            } break;
+        }
+        popupQuestion = POPUP_QUESTION_NONE;
+    }
 
     if (scenelvled->isPaused || scenelvled->clickedButton) {
         /// TODO: fix the bug where you place something when clicking the pause button
@@ -209,16 +250,14 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
 
     // Save the level
     if (keyboardPressed(KEY_F2)) {
-        if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
-            nob_log(NOB_ERROR, "Couldn't save the level");
-            /// TODO: show a popup to the user telling them the level couldn't be saved
-        }
+        popupQuestion = POPUP_QUESTION_SAVE;
+        popupShowChoice("Are you sure you want to save the level?", "Yes", "No");
     }
 
     // Load the level
     if (keyboardPressed(KEY_F3)) {
-        if (!levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects))
-            nob_log(NOB_ERROR, "Couldn't load save!");
+        popupQuestion = POPUP_QUESTION_LOAD;
+        popupShowChoice("Are you sure you want to load the level?\nAll your unsaved work will be lost!", "Yes", "No");
     }
 
     switch (scenelvled->uiMode) {
@@ -228,10 +267,14 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
     }
 }
 
+bool shouldLockUI(SceneLevelEditor* scenelvled) {
+    return scenelvled->isPaused || popupIsShown();
+}
+
 void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     cameraRecalculateScreenSize(&scenelvled->uiCamera);
 
-    if (scenelvled->isPaused)
+    if (shouldLockUI(scenelvled))
         GuiLock();
 
     // Convert some sizes from GD coordinates to screen coordinates
@@ -265,7 +308,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     if (GuiButton(currentButtonRect, "Delete")) {
         scenelvled->uiMode = EDITOR_UI_MODE_DELETE;
     }
-    if (!scenelvled->isPaused) GuiUnlock();
+    if (!shouldLockUI(scenelvled)) GuiUnlock();
     GuiSetAlpha(1);
 
     // Change the y position for the Edit button
@@ -280,7 +323,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     if (GuiButton(currentButtonRect, "Edit")) {
         scenelvled->uiMode = EDITOR_UI_MODE_EDIT;
     }
-    if (!scenelvled->isPaused) GuiUnlock();
+    if (!shouldLockUI(scenelvled)) GuiUnlock();
     GuiSetAlpha(1);
 
     // Change the y position for the Build button
@@ -295,7 +338,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     if (GuiButton(currentButtonRect, "Build")) {
         scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
     }
-    if (!scenelvled->isPaused) GuiUnlock();
+    if (!shouldLockUI(scenelvled)) GuiUnlock();
     GuiSetAlpha(1);
 
     switch (scenelvled->uiMode) {
@@ -334,7 +377,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                     .height = buttonHeight,
                 }, NULL);
 
-                if (!scenelvled->isPaused) GuiUnlock();
+                if (!shouldLockUI(scenelvled)) GuiUnlock();
                 GuiSetAlpha(1);
 
                 Object buttonObject = {
@@ -400,7 +443,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     if (scenelvled->isPaused) {
         DrawRectangle(0, 0, scenelvled->uiCamera.screenSize.x, scenelvled->uiCamera.screenSize.y, (Color) { 0, 0, 0, 128 });
 
-        GuiUnlock();
+        if (!popupIsShown()) GuiUnlock();
 
         double firstButtonY = (PAUSE_MENU_BUTTON_COUNT / 2) * PAUSE_MENU_BUTTON_HEIGHT + (PAUSE_MENU_BUTTON_COUNT / 2 - 0.5) * PAUSE_MENU_BUTTON_OFFSET;
         Coord firstButtonTopLeftCoord = {
@@ -433,23 +476,23 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             case PAUSE_MENU_BUTTON_SAVE: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
                     nob_log(NOB_ERROR, "Couldn't save the level");
-                    /// TODO: show a popup to the user telling them the level couldn't be saved
+                    popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
-                    /// TODO: show a popup that the level was successfully saved
+                    popupShow("Successfully saved the level!");
                 }
             } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_EXIT: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
                     nob_log(NOB_ERROR, "Couldn't save the level");
-                    /// TODO: show a popup to the user telling them the level couldn't be saved
+                    popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
-                    assert(0 && "NOT IMPLEMENTED: Level select menu");
+                    popupShow("The level select menu hasn't been implemented yet.\nYour level has been saved, though :)");
                 }
             } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_PLAY: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
                     nob_log(NOB_ERROR, "Couldn't save the level");
-                    /// TODO: show a popup to the user telling them the level couldn't be saved
+                    popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
                     sceneswitcherTransitionTo(sceneState, SCENE_LEVEL);
                 }
@@ -458,10 +501,14 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                 // No button has been pressed
             } break;
             default: {
-                assert(0 && "NOT IMPLEMENTED: Pause Menu Button");
+                popupShow(POPUP_MESSAGE_NOT_IMPLEMENTED);
             } break;
         }
     }
+
+    // Update the popups
+    GuiUnlock();
+    popupUpdateUI(scenelvled->uiCamera);
 }
 
 void scenelvledDraw(SceneLevelEditor* scenelvled) {

@@ -128,6 +128,7 @@ static const char* cFiles[] = {
     "scene/scenelevel.c",
     "scene/scenelvled.c",
     "select.c",
+    "ui/popup.c",
     "util.c",
 };
 
