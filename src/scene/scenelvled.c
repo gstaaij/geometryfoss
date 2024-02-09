@@ -249,13 +249,13 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
     }
 
     // Save the level
-    if (keyboardPressed(KEY_F2)) {
+    if (keyboardPressedMod(KEY_S, false, true)) {
         popupQuestion = POPUP_QUESTION_SAVE;
         popupShowChoice("Are you sure you want to save the level?", "Yes", "No");
     }
 
     // Load the level
-    if (keyboardPressed(KEY_F3)) {
+    if (keyboardPressedMod(KEY_L, false, true)) {
         popupQuestion = POPUP_QUESTION_LOAD;
         popupShowChoice("Are you sure you want to load the level?\nAll your unsaved work will be lost!", "Yes", "No");
     }
