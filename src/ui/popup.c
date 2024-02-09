@@ -3,6 +3,7 @@
 #include "nob.h"
 #include "stb_ds.h"
 #include "raygui.h"
+#include "input/keyboard.h"
 
 #define POPUP_BUTTON_FONT_SIZE 12.5
 #define POPUP_BUTTON_WIDTH 60.0
@@ -15,10 +16,14 @@
 #define POPUP_BOX_PADDING 10.0
 
 #define POPUP_DEFAULT_COLOR (Color) { 0, 25, 49, 255 }
+#define POPUP_DEFAULT_TRANSITION_TIME 0.15
 
 
 static Popup* popupQueue = NULL;
 static PopupButton popupResult = POPUP_BUTTON_NONE;
+static double popupScale = 0.0;
+// We have to have one frame of debounce in case there is a button underneath the popup button
+static double popupWasShown = false;
 
 static char* wrapString(char* string, const size_t maxChars) {
     if (maxChars <= 0)
@@ -53,10 +58,16 @@ static char* wrapString(char* string, const size_t maxChars) {
     return sb.items;
 }
 
-long popupGetWidth(const GDFCamera uiCamera, const int fontSize, const char* message) {
+long popupGetWidth(const GDFCamera uiCamera, const double fontSize, const double fontSpacing, const char* message) {
     long width = convertToScreen(4 * POPUP_BOX_PADDING, uiCamera);
-    width += MeasureText(message, fontSize);
+    width += MeasureTextEx(GetFontDefault(), message, fontSize, fontSpacing).x;
     return width;
+}
+
+void popupNext() {
+    if (arrlenu(popupQueue) > 0)
+        arrdel(popupQueue, 0);
+    popupScale = 0.0;
 }
 
 void popupShow(char* message) {
@@ -67,6 +78,7 @@ void popupShow(char* message) {
         .twoButtons = false,
         .buttonTwoText = NULL,
         .color = POPUP_DEFAULT_COLOR,
+        .transitionTime = POPUP_DEFAULT_TRANSITION_TIME,
     });
 }
 
@@ -78,11 +90,13 @@ void popupShowChoice(char* message, const char* buttonOneText, const char* butto
         .twoButtons = true,
         .buttonTwoText = buttonTwoText,
         .color = POPUP_DEFAULT_COLOR,
+        .transitionTime = POPUP_DEFAULT_TRANSITION_TIME,
     });
 }
 
 void popupShowEx(Popup popup) {
     arrput(popupQueue, popup);
+    if (!popupIsShown()) popupNext();
 }
 
 PopupButton popupGetChoiceResult() {
@@ -92,36 +106,46 @@ PopupButton popupGetChoiceResult() {
 }
 
 bool popupIsShown() {
-    return arrlen(popupQueue) > 0;
+    return popupWasShown || arrlenu(popupQueue) > 0;
 }
 
 void popupUpdate(const double deltaTime) {
-    (void) deltaTime;
-    /// TODO: start the popup small and grow
+    if (!popupIsShown() || popupScale >= 1.0)
+        return;
+    popupScale += deltaTime / popupQueue[0].transitionTime;
+    if (popupScale >= 1.0)
+        popupScale = 1.0;
 }
 
 void popupUpdateUI(const GDFCamera uiCamera) {
+    popupWasShown = arrlenu(popupQueue) > 0;
     if (!popupIsShown())
         return;
 
+    // Lock the GUI while the popup is still small, to eliminate
+    // the chances of the user clicking on a button and
+    // immediately also clicking on a popup button that appears
+    if (popupScale < 0.25)
+        GuiLock();
+
     Popup currentPopup = popupQueue[0];
     
-    long fontSize = convertToScreen(POPUP_MESSAGE_FONT_SIZE, uiCamera);
-    SetTextLineSpacing(convertToScreen(POPUP_BOX_PADDING / 2, uiCamera) + fontSize);
+    double fontSize = convertToScreen(POPUP_MESSAGE_FONT_SIZE * popupScale, uiCamera);
+    SetTextLineSpacing(convertToScreen(POPUP_BOX_PADDING / 2 * popupScale, uiCamera) + fontSize);
 
     const char* message = currentPopup.message;
 
     Coord popupLocation = { 0, 0 };
     Coord popupMessageLocation = {
         popupLocation.x,
-        popupLocation.y + POPUP_BOX_PADDING / 2 + POPUP_BUTTON_HEIGHT / 2,
+        popupLocation.y + (POPUP_BOX_PADDING / 2 + POPUP_BUTTON_HEIGHT / 2) * popupScale,
     };
     ScreenCoord popupScreenLocation = getScreenCoord(popupLocation, uiCamera);
     ScreenCoord popupMessageScreenLocation = getScreenCoord(popupMessageLocation, uiCamera);
-    long fontSpacing = fontSize/GetFontDefault().baseSize;
-    long popupWidth = popupGetWidth(uiCamera, fontSize, message);
+    double fontSpacing = fontSize/GetFontDefault().baseSize;
+    long popupWidth = popupGetWidth(uiCamera, fontSize, fontSpacing, message);
     Vector2 messageSize = MeasureTextEx(GetFontDefault(), message, (float) fontSize, (float) fontSpacing);
-    long popupHeight = convertToScreen(POPUP_BOX_PADDING * 3 + POPUP_BUTTON_HEIGHT, uiCamera) + messageSize.y;
+    long popupHeight = convertToScreen((POPUP_BOX_PADDING * 3 + POPUP_BUTTON_HEIGHT) * popupScale, uiCamera) + messageSize.y;
     double popupGDHeight = convertToGD(popupHeight, uiCamera);
 
     DrawRectangle(
@@ -160,21 +184,21 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         LIGHTGRAY
     );
 
-    fontSize = convertToScreen(POPUP_BUTTON_FONT_SIZE, uiCamera);
+    fontSize = convertToScreen(POPUP_BUTTON_FONT_SIZE * popupScale, uiCamera);
 
     // Set the font size
     GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
 
     Coord buttonLocation = {
         popupLocation.x,
-        popupLocation.y - popupGDHeight / 2 + POPUP_BOX_PADDING + POPUP_BUTTON_HEIGHT / 2,
+        popupLocation.y - popupGDHeight / 2 + (POPUP_BOX_PADDING + POPUP_BUTTON_HEIGHT / 2) * popupScale,
     };
     if (currentPopup.twoButtons) {
-        buttonLocation.x -= POPUP_BOX_PADDING / 2 + POPUP_BUTTON_WIDTH / 2;
+        buttonLocation.x -= (POPUP_BOX_PADDING / 2 + POPUP_BUTTON_WIDTH / 2) * popupScale;
     }
     ScreenCoord buttonScreenLocation = getScreenCoord(buttonLocation, uiCamera);
-    long buttonWidth = convertToScreen(POPUP_BUTTON_WIDTH, uiCamera);
-    long buttonHeight = convertToScreen(POPUP_BUTTON_HEIGHT, uiCamera);
+    long buttonWidth = convertToScreen(POPUP_BUTTON_WIDTH * popupScale, uiCamera);
+    long buttonHeight = convertToScreen(POPUP_BUTTON_HEIGHT * popupScale, uiCamera);
 
     bool clickedButtonOne = GuiButton(
         (Rectangle) {
@@ -184,9 +208,13 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         currentPopup.buttonOneText
     );
 
+    if (!currentPopup.twoButtons && keyboardPressed(KEY_ENTER)) {
+        clickedButtonOne = true;
+    }
+
     bool clickedButtonTwo = false;
     if (currentPopup.twoButtons) {
-        buttonLocation.x += POPUP_BOX_PADDING + POPUP_BUTTON_WIDTH;
+        buttonLocation.x += (POPUP_BOX_PADDING + POPUP_BUTTON_WIDTH) * popupScale;
         buttonScreenLocation = getScreenCoord(buttonLocation, uiCamera);
         clickedButtonTwo = GuiButton(
             (Rectangle) {
@@ -199,9 +227,11 @@ void popupUpdateUI(const GDFCamera uiCamera) {
 
     if (clickedButtonOne) {
         popupResult = POPUP_BUTTON_ONE;
-        arrdel(popupQueue, 0);
+        popupNext();
     } else if (clickedButtonTwo) {
         popupResult = POPUP_BUTTON_TWO;
-        arrdel(popupQueue, 0);
+        popupNext();
     }
+
+    GuiUnlock();
 }

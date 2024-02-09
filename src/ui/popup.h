@@ -14,6 +14,8 @@ typedef struct {
     const char* buttonTwoText;
     // The color of the popup
     Color color;
+    // The time in seconds it takes for the popup to transition in
+    double transitionTime;
 } Popup;
 
 typedef enum {
