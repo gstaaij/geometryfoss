@@ -11,7 +11,7 @@
 #define POPUP_MESSAGE_FONT_SIZE 15.0
 
 // The width of the popup box in characters
-#define POPUP_BOX_MAX_WIDTH_CHARS 40.0
+#define POPUP_BOX_MAX_WIDTH_CHARS 40
 #define POPUP_BOX_PADDING 10.0
 
 #define POPUP_DEFAULT_COLOR (Color) { 0, 25, 49, 255 }
@@ -20,20 +20,34 @@
 static Popup* popupQueue = NULL;
 static PopupButton popupResult = POPUP_BUTTON_NONE;
 
-static char* wrapString(char* string, const int maxChars) {
+static char* wrapString(char* string, const size_t maxChars) {
     if (maxChars <= 0)
         return string;
-
-    size_t len = strlen(string);
+    
+    Nob_String_View sv = nob_sv_from_cstr(string);
     Nob_String_Builder sb = {0};
-    for (size_t i = 0; i < len; i += maxChars) {
-        int count = len - i;
-        if (count > maxChars)
-            count = maxChars;
-        nob_sb_append_buf(&sb, string + i, count);
-        if (i + maxChars < len) {
-            nob_da_append(&sb, '\n');
+    
+    size_t lineLength = 0;
+    while (sv.count > 0) {
+        Nob_String_View subsv = nob_sv_chop_by_delim(&sv, ' ');
+        bool shouldAddNewline = false;
+        size_t addedLineLength = 0;
+        for (size_t i = 0; i < subsv.count; ++i) {
+            ++addedLineLength;
+            if (subsv.data[i] == '\n') {
+                addedLineLength = 0;
+                lineLength = 0;
+            }
+            if (lineLength + addedLineLength > maxChars)
+                shouldAddNewline = true;
         }
+        if (shouldAddNewline) {
+            nob_da_append(&sb, '\n');
+            lineLength = 0;
+        }
+        nob_sb_append_buf(&sb, subsv.data, subsv.count);
+        nob_da_append(&sb, ' ');
+        lineLength += addedLineLength + 1;
     }
     nob_sb_append_null(&sb);
     return sb.items;
@@ -93,6 +107,7 @@ void popupUpdateUI(const GDFCamera uiCamera) {
     Popup currentPopup = popupQueue[0];
     
     long fontSize = convertToScreen(POPUP_MESSAGE_FONT_SIZE, uiCamera);
+    SetTextLineSpacing(convertToScreen(POPUP_BOX_PADDING / 2, uiCamera) + fontSize);
 
     const char* message = currentPopup.message;
 
@@ -105,8 +120,9 @@ void popupUpdateUI(const GDFCamera uiCamera) {
     ScreenCoord popupMessageScreenLocation = getScreenCoord(popupMessageLocation, uiCamera);
     long fontSpacing = fontSize/GetFontDefault().baseSize;
     long popupWidth = popupGetWidth(uiCamera, fontSize, message);
-    Vector2 messageSize = MeasureTextEx(GetFontDefault(), message, fontSize, fontSpacing);
+    Vector2 messageSize = MeasureTextEx(GetFontDefault(), message, (float) fontSize, (float) fontSpacing);
     long popupHeight = convertToScreen(POPUP_BOX_PADDING * 3 + POPUP_BUTTON_HEIGHT, uiCamera) + messageSize.y;
+    double popupGDHeight = convertToGD(popupHeight, uiCamera);
 
     DrawRectangle(
         popupScreenLocation.x - popupWidth / 2, popupScreenLocation.y - popupHeight / 2,
@@ -122,6 +138,18 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         convertToScreen(1.0, uiCamera),
         GRAY
     );
+
+#ifdef DEBUG
+    DrawRectanglePro(
+        (Rectangle) {
+            popupMessageScreenLocation.x, popupMessageScreenLocation.y,
+            messageSize.x, messageSize.y,
+        },
+        (Vector2) { messageSize.x / 2, messageSize.y / 2 },
+        0.0f,
+        RED
+    );
+#endif
 
     DrawTextPro(
         GetFontDefault(), message,
@@ -139,7 +167,7 @@ void popupUpdateUI(const GDFCamera uiCamera) {
 
     Coord buttonLocation = {
         popupLocation.x,
-        popupLocation.y - POPUP_BOX_PADDING / 2 - POPUP_BUTTON_HEIGHT / 2,
+        popupLocation.y - popupGDHeight / 2 + POPUP_BOX_PADDING + POPUP_BUTTON_HEIGHT / 2,
     };
     if (currentPopup.twoButtons) {
         buttonLocation.x -= POPUP_BOX_PADDING / 2 + POPUP_BUTTON_WIDTH / 2;
