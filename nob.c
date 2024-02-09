@@ -132,7 +132,7 @@ static const char* cFiles[] = {
     "util.c",
 };
 
-bool buildMain(Target target) {
+bool buildMain(Target target, bool debugMode) {
     bool result = true;
 
     Nob_Cmd cmd = {0};
@@ -141,6 +141,9 @@ bool buildMain(Target target) {
             cmd.count = 0;
                 nob_cmd_append(&cmd, "gcc");
                 nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
+
+                if (debugMode)
+                    nob_cmd_append(&cmd, "-DDEBUG");
 
                 // Disable warnings from raygui
                 nob_cmd_append(&cmd, "-isystem", "./src/ray");
@@ -169,6 +172,9 @@ bool buildMain(Target target) {
             cmd.count = 0;
                 nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
                 nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
+
+                if (debugMode)
+                    nob_cmd_append(&cmd, "-DDEBUG");
 
                 // Disable some warnings from stb_ds
                 nob_cmd_append(&cmd, "-isystem", "./src/stb");
@@ -240,7 +246,7 @@ int main(int argc, char** argv) {
         return 0;
     } else if (strcmp(subcommand, "build") == 0) {
         if (argc < 1) {
-            nob_log(NOB_INFO, "To compile for a different target, use: %s build <target>", program);
+            nob_log(NOB_INFO, "To compile for a different target, use: %s build <target> [options]", program);
         }
 
         if (!nob_mkdir_if_not_exists("./build")) return 1;
@@ -257,8 +263,21 @@ int main(int argc, char** argv) {
             if (!parseTarget(value, &target)) return 1;
         }
 
+        bool debugMode = false;
+        while (argc >= 1) {
+            const char* arg = nob_shift_args(&argc, &argv);
+            if (strcmp(arg, "--debug") == 0) {
+                debugMode = true;
+            } else {
+                nob_log(NOB_ERROR, "Usage: %s build %s [options]", program, targetNames[target]);
+                nob_log(NOB_ERROR, "Available options:");
+                nob_log(NOB_ERROR, "    --debug        Extra debug visuals and logs");
+                return 1;
+            }
+        }
+
         if (!buildRaylib(target)) return 1;
-        if (!buildMain(target)) return 1;
+        if (!buildMain(target, debugMode)) return 1;
 
     } else {
         logAvailableSubcommands(program, NOB_ERROR);
