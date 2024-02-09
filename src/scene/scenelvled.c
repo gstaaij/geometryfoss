@@ -430,6 +430,22 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             case PAUSE_MENU_BUTTON_RESUME: {
                 scenelvled->isPaused = false;
             } break;
+            case PAUSE_MENU_BUTTON_SAVE: {
+                if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    /// TODO: show a popup to the user telling them the level couldn't be saved
+                } else {
+                    /// TODO: show a popup that the level was successfully saved
+                }
+            } break;
+            case PAUSE_MENU_BUTTON_SAVE_AND_EXIT: {
+                if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    /// TODO: show a popup to the user telling them the level couldn't be saved
+                } else {
+                    assert(0 && "NOT IMPLEMENTED: Level select menu");
+                }
+            } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_PLAY: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
                     nob_log(NOB_ERROR, "Couldn't save the level");
