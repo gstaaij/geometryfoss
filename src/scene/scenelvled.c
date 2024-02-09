@@ -29,6 +29,8 @@
 #define BUTTON_GRID_BUTTON_SIZE (BUTTON_GRID_HEIGHT / BUTTON_GRID_ROWS - (BUTTON_GRID_ROWS * BUTTON_GRID_OFFSET) / 4)
 #define BUTTON_GRID_WIDTH (BUTTON_GRID_COLUMNS * BUTTON_GRID_BUTTON_SIZE + (BUTTON_GRID_COLUMNS - 1) * BUTTON_GRID_OFFSET)
 
+#define DESELECTED_BUTTON_ALPHA 0.8
+
 // Pause menu macros
 #define PAUSE_MENU_BUTTON_WIDTH 200.0
 #define PAUSE_MENU_BUTTON_HEIGHT 20.0
@@ -254,26 +256,47 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
         .height = buttonHeight,
     };
 
+    if (scenelvled->uiMode == EDITOR_UI_MODE_DELETE) {
+        GuiLock();
+    } else {
+        GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
+    }
     // Draw the Delete button
     if (GuiButton(currentButtonRect, "Delete")) {
         scenelvled->uiMode = EDITOR_UI_MODE_DELETE;
     }
+    if (!scenelvled->isPaused) GuiUnlock();
+    GuiSetAlpha(1);
 
     // Change the y position for the Edit button
     currentButtonRect.y -= buttonOffset + buttonHeight;
 
+    if (scenelvled->uiMode == EDITOR_UI_MODE_EDIT) {
+        GuiLock();
+    } else {
+        GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
+    }
     // Draw the Edit button
     if (GuiButton(currentButtonRect, "Edit")) {
         scenelvled->uiMode = EDITOR_UI_MODE_EDIT;
     }
+    if (!scenelvled->isPaused) GuiUnlock();
+    GuiSetAlpha(1);
 
     // Change the y position for the Build button
     currentButtonRect.y -= buttonOffset + buttonHeight;
     
+    if (scenelvled->uiMode == EDITOR_UI_MODE_BUILD) {
+        GuiLock();
+    } else {
+        GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
+    }
     // Draw the Build button
     if (GuiButton(currentButtonRect, "Build")) {
         scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
     }
+    if (!scenelvled->isPaused) GuiUnlock();
+    GuiSetAlpha(1);
 
     switch (scenelvled->uiMode) {
         case EDITOR_UI_MODE_BUILD: {
@@ -291,25 +314,28 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             int len = NOB_ARRAY_LEN(objectDefenitions);
             for (int i = 0; i < len; ++i) {
                 if (!objectDefenitions[i].exists) continue;
+
                 Coord buttonPos = {
                     .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
                     .y = buttonGridCenter.y - (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) - BUTTON_GRID_BUTTON_SIZE/2,
                 };
                 ScreenCoord scButtonPos = getScreenCoord(buttonPos, scenelvled->uiCamera);
+
                 if (i == scenelvled->blockBuildId) {
-                    GuiSetAlpha(0.75);
                     GuiLock();
+                } else {
+                    GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
                 }
+
                 bool clicked = GuiButton((Rectangle) {
                     .x = scButtonPos.x - buttonWidth / 2,
                     .y = scButtonPos.y - buttonHeight / 2,
                     .width = buttonWidth,
                     .height = buttonHeight,
                 }, NULL);
-                if (i == scenelvled->blockBuildId) {
-                    if (!scenelvled->isPaused) GuiUnlock();
-                    GuiSetAlpha(1);
-                }
+
+                if (!scenelvled->isPaused) GuiUnlock();
+                GuiSetAlpha(1);
 
                 Object buttonObject = {
                     .position = buttonPos,
