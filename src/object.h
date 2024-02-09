@@ -4,7 +4,6 @@
 #include "cJSON/cJSON.h"
 #include "coord.h"
 #include "hitbox.h"
-#include "objdefsutil.h"
 #include <stdbool.h>
 
 #define OBJECT_SOLID_HITBOX_COLOR   CLITERAL (Color){ 0,   0,   255, 255 }
@@ -65,10 +64,15 @@ cJSON* objectSerialize(const Object object);
 // Deserialize an Object from cJSON
 bool objectDeserialize(Object* object, const cJSON* objectJson);
 
+
+typedef enum {
+    OBJECT_ID_DEFAULT_BLOCK = 1,
+    OBJECT_ID_DEFAULT_SPIKE = 8,
+} ObjectIDs;
+
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {
-    {0}, // ID 0 is nothing
-    { // ID 1, default block
+    [OBJECT_ID_DEFAULT_BLOCK] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
@@ -82,8 +86,7 @@ static const ObjectDefinition objectDefenitions[] = {
         },
         .exists = true,
     },
-    PAD(6), // Until ID 7, we currently only need the default spike and the default block
-    { // ID 8, default spike
+    [OBJECT_ID_DEFAULT_SPIKE] = {
         .type = OBJECT_HAZARD,
         .shape = {
             .type = OBJSHAPE_SPIKE,
