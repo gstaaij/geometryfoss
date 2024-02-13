@@ -114,6 +114,7 @@ static const char* cFiles[] = {
     "camera.c",
     "coord.c",
     "cJSON/cJSON.c",
+    "easing/easing.c",
     "grid.c",
     "ground.c",
     "hitbox.c",

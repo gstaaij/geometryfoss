@@ -3,6 +3,7 @@
 #include "nob.h"
 #include "stb_ds.h"
 #include "raygui.h"
+#include "easing/easing.h"
 #include "input/keyboard.h"
 
 #define POPUP_BUTTON_FONT_SIZE 12.5
@@ -16,14 +17,31 @@
 #define POPUP_BOX_PADDING 10.0
 
 #define POPUP_DEFAULT_COLOR (Color) { 0, 25, 49, 255 }
-#define POPUP_DEFAULT_TRANSITION_TIME 0.15
+#ifndef DEBUG
+    #define POPUP_DEFAULT_TRANSITION_TIME 0.25
+#else
+    #define POPUP_DEFAULT_TRANSITION_TIME 2.5
+#endif
 
 
 static Popup* popupQueue = NULL;
 static PopupButton popupResult = POPUP_BUTTON_NONE;
+static double popupTransitionProgress = 0.0;
 static double popupScale = 0.0;
 // We have to have one frame of debounce in case there is a button underneath the popup button
 static double popupWasShown = false;
+
+#ifdef DEBUG
+    static double maxPopupScale = 0.0;
+    static double maxPopupScaleTransitionProgress = 0.0;
+    static double maxPopupTransitionProgress = 0.0;
+    static double maxPopupTransitionProgressScale = 0.0;
+
+    static double minPopupScale = 100.0;
+    static double minPopupScaleTransitionProgress = 1.0;
+    static double minPopupTransitionProgress = 1.0;
+    static double minPopupTransitionProgressScale = 100.0;
+#endif
 
 static char* wrapString(char* string, const size_t maxChars) {
     if (maxChars <= 0)
@@ -67,7 +85,19 @@ long popupGetWidth(const GDFCamera uiCamera, const double fontSize, const double
 void popupNext() {
     if (arrlenu(popupQueue) > 0)
         arrdel(popupQueue, 0);
+    popupTransitionProgress = 0.0;
     popupScale = 0.0;
+#ifdef DEBUG
+    maxPopupScale = 0.0;
+    maxPopupScaleTransitionProgress = 0.0;
+    maxPopupTransitionProgress = 0.0;
+    maxPopupTransitionProgressScale = 0.0;
+
+    minPopupScale = 100.0;
+    minPopupScaleTransitionProgress = 1.0;
+    minPopupTransitionProgress = 1.0;
+    minPopupTransitionProgressScale = 100.0;
+#endif
 }
 
 void popupShow(char* message) {
@@ -110,11 +140,41 @@ bool popupIsShown() {
 }
 
 void popupUpdate(const double deltaTime) {
-    if (!popupIsShown() || popupScale >= 1.0)
+    if (!popupIsShown() || popupTransitionProgress >= 1.0)
         return;
-    popupScale += deltaTime / popupQueue[0].transitionTime;
-    if (popupScale >= 1.0)
-        popupScale = 1.0;
+    popupTransitionProgress += deltaTime / popupQueue[0].transitionTime;
+    if (popupTransitionProgress >= 1.0)
+        popupTransitionProgress = 1.0;
+    popupScale = getEasingFunction(EASE_OUT_BACK)(popupTransitionProgress);
+#ifdef DEBUG
+    if (popupTransitionProgress > maxPopupTransitionProgress) {
+        maxPopupTransitionProgress = popupTransitionProgress;
+        maxPopupTransitionProgressScale = popupScale;
+    }
+    if (popupTransitionProgress < minPopupTransitionProgress) {
+        minPopupTransitionProgress = popupTransitionProgress;
+        minPopupTransitionProgressScale = popupScale;
+    }
+
+    if (popupScale > maxPopupScale) {
+        maxPopupScale = popupScale;
+        maxPopupScaleTransitionProgress = popupTransitionProgress;
+    }
+    if (popupScale < minPopupScale) {
+        minPopupScale = popupScale;
+        minPopupScaleTransitionProgress = popupTransitionProgress;
+    }
+
+    if (popupTransitionProgress >= 1.0) {
+        nob_log(NOB_INFO, "");
+        nob_log(NOB_INFO, "Popup at maximum scale: { transition: %lf; scale: %lf }", maxPopupScaleTransitionProgress, maxPopupScale);
+        nob_log(NOB_INFO, "Popup at minimum scale: { transition: %lf; scale: %lf }", minPopupScaleTransitionProgress, minPopupScale);
+        nob_log(NOB_INFO, "");
+        nob_log(NOB_INFO, "Popup at maximum transition: { transition: %lf; scale: %lf }", maxPopupTransitionProgress, maxPopupTransitionProgressScale);
+        nob_log(NOB_INFO, "Popup at minimum transition: { transition: %lf; scale: %lf }", minPopupTransitionProgress, minPopupTransitionProgressScale);
+        nob_log(NOB_INFO, "");
+    }
+#endif
 }
 
 void popupUpdateUI(const GDFCamera uiCamera) {
