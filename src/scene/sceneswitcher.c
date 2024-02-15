@@ -47,7 +47,6 @@ void sceneswitcherUpdate(SceneState* state, const double deltaTime) {
         return;
     transition->time += deltaTime;
     transition->progress = transition->time / transition->duration;
-    // nob_log(NOB_INFO, "Transition { progress: %f; time: %f }", transition->progress, transition->time);
     if (transition->progress >= 1.0) {
         transition->transitioning = false;
     } else if (transition->progress >= 0.5 && !transition->shouldLoadTargetScene) {

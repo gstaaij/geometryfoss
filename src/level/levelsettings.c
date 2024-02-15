@@ -7,12 +7,12 @@ cJSON* levelsettingsSerialize(const LevelSettings levelSettings) {
     cJSON* result = lvlsettingsJson;
 
     if (cJSON_AddNumberToObject(lvlsettingsJson, "backgroundColor", ColorToInt(levelSettings.backgroundColor)) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize level background color");
+        TraceLog(LOG_ERROR, "Couldn't serialize level background color");
         nob_return_defer(NULL);
     }
 
     if (cJSON_AddNumberToObject(lvlsettingsJson, "groundColor", ColorToInt(levelSettings.groundColor)) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize level ground color");
+        TraceLog(LOG_ERROR, "Couldn't serialize level ground color");
         nob_return_defer(NULL);
     }
 

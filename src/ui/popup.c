@@ -166,13 +166,13 @@ void popupUpdate(const double deltaTime) {
     }
 
     if (popupTransitionProgress >= 1.0) {
-        nob_log(NOB_INFO, "");
-        nob_log(NOB_INFO, "Popup at maximum scale: { transition: %lf; scale: %lf }", maxPopupScaleTransitionProgress, maxPopupScale);
-        nob_log(NOB_INFO, "Popup at minimum scale: { transition: %lf; scale: %lf }", minPopupScaleTransitionProgress, minPopupScale);
-        nob_log(NOB_INFO, "");
-        nob_log(NOB_INFO, "Popup at maximum transition: { transition: %lf; scale: %lf }", maxPopupTransitionProgress, maxPopupTransitionProgressScale);
-        nob_log(NOB_INFO, "Popup at minimum transition: { transition: %lf; scale: %lf }", minPopupTransitionProgress, minPopupTransitionProgressScale);
-        nob_log(NOB_INFO, "");
+        TraceLog(LOG_DEBUG, "");
+        TraceLog(LOG_DEBUG, "Popup at maximum scale: { transition: %lf; scale: %lf }", maxPopupScaleTransitionProgress, maxPopupScale);
+        TraceLog(LOG_DEBUG, "Popup at minimum scale: { transition: %lf; scale: %lf }", minPopupScaleTransitionProgress, minPopupScale);
+        TraceLog(LOG_DEBUG, "");
+        TraceLog(LOG_DEBUG, "Popup at maximum transition: { transition: %lf; scale: %lf }", maxPopupTransitionProgress, maxPopupTransitionProgressScale);
+        TraceLog(LOG_DEBUG, "Popup at minimum transition: { transition: %lf; scale: %lf }", minPopupTransitionProgress, minPopupTransitionProgressScale);
+        TraceLog(LOG_DEBUG, "");
     }
 #endif
 }

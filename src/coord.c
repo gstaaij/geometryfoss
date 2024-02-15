@@ -9,12 +9,12 @@ cJSON* coordSerialize(const Coord coord) {
     cJSON* result = coordJson;
 
     if (cJSON_AddNumberToObject(coordJson, "x", coord.x) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize coord x");
+        TraceLog(LOG_ERROR, "Couldn't serialize coord x");
         nob_return_defer(NULL);
     }
 
     if (cJSON_AddNumberToObject(coordJson, "y", coord.y) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize coord y");
+        TraceLog(LOG_ERROR, "Couldn't serialize coord y");
         nob_return_defer(NULL);
     }
 

@@ -115,23 +115,23 @@ cJSON* objectSerialize(const Object object) {
 
     cJSON* posJson = coordSerialize(object.position);
     if (posJson == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize object position");
+        TraceLog(LOG_ERROR, "Couldn't serialize object position");
         nob_return_defer(NULL);
     }
     cJSON_AddItemToObject(objectJson, "position", posJson);
 
     if (cJSON_AddNumberToObject(objectJson, "angle", object.angle) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize object angle");
+        TraceLog(LOG_ERROR, "Couldn't serialize object angle");
         nob_return_defer(NULL);
     }
 
     if (cJSON_AddNumberToObject(objectJson, "scale", object.scale) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize object scale");
+        TraceLog(LOG_ERROR, "Couldn't serialize object scale");
         nob_return_defer(NULL);
     }
 
     if (cJSON_AddNumberToObject(objectJson, "id", object.id) == NULL) {
-        nob_log(NOB_ERROR, "Couldn't serialize object id");
+        TraceLog(LOG_ERROR, "Couldn't serialize object id");
         nob_return_defer(NULL);
     }
 
@@ -146,7 +146,7 @@ bool objectDeserialize(Object* object, const cJSON* objectJson) {
     if (cJSON_IsObject(posJson)) {
         Coord newPosition = {0};
         if (!coordDeserialize(&newPosition, posJson))
-            nob_log(NOB_WARNING, "Failed to parse object position, skipping...");
+            TraceLog(LOG_WARNING, "Failed to parse object position, skipping...");
         object->position = newPosition;
     }
 

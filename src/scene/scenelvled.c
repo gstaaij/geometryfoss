@@ -94,7 +94,7 @@ SceneLevelEditor* scenelvledCreate() {
 
     // Load the level
     if (!levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects))
-        nob_log(NOB_WARNING, "Couldn't load save! This is likely due to the save not existing yet");
+        TraceLog(LOG_WARNING, "Couldn't load save! This is likely due to the save not existing yet");
 
     return scenelvled;
 }
@@ -125,14 +125,14 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             case POPUP_QUESTION_SAVE: {
                 bool shouldSave = popupResult == POPUP_BUTTON_ONE;
                 if (shouldSave && !levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
-                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 }
             } break;
             case POPUP_QUESTION_LOAD: {
                 bool shouldLoad = popupResult == POPUP_BUTTON_ONE;
                 if (shouldLoad && !levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects)) {
-                    nob_log(NOB_ERROR, "Couldn't load save!");
+                    TraceLog(LOG_ERROR, "Couldn't load save!");
                     popupShow(POPUP_MESSAGE_COULDNT_LOAD);
                 }
             } break;
@@ -475,7 +475,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             } break;
             case PAUSE_MENU_BUTTON_SAVE: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
-                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
                     popupShow("Successfully saved the level!");
@@ -483,7 +483,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_EXIT: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
-                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
                     popupShow("The level select menu hasn't been implemented yet.\nYour level has been saved, though :)");
@@ -491,7 +491,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_PLAY: {
                 if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
-                    nob_log(NOB_ERROR, "Couldn't save the level");
+                    TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
                     sceneswitcherTransitionTo(sceneState, SCENE_LEVEL);

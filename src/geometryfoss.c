@@ -77,6 +77,12 @@ int main(void) {
     scenemanager = scenemanagerCreate();
     sceneswitcherTransitionEx(scenemanager->state, SCENE_LVLED, 1.0, 0.5);
 
+    #ifdef DEBUG
+        SetTraceLogLevel(LOG_ALL);
+    #else
+        SetTraceLogLevel(LOG_INFO);
+    #endif
+
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
     double timeSinceLastDraw = 0;

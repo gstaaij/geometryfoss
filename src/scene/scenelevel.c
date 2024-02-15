@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "raylib.h"
-#include "nob.h"
 #include "stb_ds.h"
 #include "input/keyboard.h"
 #include "ground.h"
@@ -142,11 +141,11 @@ SceneLevel* scenelevelCreate() {
     #endif // STRESS_TEST
 
     if (!levelSaveToFile("debuglevel.json", scenelevel->levelSettings, scenelevel->objects))
-        nob_log(NOB_ERROR, "Couldn't save the debug level!");
+        TraceLog(LOG_ERROR, "Couldn't save the debug level!");
     
 #else
     if (!levelLoadFromFile("level.json", &scenelevel->levelSettings, &scenelevel->objects))
-        nob_log(NOB_ERROR, "Couldn't load save!");
+        TraceLog(LOG_ERROR, "Couldn't load save!");
 #endif
 
     return scenelevel;
