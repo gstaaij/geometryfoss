@@ -40,15 +40,26 @@
 #include "nob.h"
 
 #define TARGET_FPS 60
-#define TARGET_TPS 240
+#ifdef DEBUG
+    #define TARGET_TPS 60
+#else
+    #define TARGET_TPS 240
+#endif
 
 #define TIME_SCALE 1.0
+
+#ifdef DEBUG
+    #define TARGET_TPS_DEBUG_TOGGLE 15
+    #define TIME_SCALE_DEBUG_TOGGLE 0.25
+#endif
 
 static void update(const double deltaTime);
 static void updateUI();
 static void draw();
 
 long tps = 0;
+long targetTps = TARGET_TPS;
+double timeScale = TIME_SCALE;
 
 SceneManager* scenemanager;
 
@@ -83,8 +94,14 @@ int main(void) {
         bool shouldDraw = timeSinceLastDraw >= 1.0/(double)TARGET_FPS;
         
         // If enough time has elapsed, update
-        if (timeSinceLastUpdate >= 1.0/TARGET_TPS) {
-            update(timeSinceLastUpdate * TIME_SCALE);
+        if (timeSinceLastUpdate >= 1.0/targetTps) {
+            update(timeSinceLastUpdate * timeScale);
+            #ifdef DEBUG
+                if (keyboardPressed(KEY_G))
+                    timeScale = timeScale == TIME_SCALE ? TIME_SCALE_DEBUG_TOGGLE : TIME_SCALE;
+                if (keyboardPressed(KEY_F))
+                    targetTps = targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS;
+            #endif
             if (!shouldDraw) {
                 updateUI();
                 PollInputEvents();
@@ -128,6 +145,21 @@ static void draw() {
         // Display the FPS and TPS on the top left of the screen
         DrawText(TextFormat("TPS: %ld", tps), 10, 10, 24, WHITE);
         DrawText(TextFormat("FPS: %ld", GetFPS()), 10, 34, 24, WHITE);
+
+        #ifdef DEBUG
+            static const char* debugModeText = "DEBUG MODE";
+            int y = 10;
+            DrawText(debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10 + 2, y + 2, 48, BLACK);
+            DrawText(debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10, y, 48, RED);
+            y += 48;
+            const char* instruction1Text = TextFormat("Press G to set the time scale to %.02f", timeScale == TIME_SCALE ? TIME_SCALE_DEBUG_TOGGLE : TIME_SCALE);
+            DrawText(instruction1Text, GetScreenWidth() - MeasureText(instruction1Text, 24) - 10 + 1, y + 1, 24, BLACK);
+            DrawText(instruction1Text, GetScreenWidth() - MeasureText(instruction1Text, 24) - 10, y, 24, LIGHTGRAY);
+            y += 24;
+            const char* instruction2Text = TextFormat("Press F to set the target TPS to %d", targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS);
+            DrawText(instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10 + 1, y + 1, 24, BLACK);
+            DrawText(instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10, y, 24, LIGHTGRAY);
+        #endif
 
     EndDrawing();
 }

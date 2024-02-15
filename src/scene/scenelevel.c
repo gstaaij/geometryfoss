@@ -48,17 +48,18 @@ SceneLevel* scenelevelCreate() {
     scenelevel->levelSettings.backgroundColor = GetColor(0x287dffff);
     scenelevel->levelSettings.groundColor = GetColor(0x0066ffff);
 
+#ifdef DEBUG
     // Add a test block to the objects DA
-    Object testBlock = {
-        .position = {
-            .x = 375,
-            .y = 195 -5.5, // It should be just barely possible to jump under this, -6 should kill you
-        },
-        .angle = 0,
-        .scale = 1,
-        .id = 1,
-    };
-    arrput(scenelevel->objects, testBlock);
+    // Object testBlock = {
+    //     .position = {
+    //         .x = 375,
+    //         .y = 195 -5.5, // It should be just barely possible to jump under this, -6 should kill you
+    //     },
+    //     .angle = 0,
+    //     .scale = 1,
+    //     .id = 1,
+    // };
+    // arrput(scenelevel->objects, testBlock);
     // Add a triple spike
     for (size_t i = 345; i < 345+90; i += 30) {
         Object spike = {
@@ -75,7 +76,7 @@ SceneLevel* scenelevelCreate() {
     // Add another spike that should make it just barely possible to jump over the spikes
     // Object lastSpike = {
     //     .position = {
-    //         .x = 405 +13, // +13.5 should kill the player
+    //         .x = 405 +13, // +13.5 should be impossible
     //         .y = 105,
     //     },
     //     .angle = 0,
@@ -97,34 +98,56 @@ SceneLevel* scenelevelCreate() {
         };
         arrput(scenelevel->objects, block);
     }
-#ifdef STRESS_TEST
-    // Stress test
-    for (int i = 0; i < 40000; i++) {
-        Object block = {
-            .position = {
-                .x = 990 + i * 30 * 5,
-                .y = 105,
-            },
-            .angle = 0,
-            .scale = 1,
-            .id = 1,
-        };
-        Object spike = {
-            .position = {
-                .x = 990 + i * 30 * 5,
-                .y = 135,
-            },
-            .angle = 0,
-            .scale = 1,
-            .id = 8,
-        };
-        arrput(scenelevel->objects, block);
-        arrput(scenelevel->objects, spike);
-    }
-#endif // STRESS_TEST
 
+    // Add platforms
+    for (int i = 0; i < 100; i++) {
+        for (int x = i * 900 + 885; x < i * 900 + 885 + 300; x += 30) {
+            Object block = {
+                .position = {
+                    .x = x,
+                    .y = 135,
+                },
+                .angle = 0,
+                .scale = 1,
+                .id = 1,
+            };
+            arrput(scenelevel->objects, block);
+        }
+    }
+
+    #ifdef STRESS_TEST
+        // Stress test
+        for (int i = 0; i < 40000; i++) {
+            Object block = {
+                .position = {
+                    .x = 990 + i * 30 * 5,
+                    .y = 105,
+                },
+                .angle = 0,
+                .scale = 1,
+                .id = 1,
+            };
+            Object spike = {
+                .position = {
+                    .x = 990 + i * 30 * 5,
+                    .y = 135,
+                },
+                .angle = 0,
+                .scale = 1,
+                .id = 8,
+            };
+            arrput(scenelevel->objects, block);
+            arrput(scenelevel->objects, spike);
+        }
+    #endif // STRESS_TEST
+
+    if (!levelSaveToFile("debuglevel.json", scenelevel->levelSettings, scenelevel->objects))
+        nob_log(NOB_ERROR, "Couldn't save the debug level!");
+    
+#else
     if (!levelLoadFromFile("level.json", &scenelevel->levelSettings, &scenelevel->objects))
         nob_log(NOB_ERROR, "Couldn't load save!");
+#endif
 
     return scenelevel;
 }

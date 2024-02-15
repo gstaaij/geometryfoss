@@ -14,6 +14,8 @@ typedef struct {
     bool isOnGround;
     bool isDead;
 
+    long double timeAlive;
+
     double deadTime;
     
     Hitbox outerHitbox;

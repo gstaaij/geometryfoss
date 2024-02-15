@@ -2,23 +2,14 @@
 #include "raylib.h"
 #include "stb_ds.h"
 #include "camera.h"
+#include "constants/player.h"
 #include "object.h"
 #include "ground.h"
 #include <stddef.h>
 #include <math.h>
 
-// I got this value using the 2.2 info label
-// #define PLAYER_SPEED_X 311.63
-// And I got this value by testing the stairs
-#define PLAYER_SPEED_X 323.6
-
-// These two values were found using trail and error knowing that:
-// - The lowest possible block to survive a jump under is three blocks in above the ground minus 5.5 coordinate points on the y axis
-// - The hardest possible triple spike you can survive has the last spike offset by +13 coordinate points on the x axis
-// Given that they're round values, they probably are the real values, but I will have to confirm that once I get
-// around to making a GD mod to show me or once hacks come to GD 2.2
-#define PLAYER_GRAVITY_Y 2800.0
-#define PLAYER_JUMP_FORCE 600.0
+#define SOLID_COLLISION_TPS 60
+long double timer = 0;
 
 void playerUpdate(Player* player, const Object* objects, const double deltaTime) {
     if (player->isDead) {
@@ -29,26 +20,34 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
         return;
     }
 
+    player->timeAlive += deltaTime;
+    // Lock the snapping up a block to 60 TPS to fix some physics related issues
+    timer += deltaTime;
+    bool shouldDoSnapUp = false;
+    if (timer >= 1.0 / SOLID_COLLISION_TPS) {
+        timer -= 1.0 / SOLID_COLLISION_TPS;
+        shouldDoSnapUp = true;
+    }
+
     // This is always constant, so no need to change the velocity for this
-    player->position.x += PLAYER_SPEED_X * deltaTime;
+    player->velocity.x = PLAYER_NORMAL_SPEED;
+    player->position.x += player->velocity.x * deltaTime;
 
     // If we are on the ground, and we press one of the jump keys or click with the mouse, jump
     bool jump = player->isOnGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP) || IsKeyDown(KEY_W) || IsKeyDown(KEY_KP_5) || IsMouseButtonDown(MOUSE_BUTTON_LEFT));
     if (jump) {
-        player->velocity.y = PLAYER_JUMP_FORCE / 2;
+        player->velocity.y = PLAYER_JUMP_FORCE;
         player->isOnGround = false;
     }
 
     // Do exactly what was done in the Jonas Tyroller video
-    double halfAcceleration = PLAYER_GRAVITY_Y * deltaTime * 0.5;
+    double halfAcceleration = PLAYER_GRAVITY_FORCE * deltaTime * 0.5;
     // Add half the gravity to the velocity
     player->velocity.y -= halfAcceleration;
     // The player y velocity is now the average speed of last frame
     player->position.y += player->velocity.y * deltaTime;
     // Add half the gravity to the velocity again
     player->velocity.y -= halfAcceleration;
-
-    if (jump) player->velocity.y += PLAYER_JUMP_FORCE / 2;
 
     // Go over all objects to check for collisions
     bool onBlock = false;
@@ -69,18 +68,41 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
                     player->velocity.y < 0 &&
                     !hitboxSquareCollidesOnlyY(player->innerHitbox, player->position, def.hitbox, object.position)
                 ) {
-                    // Go up until you don't hit the object anymore
-                    while (hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
-                        player->position.y += 3;
+                    bool shouldBeGrounded = true;
+                    if (shouldDoSnapUp) {
+                        // This part is the reason for the inconsistency of the physics depending on the framerate
+                        // That's why we lock it to 60 TPS
+                        // The reason is that on 60 TPS the player goes farther into the block before it snaps up and
+                        // can jump again, so if we lock it to 60 TPS, every TPS of 60 or above will be (more or less) consistent
+                        
+                        // Go up until you don't hit the object anymore
+                        while (hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
+                            player->position.y += 1;
+                        }
+                        // Go down in smaller steps until you hit the object again
+                        while (!hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
+                            player->position.y -= 0.01;
+                        }
+                    } else if (
+                        !hitboxSquareCollidesOnlyX(
+                            player->outerHitbox, (Coord) {
+                                // The x position minus the maximum distance the player can be into a block without having been snapped back to the top
+                                player->position.x - (1.0 / SOLID_COLLISION_TPS * player->velocity.x + 0.01), // The +0.01 is for rounding errors
+                                player->position.y,
+                            },
+                            def.hitbox, object.position
+                        )
+                    ) {
+                        // Only set the y velocity and isOnGround if the player isn't potentially going to be snapped to the top of the block
+                        shouldBeGrounded = false;
                     }
-                    // Go down in smaller steps until you hit the object again
-                    while (!hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
-                        player->position.y -= 0.1;
+
+                    if (shouldBeGrounded) {
+                        // Reset the y velocity and set isOnGround to true 
+                        player->velocity.y = 0;
+                        player->isOnGround = true;
+                        onBlock = true;
                     }
-                    // Reset the y position and set isOnGround to true
-                    player->velocity.y = 0;
-                    player->isOnGround = true;
-                    onBlock = true;
                 }
             }
             break;
@@ -161,4 +183,7 @@ void playerReset(Player* player) {
     // Reset dead
     player->isDead = false;
     player->deadTime = 0;
+
+    player->timeAlive = 0.0;
+    timer = 0;
 }

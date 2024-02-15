@@ -97,6 +97,27 @@ void scenemanagerDraw(SceneManager* scenemanager) {
         } break;
         case SCENE_LEVEL: {
             scenelevelDraw(scenemanager->scenelevel);
+
+            #ifdef DEBUG
+                int y = 34 + 24;
+                const char* labelTimeText = TextFormat("Time: %llf", scenemanager->scenelevel->player.timeAlive);
+                DrawText(labelTimeText, 10, y, 24, WHITE);
+                y += 24;
+                const char* labelXText = TextFormat("X: %f", scenemanager->scenelevel->player.position.x);
+                DrawText(labelXText, 10, y, 24, WHITE);
+                y += 24;
+                const char* labelYText = TextFormat("Y: %f", scenemanager->scenelevel->player.position.y);
+                DrawText(labelYText, 10, y, 24, WHITE);
+                y += 24;
+                const char* labelVelXText = TextFormat("velX: %f", scenemanager->scenelevel->player.velocity.x);
+                DrawText(labelVelXText, 10, y, 24, WHITE);
+                y += 24;
+                const char* labelVelYText = TextFormat("velY: %f", scenemanager->scenelevel->player.velocity.y);
+                DrawText(labelVelYText, 10, y, 24, WHITE);
+                y += 24;
+                const char* labelOnGroundText = TextFormat("Grounded: %s", scenemanager->scenelevel->player.isOnGround ? "true" : "false");
+                DrawText(labelOnGroundText, 10, y, 24, WHITE);
+            #endif
         } break;
         case SCENE_LVLED: {
             scenelvledDraw(scenemanager->scenelvled);

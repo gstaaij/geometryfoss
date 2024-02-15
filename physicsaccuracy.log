@@ -1,0 +1,66 @@
+Measuring:
+1.  enable debug mode
+2.  press G
+3.  go to the level scene
+4.  press F3
+5.  hold Q while jumping over the triple
+6.  press P until x = 484 (later changed to 482.9 because that's better)
+7.  if you want to test at 60TPS: press F
+8.  hold SPACE
+9.  hold Q
+10. (optional) count the amount of blocks you jump on (excluding the one you die to)
+11. let go of Q when you die and make note of the x coordinate
+
+
+With snapback:
+240TPS: died after 43 blocks (x = 5755)
+60TPS:  died after 34 blocks (x = 4680)
+
+Without snapback:
+240TPS: died after 13 blocks (x = 2155)
+60TPS:  died after 13 blocks (x = 2156)
+
+With 60TPS snapback:
+240TPS: died after 32 blocks (x = 4436)
+60TPS:  died after 35 blocks (x = 4675)
+
+With 60TPS snapback and 60TPS jump:
+240TPS: DNF
+60TPS:  died after 34 blocks (x = 4675)
+
+With 60TPS snapback and may only jump if not going to snap back (jump at end of update loop):
+240TPS: died after 41 blocks (x = 5516)
+60TPS:  died after 43 blocks (x = 5755)
+
+With 60TPS snapback and may only jump if not going to snap back (jump at beginning of update loop):
+240TPS: died after 32 blocks (x = 4436)
+60TPS:  died after 34 blocks (x = 4680)
+
+With 60TPS snapback that actually works:
+240TPS: died after 25 blocks (x = 3596)
+60TPS:  died after 34 blocks (x = 4680)
+
+From now on, replace the x position in step 6 with 482.9, because that's an x position achievable at 60TPS, and it yields more accurate results.
+
+240TPS: died after 35 blocks (x = 4795)
+60TPS:  died after 31 blocks (x = 4315)
+240TPS: died after 35 blocks (x = 4795)
+60TPS:  died after 31 blocks (x = 4315)
+
+With 60TPS snapback that actually works with velocity reset also at 60TPS:
+240TPS: died after 35 blocks (x = 4795)
+60TPS:  died after 31 blocks (x = 4315)
+
+With 60TPS snapback that actually works with setting grounded only sometimes:
+240TPS: died after 32 blocks (x = 4436)
+60TPS:  died after 31 blocks (x = 4315)
+
+Again:
+240TPS: died after 32 blocks (x = 4436)
+60TPS:  died after 31 blocks (x = 4315)
+
+And again:
+240TPS: died after 32 blocks (x = 4436)
+60TPS:  died after 31 blocks (x = 4315)
+
+Good enough
