@@ -62,6 +62,8 @@ static void update(const double deltaTime);
 static void updateUI();
 static void draw();
 
+bool showTpsAndFps = true;
+
 long tps = 0;
 long targetTps = TARGET_TPS;
 double timeScale = TIME_SCALE;
@@ -112,6 +114,12 @@ int main(void) {
             if (timeSinceLastUpdate * timeScale <= MAX_DELTA_TIME) {
         #endif
                 update(timeSinceLastUpdate * timeScale);
+            #ifdef DEBUG
+                if (keyboardPressed(KEY_G))
+                    timeScale = timeScale == TIME_SCALE ? TIME_SCALE_DEBUG_TOGGLE : TIME_SCALE;
+                if (keyboardPressed(KEY_F))
+                    targetTps = targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS;
+            #endif
                 if (!shouldDraw) {
                     updateUI();
                     PollInputEvents();
@@ -129,12 +137,6 @@ int main(void) {
                 }
             }
         #endif
-            #ifdef DEBUG
-                if (keyboardPressed(KEY_G))
-                    timeScale = timeScale == TIME_SCALE ? TIME_SCALE_DEBUG_TOGGLE : TIME_SCALE;
-                if (keyboardPressed(KEY_F))
-                    targetTps = targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS;
-            #endif
 
             tps = roundl(1.0 / timeSinceLastUpdate);
             timeSinceLastUpdate = 0;
@@ -159,6 +161,10 @@ static void update(const double deltaTime) {
     mouseUpdate();
 
     scenemanagerUpdate(scenemanager, deltaTime);
+
+    if (keyboardPressed(KEY_F3)) {
+        showTpsAndFps = !showTpsAndFps;
+    }
 }
 
 static void updateUI() {
@@ -171,9 +177,14 @@ static void draw() {
         scenemanagerDraw(scenemanager);
         updateUI();
 
-        // Display the FPS and TPS on the top left of the screen
-        DrawText(TextFormat("TPS: %ld", tps), 10, 10, 24, WHITE);
-        DrawText(TextFormat("FPS: %ld", GetFPS()), 10, 34, 24, WHITE);
+        if (showTpsAndFps) {
+            // Display the FPS and TPS on the top left of the screen
+            const int fs = 20;
+            int y = 10;
+            DrawText(TextFormat("TPS: %ld", tps), 10, y, fs, WHITE);
+            y += fs;
+            DrawText(TextFormat("FPS: %ld", GetFPS()), 10, y, fs, WHITE);
+        }
 
         #ifdef DEBUG
             static const char* debugModeText = "DEBUG MODE";

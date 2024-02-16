@@ -175,7 +175,7 @@ updateCamera:
         playerReset(&scenelevel->player);
     }
 
-    if (keyboardPressed(KEY_F3)) {
+    if (keyboardPressed(KEY_ESCAPE)) {
         scenelevel->frameStep = !scenelevel->frameStep;
     }
 
