@@ -138,11 +138,10 @@ SceneLevel* scenelevelCreate() {
             arrput(scenelevel->objects, block);
             arrput(scenelevel->objects, spike);
         }
-    #endif // STRESS_TEST
-
-    if (!levelSaveToFile("debuglevel.json", scenelevel->levelSettings, scenelevel->objects))
-        TraceLog(LOG_ERROR, "Couldn't save the debug level!");
-    
+    #else // STRESS_TEST
+        if (!levelSaveToFile("debuglevel.json", scenelevel->levelSettings, scenelevel->objects))
+            TraceLog(LOG_ERROR, "Couldn't save the debug level!");
+    #endif
 #else
     if (!levelLoadFromFile("level.json", &scenelevel->levelSettings, &scenelevel->objects))
         TraceLog(LOG_ERROR, "Couldn't load save!");

@@ -4,6 +4,7 @@
 #include <memory.h>
 #include "raylib.h"
 #include "ui/popup.h"
+#include "input/keyboard.h"
 
 SceneManager* scenemanagerCreate() {
     SceneManager* scenemanager = (SceneManager*) malloc(sizeof(SceneManager));
@@ -24,6 +25,9 @@ void scenemanagerLoad(SceneManager* scenemanager, const SceneEnum scene) {
     scenemanagerUnload(scenemanager);
     switch (scene) {
         case SCENE_NONE: {} break;
+        case SCENE_CRASH: {
+            // This scene is very simple, we don't need a seperate structure for it
+        } break;
         case SCENE_LEVEL: {
             scenemanager->scenelevel = scenelevelCreate();
         } break;
@@ -54,6 +58,12 @@ void scenemanagerUnload(SceneManager* scenemanager) {
 void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime) {
     switch (scenemanager->state->currentScene) {
         case SCENE_NONE: {} break;
+        case SCENE_CRASH: {
+            if (keyboardPressed(KEY_SPACE)) {
+                /// TODO: make this return to the main menu
+                sceneswitcherTransitionTo(scenemanager->state, SCENE_LVLED);
+            }
+        } break;
         case SCENE_LEVEL: {
             scenelevelUpdate(scenemanager->scenelevel, scenemanager->state, deltaTime);
         } break;
@@ -76,6 +86,7 @@ void scenemanagerUpdateUI(SceneManager* scenemanager) {
     
     switch (scenemanager->state->currentScene) {
         case SCENE_NONE: {} break;
+        case SCENE_CRASH: {} break;
         case SCENE_LEVEL: {
             scenelevelUpdateUI(scenemanager->scenelevel, scenemanager->state);
         } break;
@@ -94,6 +105,26 @@ void scenemanagerDraw(SceneManager* scenemanager) {
     switch (scenemanager->state->currentScene) {
         case SCENE_NONE: {
             ClearBackground(BLACK);
+        } break;
+        case SCENE_CRASH: {
+            ClearBackground(BLACK);
+            const char* titleText = "Something went horribly wrong";
+            const int titleFontSize = 36;
+            DrawText(
+                titleText,
+                GetScreenWidth() / 2 - MeasureText(titleText, titleFontSize) / 2,
+                GetScreenHeight() / 2 - titleFontSize / 2,
+                titleFontSize, WHITE
+            );
+            
+            const char* subtitleText = "Press SPACE to return to the main menu";
+            const int subtitleFontSize = 20;
+            DrawText(
+                subtitleText,
+                GetScreenWidth() / 2 - MeasureText(subtitleText, subtitleFontSize) / 2,
+                GetScreenHeight() / 2 + titleFontSize / 2 + subtitleFontSize,
+                subtitleFontSize, WHITE
+            );
         } break;
         case SCENE_LEVEL: {
             scenelevelDraw(scenemanager->scenelevel);

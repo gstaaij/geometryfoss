@@ -48,6 +48,11 @@
 
 #define TIME_SCALE 1.0
 
+// 9 TPS is the minimum TPS where the physics function well enough for the player to die to things
+#define MAX_DELTA_TIME 0.1112
+// The amount of times in a row the delta time is allowed to be too high
+#define MAX_DELTA_TIME_INCIDENTS 10
+
 #ifdef DEBUG
     #define TARGET_TPS_DEBUG_TOGGLE 15
     #define TIME_SCALE_DEBUG_TOGGLE 0.25
@@ -60,6 +65,8 @@ static void draw();
 long tps = 0;
 long targetTps = TARGET_TPS;
 double timeScale = TIME_SCALE;
+
+int deltaTimeTooHighCounter = 0;
 
 SceneManager* scenemanager;
 
@@ -101,17 +108,34 @@ int main(void) {
         
         // If enough time has elapsed, update
         if (timeSinceLastUpdate >= 1.0/targetTps) {
-            update(timeSinceLastUpdate * timeScale);
+        #ifndef DEBUG // If debug mode is enabled, don't limit the delta time
+            if (timeSinceLastUpdate * timeScale <= MAX_DELTA_TIME) {
+        #endif
+                update(timeSinceLastUpdate * timeScale);
+                if (!shouldDraw) {
+                    updateUI();
+                    PollInputEvents();
+                }
+
+                deltaTimeTooHighCounter = 0;
+        #ifndef DEBUG
+            } else {
+                ++deltaTimeTooHighCounter;
+                if (deltaTimeTooHighCounter > MAX_DELTA_TIME_INCIDENTS) {
+                    // Immediately switch to the crash scene
+                    sceneswitcherTransitionEx(scenemanager->state, SCENE_CRASH, 0.1, 0.1);
+                    // Update so it actually switches
+                    update(1.0 / targetTps);
+                }
+            }
+        #endif
             #ifdef DEBUG
                 if (keyboardPressed(KEY_G))
                     timeScale = timeScale == TIME_SCALE ? TIME_SCALE_DEBUG_TOGGLE : TIME_SCALE;
                 if (keyboardPressed(KEY_F))
                     targetTps = targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS;
             #endif
-            if (!shouldDraw) {
-                updateUI();
-                PollInputEvents();
-            }
+
             tps = roundl(1.0 / timeSinceLastUpdate);
             timeSinceLastUpdate = 0;
         }
@@ -130,11 +154,10 @@ int main(void) {
     return 0;
 }
 
-
-static void update(const double deltaTime) {
+static void update(const double deltaTime) {  
     keyboardUpdate();
     mouseUpdate();
-    
+
     scenemanagerUpdate(scenemanager, deltaTime);
 }
 

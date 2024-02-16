@@ -47,12 +47,12 @@ void sceneswitcherUpdate(SceneState* state, const double deltaTime) {
         return;
     transition->time += deltaTime;
     transition->progress = transition->time / transition->duration;
-    if (transition->progress >= 1.0) {
-        transition->transitioning = false;
-    } else if (transition->progress >= 0.5 && !transition->shouldLoadTargetScene) {
+    if (transition->progress >= 0.5 && !transition->shouldLoadTargetScene) {
         transition->progress = 0.5;
         transition->shouldLoadTargetScene = true;
         transition->hasLoadedTargetScene = false;
+    } else if (transition->progress >= 1.0) {
+        transition->transitioning = false;
     }
 }
 
