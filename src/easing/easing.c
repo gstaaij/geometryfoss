@@ -1,6 +1,9 @@
-// Adapted from https://github.com/nicolausYes/easing-functions (no license)
-// Some of the code has undefined behaviour and I don't understand why some of these are the way they are,
-// so I have replaced some of the functions with ones from https://easings.net
+// The function generator was inspired by https://github.com/nicolausYes/easing-functions (no license)
+// All of the functions are from easings.net, some of them rewritten so they don't use ternary stuff
+
+/// TODO: make them like GD easing functions: ease, elastic, bounce, exponential, sine and back.
+///       Ease and elastic have easing rates (my hypothesis is that for normal ease,
+///       easing rate 2 = easeQuad, easing rate 3 = easeCubic, etc. So t^{easing rate})
 
 #include "easing.h"
 #include <stddef.h>
@@ -12,27 +15,32 @@
 #endif
 
 double easeInSine(double t) {
-    return sin(1.5707963 * t);
+    return 1 - cos((t * PI) / 2);
 }
 
 double easeOutSine(double t) {
-    return 1 + sin(1.5707963 * (--t));
+    return sin((t * PI) / 2);
 }
 
 double easeInOutSine(double t) {
-    return 0.5 * (1 + sin(PI * (t - 0.5)));
+    return -(cos(t * PI) - 1) / 2;
 }
 
 double easeInQuad(double t) {
     return t * t;
 }
 
-double easeOutQuad(double t) { 
-    return t * (2 - t);
+double easeOutQuad(double t) {
+    return 1 - (1 - t) * (1 - t);
 }
 
 double easeInOutQuad(double t) {
-    return t < 0.5 ? 2 * t * t : t * (4 - 2 * t) - 1;
+    if (t < 0.5) {
+        return 2 * t * t;
+    } else {
+        t = -2 * t + 2;
+        return 1 - (t * t) / 2;
+    }
 }
 
 double easeInCubic(double t) {
@@ -40,28 +48,27 @@ double easeInCubic(double t) {
 }
 
 double easeOutCubic(double t) {
-    double invt = 1 - t;
-    return 1 - invt * invt * invt;
-    // This code is bad (-Wsequence-point), so I replaced it with something that works
-    // return 1 + (--t) * t * t;
+    t = 1 - t;
+    return 1 - t * t * t;
 }
 
 double easeInOutCubic(double t) {
-    double powt = -2 * t + 2;
-    return t < 0.5 ? 4 * t * t * t : 1 - (powt * powt * powt) / 2;
-    // return t < 0.5 ? 4 * t * t * t : 1 + (--t) * (2 * (--t)) * (2 * t);
+    if (t < 0.5) {
+        return 4 * t * t * t;
+    } else {
+        t = -2 * t + 2;
+        return 1 - (t * t * t) / 2;
+    }
 }
 
 double easeInQuart(double t) {
-    t *= t;
-    return t * t;
+    t *= t; // t * t
+    return t * t; // (t * t) * (t * t) = t^4
 }
 
 double easeOutQuart(double t) {
     t = 1 - t;
-    return 1 - t * t * t * t;
-    // t = (--t) * t;
-    // return 1 - t * t;
+    return 1 - (t * t * t * t);
 }
 
 double easeInOutQuart(double t) {
@@ -71,22 +78,18 @@ double easeInOutQuart(double t) {
     } else {
         t = -2 * t + 2;
         return 1 - (t * t * t * t) / 2;
-        // t = (--t) * t;
-        // return 1 - 8 * t * t;
     }
 }
 
 double easeInQuint(double t) {
     double t2 = t * t;
-    return t * t2 * t2;
+    return t * t2 * t2; // t * (t * t) * (t * t) = t^5
 }
 
 double easeOutQuint(double t) {
     t = 1 - t;
     double t2 = t * t;
     return 1 - t * t2 * t2;
-    // double t2 = (--t) * t;
-    // return 1 + t * t2 * t2;
 }
 
 double easeInOutQuint(double t) {
@@ -95,109 +98,150 @@ double easeInOutQuint(double t) {
         t2 = t * t;
         return 16 * t * t2 * t2;
     } else {
-        t = -2 * 2 + 2;
+        t = -2 * t + 2;
         t2 = t * t;
         return 1 - (t * t2 * t2) / 2;
-        // t2 = (--t) * t;
-        // return 1 + 16 * t * t2 * t2;
     }
 }
 
 double easeInExpo(double t) {
-    return (pow(2, 8 * t) - 1) / 255;
+    if (t == 0.0)
+        return 0.0;
+    return pow(2, 10 * t - 10);
 }
 
 double easeOutExpo(double t) {
-    return 1 - pow(2, -8 * t);
+    if (t == 1.0)
+        return 1.0;
+    return 1 - pow(2, -10 * t);
 }
 
 double easeInOutExpo(double t) {
+    if (t == 0.0)
+        return 0.0;
+    if (t == 1.0)
+        return 1.0;
     if (t < 0.5) {
-        return (pow(2, 16 * t) - 1) / 510;
+        return pow(2, 20 * t - 10) / 2;
     } else {
-        return 1 - 0.5 * pow(2, -16 * (t - 0.5));
+        return (2 - pow(2, -20 * t + 10)) / 2;
     }
 }
 
 double easeInCirc(double t) {
-    return 1 - sqrt(1 - t);
+    return 1 - sqrt(1 - (t * t));
 }
 
 double easeOutCirc(double t) {
-    return sqrt(t);
+    t = t - 1;
+    return sqrt(1 - (t * t));
 }
 
 double easeInOutCirc(double t) {
     if (t < 0.5) {
-        return (1 - sqrt(1 - 2 * t)) * 0.5;
+        t = t * 2;
+        return (1 - sqrt(1 - (t * t))) / 2;
     } else {
-        return (1 + sqrt(2 * t - 1)) * 0.5;
+        t = -2 * t + 2;
+        return (sqrt(1 - (t * t)) + 1) / 2;
     }
 }
 
 double easeInBack(double t) {
-    return t * t * (2.70158 * t - 1.70158);
+    const double c1 = 1.70158;
+    const double c3 = c1 + 1;
+    return c3 * t * t * t - c1 * t * t;
 }
 
 double easeOutBack(double t) {
     const double c1 = 1.70158;
-    // const double c1 = 1.2;
     const double c3 = c1 + 1;
 
     t = t - 1;
     return 1 + c3 * t * t * t + c1 * t * t;
-    // return 1 + (--t) * t * (2.70158 * t + 1.70158);
 }
 
 double easeInOutBack(double t) {
-    if (t < 0.5) {
-        return t * t * (7 * t - 2.5) * 2;
-    } else {
-        const double c1 = 1.70158;
-        const double c2 = c1 + 1.525;
+    const double c1 = 1.70158;
+    const double c2 = c1 * 1.525;
 
+    if (t < 0.5) {
+        t *= 2;
+        return (t*t * ((c2 + 1) * t - c2)) / 2;
+    } else {
         t = 2 * t - 2;
-        return (t * t * ((c2 + 1) * t + c2) + 2) / 2;
-        // return 1 + (--t) * t * 2 * (7 * t + 2.5);
+        return (t*t * ((c2 + 1) * t + c2) + 2) / 2;
     }
 }
 
 double easeInElastic(double t) {
-    double t2 = t * t;
-    return t2 * t2 * sin(t * PI * 4.5);
+    if (t == 0.0)
+        return 0.0;
+    if (t == 1.0)
+        return 1.0;
+    
+    const double c4 = (2 * PI) / 3;
+
+    return -pow(2, 10 * t - 10) * sin((t * 10 - 10.75) * c4);
 }
 
 double easeOutElastic(double t) {
-    double t2 = (t - 1) * (t - 1);
-    return 1 - t2 * t2 * cos(t * PI * 4.5);
+    if (t == 0.0)
+        return 0.0;
+    if (t == 1.0)
+        return 1.0;
+    
+    const double c4 = (2 * PI) / 3;
+
+    return pow(2, -10 * t) * sin((t * 10 - 0.75) * c4) + 1;
 }
 
 double easeInOutElastic(double t) {
-    double t2;
-    if (t < 0.45) {
-        t2 = t * t;
-        return 8 * t2 * t2 * sin(t * PI * 9);
-    } else if (t < 0.55) {
-        return 0.5 + 0.75 * sin(t * PI * 4);
+    if (t == 0.0)
+        return 0.0;
+    if (t == 1.0)
+        return 1.0;
+    
+    const double c5 = (2 * PI) / 4.5;
+
+    if (t < 0.5) {
+        return -(pow(2, 20 * t - 10) * sin((20 * t - 11.125) * c5)) / 2;
     } else {
-        t2 = (t - 1) * (t - 1);
-        return 1 - 8 * t2 * t2 * sin(t * PI * 9);
+        return (pow(2, -20 * t + 10) * sin((20 * t - 11.125) * c5)) / 2 + 1;
     }
 }
 
+double easeOutBounce(double t);
+
 double easeInBounce(double t) {
-    return pow(2, 6 * (t - 1)) * dabs(sin(t * PI * 3.5));
+    return 1 - easeOutBounce(1 - t);
 }
 
 double easeOutBounce(double t) {
-    return 1 - pow(2, -6 * t) * dabs(cos(t * PI * 3.5));
+    const double n1 = 7.5625;
+    const double d1 = 2.75;
+
+    if (t < 1 / d1) {
+        return n1 * t * t;
+    } else if (t < 2 / d1) {
+        // easings.net also had horrendously unreadable JavaScript code here:
+        // return n1 * (x -= 1.5 / d1) * x * 0.75;
+        t -= 1.5 / d1;
+        return n1 * t * t + 0.75;
+    } else if (t < 2.5 / d1) {
+        t -= 2.25 / d1;
+        return n1 * t * t + 0.9375;
+    } else {
+        t -= 2.625 / d1;
+        return n1 * t * t + 0.984375;
+    }
 }
 
 double easeInOutBounce(double t) {
     if (t < 0.5) {
-        return 8 * pow(2, 8 * (t - 1)) * dabs(sin(t * PI * 7));
+        return (1 - easeOutBounce(1 - 2 * t)) / 2;
     } else {
-        return 1 - 8 * pow(2, -8 * t) * dabs(sin(t * PI * 7));
+        return (1 + easeOutBounce(2 * t - 1)) / 2;
     }
 }
 

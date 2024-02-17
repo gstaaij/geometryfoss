@@ -1,5 +1,3 @@
-// Adapted from https://github.com/nicolausYes/easing-functions (no license)
-
 #pragma once
 
 typedef enum {
