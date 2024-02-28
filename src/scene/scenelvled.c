@@ -5,7 +5,7 @@
 #include <memory.h>
 #include "stb_ds.h"
 #include "raygui.h"
-#include "cJSON/cJSON.h"
+#include "lib/cJSON/cJSON.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
 #include "grid.h"

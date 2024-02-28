@@ -1,6 +1,6 @@
 #pragma once
 #include "coord.h"
-#include "player.h"
+#include "player/player.h"
 
 // Update the camera so it follows the player
 void cameraUpdate(GDFCamera* camera, const Player player, const double deltaTime);

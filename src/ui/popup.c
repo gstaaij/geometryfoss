@@ -3,7 +3,7 @@
 #include "nob.h"
 #include "stb_ds.h"
 #include "raygui.h"
-#include "easing/easing.h"
+#include "lib/easing/easing.h"
 #include "input/keyboard.h"
 
 #define POPUP_BUTTON_FONT_SIZE 12.5

@@ -113,8 +113,8 @@ static const char* cFiles[] = {
     "geometryfoss.c",
     "camera.c",
     "coord.c",
-    "cJSON/cJSON.c",
-    "easing/easing.c",
+    "lib/cJSON/cJSON.c",
+    "lib/easing/easing.c",
     "grid.c",
     "ground.c",
     "hitbox.c",
@@ -123,7 +123,7 @@ static const char* cFiles[] = {
     "level/level.c",
     "level/levelsettings.c",
     "object.c",
-    "player.c",
+    "player/player.c",
     "scene/scenemanager.c",
     "scene/sceneswitcher.c",
     "scene/scenelevel.c",
@@ -147,11 +147,11 @@ bool buildMain(Target target, bool debugMode) {
                     nob_cmd_append(&cmd, "-DDEBUG");
 
                 // Disable warnings from raygui
-                nob_cmd_append(&cmd, "-isystem", "./src/ray");
+                nob_cmd_append(&cmd, "-isystem", "./src/lib/ray");
 
                 // Disable some warnings from stb_ds
-                nob_cmd_append(&cmd, "-isystem", "./src/stb");
-                nob_cmd_append(&cmd, "-Wno-missing-field-initializers");
+                nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
+                // nob_cmd_append(&cmd, "-Wno-missing-field-initializers");
                 
                 nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
                 nob_cmd_append(&cmd, "-I./src");
@@ -176,9 +176,12 @@ bool buildMain(Target target, bool debugMode) {
 
                 if (debugMode)
                     nob_cmd_append(&cmd, "-DDEBUG");
+                
+                // Disable warnings from raygui
+                nob_cmd_append(&cmd, "-isystem", "./src/lib/ray");
 
                 // Disable some warnings from stb_ds
-                nob_cmd_append(&cmd, "-isystem", "./src/stb");
+                nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
                 
                 nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
                 nob_cmd_append(&cmd, "-I./src");

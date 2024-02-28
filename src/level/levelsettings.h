@@ -1,6 +1,6 @@
 #pragma once
 #include "raylib.h"
-#include "cJSON/cJSON.h"
+#include "lib/cJSON/cJSON.h"
 
 typedef struct {
     Color backgroundColor;

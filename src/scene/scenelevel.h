@@ -1,7 +1,7 @@
 #pragma once
 #include "scene/sceneswitcher.h"
 #include "object.h"
-#include "player.h"
+#include "player/player.h"
 #include "camera.h"
 #include "level/levelsettings.h"
 

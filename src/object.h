@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "nob.h"
-#include "cJSON/cJSON.h"
+#include "lib/cJSON/cJSON.h"
 #include "coord.h"
 #include "hitbox.h"
 #include <stdbool.h>

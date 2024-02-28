@@ -1,6 +1,6 @@
 #pragma once
 #include "nob.h"
-#include "cJSON/cJSON.h"
+#include "lib/cJSON/cJSON.h"
 
 // Defines a position or size in screen coordinates
 typedef struct {

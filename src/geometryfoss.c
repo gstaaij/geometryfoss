@@ -24,7 +24,7 @@
 #include "camera.h"
 #include "object.h"
 #include "ground.h"
-#include "player.h"
+#include "player/player.h"
 
 // Make raygui use our own mouse and keyboard functions
 #define IsMouseButtonReleased mouseReleased
