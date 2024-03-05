@@ -124,6 +124,7 @@ static const char* cFiles[] = {
     "level/levelsettings.c",
     "object.c",
     "player/player.c",
+    "player/physics/playerphysics.c",
     "scene/scenemanager.c",
     "scene/sceneswitcher.c",
     "scene/scenelevel.c",

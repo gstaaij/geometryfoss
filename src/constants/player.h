@@ -43,3 +43,7 @@
 
 #define PLAYER_GRAVITY_FORCE 2800.0
 #define PLAYER_JUMP_FORCE 610.0
+
+
+// Physics
+#define SOLID_COLLISION_TPS 60
