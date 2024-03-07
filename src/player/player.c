@@ -9,6 +9,8 @@
 #include <stddef.h>
 #include <math.h>
 
+static long double physicsTimer = 0;
+
 void playerUpdate(Player* player, const Object* objects, const double deltaTime) {
     if (player->isDead) {
         player->deadTime += deltaTime;
@@ -18,7 +20,7 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
         return;
     }
 
-    playerphysicsUpdate(player, objects, deltaTime);
+    playerphysicsUpdate(player, objects, deltaTime, &physicsTimer);
 
     // If the player is not on the ground, rotate
     if (!player->isOnGround) {
@@ -76,5 +78,5 @@ void playerReset(Player* player) {
     player->deadTime = 0;
 
     player->timeAlive = 0.0;
-    timer = 0;
+    physicsTimer = 0;
 }

@@ -3,15 +3,13 @@
 #include "constants/player.h"
 #include "constants/level.h"
 
-static long double timer = 0;
-
-void playerphysicsUpdate(Player* player, const Object* objects, const double deltaTime) {
+void playerphysicsUpdate(Player* player, const Object* objects, const double deltaTime, long double* timer) {
     player->timeAlive += deltaTime;
     // Lock the snapping up a block to 60 TPS to fix some physics related issues
-    timer += deltaTime;
+    *timer += deltaTime;
     bool shouldDoSnapUp = false;
-    if (timer >= 1.0 / SOLID_COLLISION_TPS) {
-        timer -= 1.0 / SOLID_COLLISION_TPS;
+    if (*timer >= 1.0 / SOLID_COLLISION_TPS) {
+        *timer -= 1.0 / SOLID_COLLISION_TPS;
         shouldDoSnapUp = true;
     }
 

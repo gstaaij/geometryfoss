@@ -3,4 +3,4 @@
 #include "player/player.h"
 #include "object.h"
 
-void playerphysicsUpdate(Player* player, const Object* objects, const double deltaTime);
+void playerphysicsUpdate(Player* player, const Object* objects, const double deltaTime, long double* timer);
