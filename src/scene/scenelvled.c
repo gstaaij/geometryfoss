@@ -5,6 +5,7 @@
 #include <memory.h>
 #include "stb_ds.h"
 #include "raygui.h"
+#include "raymath.h"
 #include "lib/cJSON/cJSON.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
@@ -232,6 +233,35 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
     bool usefulKeyPressed = keyPressedW || keyPressedS || keyPressedA || keyPressedD || keyPressedQ || keyPressedE || keyPressedDel;
     // Move or delete selected blocks if the correct key is pressed
     if (usefulKeyPressed) {
+        // The middle point of the selection
+        Coord selectedObjectRotateAroundPosition = {0};
+        if (keyPressedQ || keyPressedE) {
+            double minX =  INFINITY;
+            double maxX = -INFINITY;
+            double minY =  INFINITY;
+            double maxY = -INFINITY;
+            for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
+                Object* object = &scenelvled->objects[i];
+                if (object->selected) {
+                    double x = object->position.x;
+                    double y = object->position.y;
+                    if (x < minX)
+                        minX = x;
+                    if (x > maxX)
+                        maxX = x;
+                    
+                    if (y < minY)
+                        minY = y;
+                    if (y > maxY)
+                        maxY = y;
+                }
+            }
+            selectedObjectRotateAroundPosition = (Coord) {
+                .x = (minX + maxX) / 2,
+                .y = (minY + maxY) / 2,
+            };
+            TraceLog(LOG_DEBUG, "Selected object rotation position: {%lf, %lf}", selectedObjectRotateAroundPosition.x, selectedObjectRotateAroundPosition.y);
+        }
         for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
             Object* object = &scenelvled->objects[i];
             if (object->selected) {
@@ -248,10 +278,30 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
                     object->position.x += 2 + !shiftDown * 28;
                 }
                 if (keyPressedQ) {
+                    Vector2 relativeObjectPosition = {
+                        .x = object->position.x - selectedObjectRotateAroundPosition.x,
+                        .y = object->position.y - selectedObjectRotateAroundPosition.y,
+                    };
+                    // Raymath works with radians, but the rest of raylib works with degrees. Makes sense.
+                    Vector2 newRelativeObjectPosition = Vector2Rotate(relativeObjectPosition, 0.5*PI);
+
+                    object->position.x = newRelativeObjectPosition.x + selectedObjectRotateAroundPosition.x;
+                    object->position.y = newRelativeObjectPosition.y + selectedObjectRotateAroundPosition.y;
+
                     object->angle -= 90;
                     if (object->angle < 0) object->angle += 360;
                 }
                 if (keyPressedE) {
+                    Vector2 relativeObjectPosition = {
+                        .x = object->position.x - selectedObjectRotateAroundPosition.x,
+                        .y = object->position.y - selectedObjectRotateAroundPosition.y,
+                    };
+                    // Also, a positive angle rotates counterclockwise in raymath and clockwise in other raylib functions (like DrawRectanglePro, see player/player.c)
+                    Vector2 newRelativeObjectPosition = Vector2Rotate(relativeObjectPosition, -0.5*PI);
+
+                    object->position.x = newRelativeObjectPosition.x + selectedObjectRotateAroundPosition.x;
+                    object->position.y = newRelativeObjectPosition.y + selectedObjectRotateAroundPosition.y;
+
                     object->angle += 90;
                     if (object->angle > 360) object->angle -= 360;
                 }
