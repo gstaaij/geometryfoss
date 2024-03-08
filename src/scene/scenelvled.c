@@ -219,10 +219,10 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
 
     bool shiftDown = keyboardDown(KEY_LEFT_SHIFT);
     // Moving objects around
-    bool keyPressedW = keyboardPressed(KEY_W);
-    bool keyPressedS = keyboardPressed(KEY_S);
-    bool keyPressedA = keyboardPressed(KEY_A);
-    bool keyPressedD = keyboardPressed(KEY_D);
+    bool keyPressedW = keyboardPressed(KEY_W) || keyboardPressedMod(KEY_W, true, false);
+    bool keyPressedS = keyboardPressed(KEY_S) || keyboardPressedMod(KEY_S, true, false);
+    bool keyPressedA = keyboardPressed(KEY_A) || keyboardPressedMod(KEY_A, true, false);
+    bool keyPressedD = keyboardPressed(KEY_D) || keyboardPressedMod(KEY_D, true, false);
     // Rotating objects
     bool keyPressedQ = keyboardPressed(KEY_Q);
     bool keyPressedE = keyboardPressed(KEY_E);
