@@ -1,10 +1,17 @@
 #include "hitbox.h"
 #include "camera.h"
 #include "util.h"
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <math.h>
 
-void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double scale, const Color hitboxColor, const GDFCamera camera) {
+bool shouldSwapWidthAndHeight(const int hitbox1Angle, const int hitbox2Angle) {
+    return  (hitbox1Angle % 180 == 90 && hitbox2Angle % 180 ==  0) ||
+            (hitbox1Angle % 180 ==  0 && hitbox2Angle % 180 == 90);
+}
+
+
+void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double scale, const int angle, const Color hitboxColor, const GDFCamera camera) {
     if (hitbox.shape == HITBOX_SQUARE) {
         // Calculate the absolute position of the hitbox
         Coord hitboxCoord = {
@@ -15,6 +22,11 @@ void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double sc
         // Convert the width, height and line thickness of the hitbox to screen pixels
         long scHitboxWidth = convertToScreen(hitbox.width * scale, camera);
         long scHitboxHeight = convertToScreen(hitbox.height * scale, camera);
+        if (shouldSwapWidthAndHeight(hitboxGetRealAngle(hitbox, angle), 0)) {
+            long tmp = scHitboxWidth;
+            scHitboxWidth = scHitboxHeight;
+            scHitboxHeight = tmp;
+        }
         long scHitboxLineThick = convertToScreen(1, camera);
 
         // Convert the absolute position to Screen Coordinates
@@ -40,7 +52,18 @@ void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double sc
     }
 }
 
-bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const Hitbox hitbox2, const Coord parent2Position) {
+int hitboxGetRealAngle(const Hitbox hitbox, const int angle) {
+    if (hitbox.rotationMode == HITBOX_ROTATION_MODE_NONE) {
+        return 0;
+    }
+    if (hitbox.rotationMode == HITBOX_ROTATION_MODE_FULL) {
+        TraceLog(LOG_FATAL, "NOT IMPLEMENTED: HITBOX_ROTATION_MODE_FULL");
+        return 0;
+    }
+    return (int) (round((double) angle / 90) * 90);
+}
+
+bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const int hitbox1Angle, const Hitbox hitbox2, const Coord parent2Position, const int hitbox2Angle) {
     if (hitbox1.shape == HITBOX_SQUARE && hitbox2.shape == HITBOX_SQUARE) {
         // Calculate the distance between the hitboxes in the two axes
         double dx = (parent2Position.x + hitbox2.offset.x) - (parent1Position.x + hitbox1.offset.x);
@@ -50,6 +73,11 @@ bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const Hit
         double halfWidths = (hitbox1.width / 2) + (hitbox2.width / 2);
         // Do the same for the heights
         double halfHeights = (hitbox1.height / 2) + (hitbox2.height / 2);
+        if (shouldSwapWidthAndHeight(hitboxGetRealAngle(hitbox1, hitbox1Angle), hitboxGetRealAngle(hitbox2, hitbox2Angle))) {
+            double tmp = halfWidths;
+            halfWidths = halfHeights;
+            halfHeights = tmp;
+        }
 
         // If the x distance is smaller than the combined half widths, we are colliding on the x axis
         if (dabs(dx) < halfWidths) {
@@ -67,7 +95,7 @@ bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const Hit
     return false;
 }
 
-bool hitboxSquareCollidesOnlyX(const Hitbox hitbox1, const Coord parent1Position, const Hitbox hitbox2, const Coord parent2Position) {
+bool hitboxSquareCollidesOnlyX(const Hitbox hitbox1, const Coord parent1Position, const int hitbox1Angle, const Hitbox hitbox2, const Coord parent2Position, const int hitbox2Angle) {
     if (hitbox1.shape != HITBOX_SQUARE || hitbox2.shape != HITBOX_SQUARE) {
         assert("INCOMPATIBLE: this function only works with square hitboxes" && false);
     }
@@ -77,12 +105,15 @@ bool hitboxSquareCollidesOnlyX(const Hitbox hitbox1, const Coord parent1Position
 
     // Add half of the width of hitbox 1 to half of the width of hitbox 2
     double halfWidths = (hitbox1.width / 2) + (hitbox2.width / 2);
+    if (shouldSwapWidthAndHeight(hitboxGetRealAngle(hitbox1, hitbox1Angle), hitboxGetRealAngle(hitbox2, hitbox2Angle))) {
+        halfWidths = (hitbox1.height / 2) + (hitbox2.height / 2);
+    }
 
     // If the x distance is smaller than the combined half widths, we are colliding on the x axis
     return dabs(dx) < halfWidths;
 }
 
-bool hitboxSquareCollidesOnlyY(const Hitbox hitbox1, const Coord parent1Position, const Hitbox hitbox2, const Coord parent2Position) {
+bool hitboxSquareCollidesOnlyY(const Hitbox hitbox1, const Coord parent1Position, const int hitbox1Angle, const Hitbox hitbox2, const Coord parent2Position, const int hitbox2Angle) {
     if (hitbox1.shape != HITBOX_SQUARE || hitbox2.shape != HITBOX_SQUARE) {
         assert("INCOMPATIBLE: this function only works with square hitboxes" && false);
     }
@@ -92,6 +123,9 @@ bool hitboxSquareCollidesOnlyY(const Hitbox hitbox1, const Coord parent1Position
 
     // Add half of the height of hitbox 1 to half of the height of hitbox 2
     double halfHeights = (hitbox1.height / 2) + (hitbox2.height / 2);
+    if (shouldSwapWidthAndHeight(hitboxGetRealAngle(hitbox1, hitbox1Angle), hitboxGetRealAngle(hitbox2, hitbox2Angle))) {
+        halfHeights = (hitbox1.width / 2) + (hitbox2.width / 2);
+    }
 
     // If the y distance is smaller than the combined half heights, we are colliding on the y axis
     return dabs(dy) < halfHeights;

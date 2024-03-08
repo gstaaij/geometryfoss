@@ -112,7 +112,7 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
         }
 
         // Call the hitboxDraw function to do the work for us
-        hitboxDraw(def.hitbox, object.position, object.scale, hitboxColor, camera);
+        hitboxDraw(def.hitbox, object.position, object.scale, object.angle, hitboxColor, camera);
     }
 }
 

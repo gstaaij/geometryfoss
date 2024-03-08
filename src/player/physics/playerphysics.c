@@ -42,15 +42,15 @@ void playerphysicsUpdate(Player* player, const Object* objects, const double del
         switch(def.type) {
         case OBJECT_SOLID:
             // If the inner hitbox of the player collides with the hitbox of the object, kill the player
-            if (hitboxCollides(player->innerHitbox, player->position, def.hitbox, object.position))
+            if (hitboxCollides(player->innerHitbox, player->position, player->angle, def.hitbox, object.position, object.angle))
                 playerDie(player);
 
-            if (hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
+            if (hitboxCollides(player->outerHitbox, player->position, player->angle, def.hitbox, object.position, object.angle)) {
                 // If the player is above the object, is going downwards, and the inner hitbox isn't in line with the object's hitbox, snap the player to the top of the object
                 if (
                     player->position.y > object.position.y &&
                     player->velocity.y < 0 &&
-                    !hitboxSquareCollidesOnlyY(player->innerHitbox, player->position, def.hitbox, object.position)
+                    !hitboxSquareCollidesOnlyY(player->innerHitbox, player->position, player->angle, def.hitbox, object.position, object.angle)
                 ) {
                     bool shouldBeGrounded = true;
                     if (shouldDoSnapUp) {
@@ -60,11 +60,11 @@ void playerphysicsUpdate(Player* player, const Object* objects, const double del
                         // can jump again, so if we lock it to 60 TPS, every TPS of 60 or above will be (more or less) consistent
                         
                         // Go up until you don't hit the object anymore
-                        while (hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
+                        while (hitboxCollides(player->outerHitbox, player->position, player->angle, def.hitbox, object.position, object.angle)) {
                             player->position.y += 1;
                         }
                         // Go down in smaller steps until you hit the object again
-                        while (!hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position)) {
+                        while (!hitboxCollides(player->outerHitbox, player->position, player->angle, def.hitbox, object.position, object.angle)) {
                             player->position.y -= 0.01;
                         }
                     } else if (
@@ -73,8 +73,8 @@ void playerphysicsUpdate(Player* player, const Object* objects, const double del
                                 // The x position minus the maximum distance the player can be into a block without having been snapped back to the top
                                 player->position.x - (1.0 / SOLID_COLLISION_TPS * player->velocity.x + 0.01), // The +0.01 is for rounding errors
                                 player->position.y,
-                            },
-                            def.hitbox, object.position
+                            }, player->angle,
+                            def.hitbox, object.position, object.angle
                         )
                     ) {
                         // Only set the y velocity and isOnGround if the player isn't potentially going to be snapped to the top of the block
@@ -92,7 +92,7 @@ void playerphysicsUpdate(Player* player, const Object* objects, const double del
             break;
         case OBJECT_HAZARD:
             // Die if the outer hitbox hits the hitbox of the hazard
-            if (hitboxCollides(player->outerHitbox, player->position, def.hitbox, object.position))
+            if (hitboxCollides(player->outerHitbox, player->position, player->angle, def.hitbox, object.position, object.angle))
                 playerDie(player);
             break;
         default:

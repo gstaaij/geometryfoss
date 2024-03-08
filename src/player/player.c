@@ -56,9 +56,9 @@ void playerDraw(const Player player, const GDFCamera camera) {
 void playerDrawHitboxes(const Player player, bool drawHitboxes, const GDFCamera camera) {
     if (!drawHitboxes) return;
     // Outer hitbox
-    hitboxDraw(player.outerHitbox, player.position, 1.0, OBJECT_HAZARD_HITBOX_COLOR, camera);
+    hitboxDraw(player.outerHitbox, player.position, 1.0, 0, OBJECT_HAZARD_HITBOX_COLOR, camera);
     // Inner hitbox
-    hitboxDraw(player.innerHitbox, player.position, 1.0, OBJECT_SOLID_HITBOX_COLOR, camera);
+    hitboxDraw(player.innerHitbox, player.position, 1.0, 0, OBJECT_SOLID_HITBOX_COLOR, camera);
 }
 
 void playerDie(Player* player) {
