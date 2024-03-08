@@ -1,5 +1,6 @@
 #include "object.h"
 #include "raylib.h"
+#include "rlgl.h"
 #include "camera.h"
 #include "serialize.h"
 #include <stdio.h>
@@ -17,6 +18,7 @@ void objectDraw(const Object object, const GDFCamera camera) {
     // Convert some values to Screen Coordinates
     ScreenCoord scBlock = getScreenCoord(object.position, camera);
     long scBlockSize = convertToScreen(blockSize, camera);
+    long scHalfBlockSize = convertToScreen(blockSize / 2, camera);
     long scBlockLineThick = convertToScreen(scale * 1.5, camera);
 
     if (
@@ -24,15 +26,20 @@ void objectDraw(const Object object, const GDFCamera camera) {
         scBlock.x + blockSize < 0 || scBlock.x - blockSize > camera.screenSize.x ||
         scBlock.y + blockSize < 0 || scBlock.y - blockSize > camera.screenSize.y
     ) {
+        // Don't try to draw the block if it's out of screen
         return;
     }
+
+    rlPushMatrix();
+    rlTranslatef(scBlock.x, scBlock.y, 0);
+    rlRotatef(object.angle, 0, 0, 1);
 
     switch (def.shape.type) {
         case OBJSHAPE_BLOCK: {
             // Define a raylib Rectangle for the block
             Rectangle recBlock = {
-                .x = scBlock.x - (scBlockSize / 2),
-                .y = scBlock.y - (scBlockSize / 2),
+                .x = -scHalfBlockSize,
+                .y = -scHalfBlockSize,
                 .width = scBlockSize,
                 .height = scBlockSize,
             };
@@ -48,16 +55,16 @@ void objectDraw(const Object object, const GDFCamera camera) {
         } break;
         case OBJSHAPE_SPIKE: {
             Vector2 vecSpikePoint1 = {
-                .x = scBlock.x,
-                .y = scBlock.y - (scBlockSize / 2),
+                .x = 0,
+                .y = -scHalfBlockSize,
             };
             Vector2 vecSpikePoint2 = {
-                .x = scBlock.x - (scBlockSize / 2),
-                .y = scBlock.y + (scBlockSize / 2),
+                .x = -scHalfBlockSize,
+                .y =  scHalfBlockSize,
             };
             Vector2 vecSpikePoint3 = {
-                .x = scBlock.x + (scBlockSize / 2),
-                .y = scBlock.y + (scBlockSize / 2),
+                .x = scHalfBlockSize,
+                .y = scHalfBlockSize,
             };
             DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
             // No defining thickness of lines :(
@@ -70,6 +77,8 @@ void objectDraw(const Object object, const GDFCamera camera) {
             }
         } break;
     }
+
+    rlPopMatrix();
 }
 
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera) {

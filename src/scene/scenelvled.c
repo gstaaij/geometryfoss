@@ -218,12 +218,18 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
 
 
     bool shiftDown = keyboardDown(KEY_LEFT_SHIFT);
+    // Moving objects around
     bool keyPressedW = keyboardPressed(KEY_W);
     bool keyPressedS = keyboardPressed(KEY_S);
     bool keyPressedA = keyboardPressed(KEY_A);
     bool keyPressedD = keyboardPressed(KEY_D);
+    // Rotating objects
+    bool keyPressedQ = keyboardPressed(KEY_Q);
+    bool keyPressedE = keyboardPressed(KEY_E);
+    // Deleting objects
     bool keyPressedDel = keyboardPressed(KEY_DELETE);
-    bool usefulKeyPressed = keyPressedW || keyPressedS || keyPressedA || keyPressedD || keyPressedDel;
+
+    bool usefulKeyPressed = keyPressedW || keyPressedS || keyPressedA || keyPressedD || keyPressedQ || keyPressedE || keyPressedDel;
     // Move or delete selected blocks if the correct key is pressed
     if (usefulKeyPressed) {
         for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
@@ -240,6 +246,14 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
                 }
                 if (keyPressedD) {
                     object->position.x += 2 + !shiftDown * 28;
+                }
+                if (keyPressedQ) {
+                    object->angle -= 90;
+                    if (object->angle < 0) object->angle += 360;
+                }
+                if (keyPressedE) {
+                    object->angle += 90;
+                    if (object->angle > 360) object->angle -= 360;
                 }
                 if (keyPressedDel) {
                     arrdel(scenelvled->objects, i);
@@ -543,6 +557,6 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     for (size_t i = 0; i < arrlenu(scenelvled->objects); ++i) {
         Object object = scenelvled->objects[i];
         objectDraw(object, scenelvled->camera);
-        objectDrawHitbox(object, false, scenelvled->camera);
+        objectDrawHitbox(object, true, scenelvled->camera);
     }
 }
