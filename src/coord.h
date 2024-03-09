@@ -19,6 +19,8 @@ typedef struct {
     Coord position;
     Coord screenSizeAsCoord;
     ScreenCoord screenSize;
+    double zoomLevel;
+    double actualZoom;
 } GDFCamera;
 
 // Serialize a Coord to cJSON

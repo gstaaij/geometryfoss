@@ -152,7 +152,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
         startMouseY = GetMouseY();
         holdTime = 0.0;
 
-        isValidClick = convertToGD(scenelvled->camera.screenSize.y - startMouseY, scenelvled->camera) > MOUSE_DEAD_ZONE_UPPER_Y;
+        isValidClick = convertToGD(scenelvled->uiCamera.screenSize.y - startMouseY, scenelvled->uiCamera) > MOUSE_DEAD_ZONE_UPPER_Y;
     }
 
     if (isValidClick) {
@@ -206,7 +206,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             int deltaY = GetMouseY() - startMouseY;
             int mouseDeltaLengthSq = deltaX*deltaX + deltaY*deltaY;
             
-            int maxMouseDelta = convertToScreen(30, scenelvled->camera);
+            int maxMouseDelta = convertToScreen(30, scenelvled->uiCamera);
 
             if (mouseDeltaLengthSq > maxMouseDelta*maxMouseDelta) {
                 isDragging = true;
@@ -312,6 +312,19 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
                 }
             }
         }
+    }
+
+    // Zooming in
+    if (keyboardPressedMod(KEY_EQUAL, false, true)) {
+        cameraSetZoomLevel(&scenelvled->camera, scenelvled->camera.zoomLevel + 0.1);
+    }
+    // Zooming out
+    if (keyboardPressedMod(KEY_MINUS, false, true)) {
+        cameraSetZoomLevel(&scenelvled->camera, scenelvled->camera.zoomLevel - 0.1);
+    }
+    // Zooming with the mouse
+    if (GetMouseWheelMove() != 0 && keyboardDown(KEY_LEFT_CONTROL)) {
+        cameraSetZoomLevel(&scenelvled->camera, scenelvled->camera.zoomLevel + (GetMouseWheelMove() > 0 ? 0.1 : -0.1));
     }
 
     // Save the level
@@ -589,7 +602,7 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     drawGround(scenelvled->levelSettings.groundColor, scenelvled->camera);
 
     // Draw the grid
-    gridDraw(scenelvled->camera);
+    if (scenelvled->camera.zoomLevel > -1.5) gridDraw(scenelvled->camera);
 
     // Draw the white begin and ground lines
     ScreenCoord whitelinesPos = getScreenCoord((Coord){0, GROUND_Y}, scenelvled->camera);

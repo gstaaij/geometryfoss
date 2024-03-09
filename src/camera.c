@@ -25,6 +25,10 @@ void cameraUpdate(GDFCamera* camera, const Player player, const double deltaTime
 }
 
 void cameraConvertScreenSize(GDFCamera* camera) {
+    // Make sure the zoom isn't zero
+    if (camera->actualZoom == 0)
+        cameraSetZoomLevel(camera, 1.0);
+
     // First try making the height the same as the minimum height...
     double height = MIN_COORD_SCREEN_HEIGHT;
     // ... and calculate a width based on that
@@ -40,8 +44,8 @@ void cameraConvertScreenSize(GDFCamera* camera) {
 
     // Construct a Coord out of the width and height variables and assign it to camera.screenSizeAsCoord
     camera->screenSizeAsCoord = (Coord){
-        .x = width,
-        .y = height,
+        .x = width * camera->actualZoom,
+        .y = height * camera->actualZoom,
     };
 }
 
@@ -53,6 +57,17 @@ void cameraRecalculateScreenSize(GDFCamera* camera) {
     };
     // Convert the screen size to GD coordinates
     cameraConvertScreenSize(camera);
+}
+
+void cameraSetZoomLevel(GDFCamera* camera, const double zoomLevel) {
+    camera->zoomLevel = zoomLevel;
+    // Limit the zoom level
+    if (camera->zoomLevel > 4)
+        camera->zoomLevel = 4;
+    if (camera->zoomLevel < -3)
+        camera->zoomLevel = -3;
+    
+    camera->actualZoom = pow(2, - camera->zoomLevel + 1);
 }
 
 ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {

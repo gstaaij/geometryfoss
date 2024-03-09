@@ -11,6 +11,9 @@ void cameraConvertScreenSize(GDFCamera* camera);
 // Recalculate the size of the screen in pixels and GD coordinates
 void cameraRecalculateScreenSize(GDFCamera* camera);
 
+// Set the zoom level of a camera
+void cameraSetZoomLevel(GDFCamera* camera, const double zoomLevel);
+
 // Convert a position in GD coordinates to a position screen coordinates
 ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera);
 // Convert a position in screen coordinates to a position GD coordinates

@@ -23,8 +23,8 @@ void objectDraw(const Object object, const GDFCamera camera) {
 
     if (
         // Don't divide the size by 2 because it's integer division
-        scBlock.x + blockSize < 0 || scBlock.x - blockSize > camera.screenSize.x ||
-        scBlock.y + blockSize < 0 || scBlock.y - blockSize > camera.screenSize.y
+        scBlock.x + scHalfBlockSize < 0 || scBlock.x - scHalfBlockSize > camera.screenSize.x ||
+        scBlock.y + scHalfBlockSize < 0 || scBlock.y - scHalfBlockSize > camera.screenSize.y
     ) {
         // Don't try to draw the block if it's out of screen
         return;

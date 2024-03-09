@@ -185,8 +185,12 @@ static void draw() {
             y += fs;
             DrawText(TextFormat("FPS: %ld", GetFPS()), 10, y, fs, WHITE);
             y += 2 * fs;
+            DrawText("Press F3 to toggle this text", 10, y, fs, WHITE);
+            y += 2 * fs;
             if (scenemanager->state->currentScene == SCENE_LVLED) {
                 DrawText("Drag the mouse around to move the view", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("Press CTRL+PLUS to zoom in and CTRL+MINUS to zoom out. CTRL+SCROLL can also be used", 10, y, fs, WHITE);
                 y += fs;
                 DrawText("Press ESCAPE to enter the pause menu", 10, y, fs, WHITE);
                 y += fs;
