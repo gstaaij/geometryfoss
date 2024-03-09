@@ -184,6 +184,28 @@ static void draw() {
             DrawText(TextFormat("TPS: %ld", tps), 10, y, fs, WHITE);
             y += fs;
             DrawText(TextFormat("FPS: %ld", GetFPS()), 10, y, fs, WHITE);
+            y += 2 * fs;
+            if (scenemanager->state->currentScene == SCENE_LVLED) {
+                DrawText("Drag the mouse around to move the view", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("Press ESCAPE to enter the pause menu", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("In Build mode:    click to build something", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("In Edit mode:     click on objects to select them and use W, A, S and D to move them around", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("                     You can also use Q and E to rotate objects and select multiple objects by holding SHIFT", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("In Delete mode:  click on an object to remove it", 10, y, fs, WHITE);
+                y += fs;
+            } else {
+                DrawText("Press SPACE or click the mouse to jump", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("Press ESCAPE to pause or unpause the game", 10, y, fs, WHITE);
+                y += fs;
+                DrawText("Press CTRL+ESCAPE to go back to the Editor", 10, y, fs, WHITE);
+                y += fs;
+            }
         }
 
         #ifdef DEBUG
