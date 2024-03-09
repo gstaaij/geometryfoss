@@ -206,7 +206,9 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             int deltaY = GetMouseY() - startMouseY;
             int mouseDeltaLengthSq = deltaX*deltaX + deltaY*deltaY;
             
-            if (mouseDeltaLengthSq > 15625) {
+            int maxMouseDelta = convertToScreen(30, scenelvled->camera);
+
+            if (mouseDeltaLengthSq > maxMouseDelta*maxMouseDelta) {
                 isDragging = true;
             }
         }
@@ -607,6 +609,6 @@ void scenelvledDraw(SceneLevelEditor* scenelvled) {
     for (size_t i = 0; i < arrlenu(scenelvled->objects); ++i) {
         Object object = scenelvled->objects[i];
         objectDraw(object, scenelvled->camera);
-        objectDrawHitbox(object, true, scenelvled->camera);
+        objectDrawHitbox(object, false, scenelvled->camera);
     }
 }
