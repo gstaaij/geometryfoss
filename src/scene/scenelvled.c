@@ -106,11 +106,11 @@ void scenelvledDestroy(SceneLevelEditor* scenelvled) {
 
 // Some global variables needed for the update loop
 
-bool isDragging;
-bool isValidClick;
-double holdTime;
-int startMouseX;
-int startMouseY;
+static bool isDragging;
+static bool isValidClick;
+static double holdTime;
+static int startMouseX;
+static int startMouseY;
 
 void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, double deltaTime) {
     (void) sceneState;

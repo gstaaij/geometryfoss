@@ -62,11 +62,11 @@ static void update(const double deltaTime);
 static void updateUI();
 static void draw();
 
-bool showTpsAndFps = true;
+static bool showTpsAndFps = true;
 
-long tps = 0;
-long targetTps = TARGET_TPS;
-double timeScale = TIME_SCALE;
+static long tps = 0;
+static long targetTps = TARGET_TPS;
+static double timeScale = TIME_SCALE;
 
 int deltaTimeTooHighCounter = 0;
 
