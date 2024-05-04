@@ -1,8 +1,8 @@
 #include "popup.h"
-#include <stddef.h>
 #include "nob.h"
 #include "stb_ds.h"
 #include "raygui.h"
+#include "ui/text.h"
 #include "lib/easing/easing.h"
 #include "input/keyboard.h"
 
@@ -43,39 +43,6 @@ static double popupWasShown = false;
     static double minPopupTransitionProgressScale = 100.0;
 #endif
 
-static char* wrapString(char* string, const size_t maxChars) {
-    if (maxChars <= 0)
-        return string;
-    
-    Nob_String_View sv = nob_sv_from_cstr(string);
-    Nob_String_Builder sb = {0};
-    
-    size_t lineLength = 0;
-    while (sv.count > 0) {
-        Nob_String_View subsv = nob_sv_chop_by_delim(&sv, ' ');
-        bool shouldAddNewline = false;
-        size_t addedLineLength = 0;
-        for (size_t i = 0; i < subsv.count; ++i) {
-            ++addedLineLength;
-            if (subsv.data[i] == '\n') {
-                addedLineLength = 0;
-                lineLength = 0;
-            }
-            if (lineLength + addedLineLength > maxChars)
-                shouldAddNewline = true;
-        }
-        if (shouldAddNewline) {
-            nob_da_append(&sb, '\n');
-            lineLength = 0;
-        }
-        nob_sb_append_buf(&sb, subsv.data, subsv.count);
-        nob_da_append(&sb, ' ');
-        lineLength += addedLineLength + 1;
-    }
-    nob_sb_append_null(&sb);
-    return sb.items;
-}
-
 long popupGetWidth(const GDFCamera uiCamera, const double fontSize, const double fontSpacing, const char* message) {
     long width = convertToScreen(4 * POPUP_BOX_PADDING, uiCamera);
     width += MeasureTextEx(GetFontDefault(), message, fontSize, fontSpacing).x;
@@ -101,7 +68,7 @@ void popupNext() {
 }
 
 void popupShow(char* message) {
-    message = wrapString(message, POPUP_BOX_MAX_WIDTH_CHARS);
+    message = textWrap(message, POPUP_BOX_MAX_WIDTH_CHARS);
     popupShowEx((Popup) {
         .message = message,
         .buttonOneText = "OK",
@@ -113,7 +80,7 @@ void popupShow(char* message) {
 }
 
 void popupShowChoice(char* message, const char* buttonOneText, const char* buttonTwoText) {
-    message = wrapString(message, POPUP_BOX_MAX_WIDTH_CHARS);
+    message = textWrap(message, POPUP_BOX_MAX_WIDTH_CHARS);
     popupShowEx((Popup) {
         .message = message,
         .buttonOneText = buttonOneText,
@@ -201,7 +168,6 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         popupLocation.y + (POPUP_BOX_PADDING / 2 + POPUP_BUTTON_HEIGHT / 2) * popupScale,
     };
     ScreenCoord popupScreenLocation = getScreenCoord(popupLocation, uiCamera);
-    ScreenCoord popupMessageScreenLocation = getScreenCoord(popupMessageLocation, uiCamera);
     double fontSpacing = fontSize/GetFontDefault().baseSize;
     long popupWidth = popupGetWidth(uiCamera, fontSize, fontSpacing, message);
     Vector2 messageSize = MeasureTextEx(GetFontDefault(), message, (float) fontSize, (float) fontSpacing);
@@ -223,25 +189,11 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         GRAY
     );
 
-#ifdef DEBUG
-    DrawRectanglePro(
-        (Rectangle) {
-            popupMessageScreenLocation.x, popupMessageScreenLocation.y,
-            messageSize.x, messageSize.y,
-        },
-        (Vector2) { messageSize.x / 2, messageSize.y / 2 },
-        0.0f,
-        RED
-    );
-#endif
-
-    DrawTextPro(
+    textDrawCentered(
+        uiCamera,
         GetFontDefault(), message,
-        (Vector2) { popupMessageScreenLocation.x, popupMessageScreenLocation.y },
-        (Vector2) { messageSize.x / 2, messageSize.y / 2 },
-        0.0f,
-        (float) fontSize, (float) fontSpacing,
-        LIGHTGRAY
+        popupMessageLocation,
+        POPUP_MESSAGE_FONT_SIZE * popupScale, LIGHTGRAY
     );
 
     fontSize = convertToScreen(POPUP_BUTTON_FONT_SIZE * popupScale, uiCamera);
