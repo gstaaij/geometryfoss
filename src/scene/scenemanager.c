@@ -7,102 +7,100 @@
 #include "input/keyboard.h"
 
 SceneManager* scenemanagerCreate() {
-    SceneManager* scenemanager = (SceneManager*) malloc(sizeof(SceneManager));
-    assert(scenemanager != NULL && "You don't have enough RAM");
-    memset(scenemanager, 0, sizeof(SceneManager));
+    SCENE_CREATE(SceneManager);
 
-    scenemanager->state = sceneswitcherCreateState();
+    this->state = sceneswitcherCreateState();
 
-    return scenemanager;
+    return this;
 }
-void scenemanagerDestroy(SceneManager* scenemanager) {
-    scenemanagerUnload(scenemanager);
-    sceneswitcherDestroyState(scenemanager->state);
-    free(scenemanager);
+void scenemanagerDestroy(SceneManager* this) {
+    scenemanagerUnload(this);
+    sceneswitcherDestroyState(this->state);
+    free(this);
 }
 
-void scenemanagerLoad(SceneManager* scenemanager, const SceneEnum scene) {
-    scenemanagerUnload(scenemanager);
+void scenemanagerLoad(SceneManager* this, const SceneEnum scene) {
+    scenemanagerUnload(this);
     switch (scene) {
         case SCENE_NONE: {} break;
         case SCENE_CRASH: {
             // This scene is very simple, we don't need a seperate structure for it
         } break;
         case SCENE_LEVEL: {
-            scenemanager->scenelevel = scenelevelCreate();
+            this->scenelevel = scenelevelCreate();
         } break;
         case SCENE_LVLED: {
-            scenemanager->scenelvled = scenelvledCreate();
+            this->scenelvled = scenelvledCreate();
         } break;
         default: {
             assert(false && "NOT IMPLEMENTED: a scene is not implemented");
         } break;
     }
-    scenemanager->state->currentScene = scene;
+    this->state->currentScene = scene;
 }
 
-void scenemanagerUnload(SceneManager* scenemanager) {
-    switch (scenemanager->state->currentScene) {
+void scenemanagerUnload(SceneManager* this) {
+    switch (this->state->currentScene) {
         case SCENE_LEVEL: {
-            scenelevelDestroy(scenemanager->scenelevel);
+            scenelevelDestroy(this->scenelevel);
         } break;
         case SCENE_LVLED: {
-            scenelvledDestroy(scenemanager->scenelvled);
+            scenelvledDestroy(this->scenelvled);
         } break;
         default: {} break;
     }
-    scenemanager->state->currentScene = SCENE_NONE;
+    this->state->currentScene = SCENE_NONE;
     nob_temp_reset();
 }
 
-void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime) {
-    switch (scenemanager->state->currentScene) {
+void scenemanagerUpdate(SceneManager* this, const double deltaTime) {
+    switch (this->state->currentScene) {
         case SCENE_NONE: {} break;
         case SCENE_CRASH: {
             if (keyboardPressed(KEY_SPACE)) {
                 /// TODO: make this return to the main menu
-                sceneswitcherTransitionTo(scenemanager->state, SCENE_LVLED);
+                sceneswitcherTransitionTo(this->state, SCENE_LVLED);
             }
         } break;
         case SCENE_LEVEL: {
-            scenelevelUpdate(scenemanager->scenelevel, scenemanager->state, deltaTime);
+            scenelevelUpdate(this->scenelevel, this->state, deltaTime);
         } break;
         case SCENE_LVLED: {
-            scenelvledUpdate(scenemanager->scenelvled, scenemanager->state, deltaTime);
+            scenelvledUpdate(this->scenelvled, this->state, deltaTime);
         } break;
         default: {
             assert(false && "NOT IMPLEMENTED: a scene update loop is not implemented");
         } break;
     }
 
-    sceneswitcherUpdate(scenemanager->state, deltaTime);
-    if (sceneswitcherShouldLoadNewScene(scenemanager->state)) {
-        scenemanagerLoad(scenemanager, scenemanager->state->transition.targetScene);
-        sceneswitcherLoadedNewScene(scenemanager->state);
+    sceneswitcherUpdate(this->state, deltaTime);
+    if (sceneswitcherShouldLoadNewScene(this->state)) {
+        scenemanagerLoad(this, this->state->transition.targetScene);
+        sceneswitcherLoadedNewScene(this->state);
     }
 }
 
-void scenemanagerUpdateUI(SceneManager* scenemanager) {
+void scenemanagerUpdateUI(SceneManager* this) {
     
-    switch (scenemanager->state->currentScene) {
+    switch (this->state->currentScene) {
         case SCENE_NONE: {} break;
         case SCENE_CRASH: {} break;
         case SCENE_LEVEL: {
-            scenelevelUpdateUI(scenemanager->scenelevel, scenemanager->state);
+            scenelevelUpdateUI(this->scenelevel, this->state);
         } break;
         case SCENE_LVLED: {
-            scenelvledUpdateUI(scenemanager->scenelvled, scenemanager->state);
+            scenelvledUpdateUI(this->scenelvled, this->state);
         } break;
         default: {
             assert(false && "NOT IMPLEMENTED: a scene update UI loop is not implemented");
         } break;
     }
 
-    sceneswitcherUpdateUI(scenemanager->state);
+    sceneswitcherUpdateUI(this->state);
 }
 
-void scenemanagerDraw(SceneManager* scenemanager) {
-    switch (scenemanager->state->currentScene) {
+void scenemanagerDraw(SceneManager* this) {
+    switch (this->state->currentScene) {
         case SCENE_NONE: {
             ClearBackground(BLACK);
         } break;
@@ -127,31 +125,31 @@ void scenemanagerDraw(SceneManager* scenemanager) {
             );
         } break;
         case SCENE_LEVEL: {
-            scenelevelDraw(scenemanager->scenelevel);
+            scenelevelDraw(this->scenelevel);
 
             #ifdef DEBUG
                 int y = 34 + 24;
-                const char* labelTimeText = TextFormat("Time: %llf", scenemanager->scenelevel->player.timeAlive);
+                const char* labelTimeText = TextFormat("Time: %llf", this->scenelevel->player.timeAlive);
                 DrawText(labelTimeText, 10, y, 24, WHITE);
                 y += 24;
-                const char* labelXText = TextFormat("X: %f", scenemanager->scenelevel->player.position.x);
+                const char* labelXText = TextFormat("X: %f", this->scenelevel->player.position.x);
                 DrawText(labelXText, 10, y, 24, WHITE);
                 y += 24;
-                const char* labelYText = TextFormat("Y: %f", scenemanager->scenelevel->player.position.y);
+                const char* labelYText = TextFormat("Y: %f", this->scenelevel->player.position.y);
                 DrawText(labelYText, 10, y, 24, WHITE);
                 y += 24;
-                const char* labelVelXText = TextFormat("velX: %f", scenemanager->scenelevel->player.velocity.x);
+                const char* labelVelXText = TextFormat("velX: %f", this->scenelevel->player.velocity.x);
                 DrawText(labelVelXText, 10, y, 24, WHITE);
                 y += 24;
-                const char* labelVelYText = TextFormat("velY: %f", scenemanager->scenelevel->player.velocity.y);
+                const char* labelVelYText = TextFormat("velY: %f", this->scenelevel->player.velocity.y);
                 DrawText(labelVelYText, 10, y, 24, WHITE);
                 y += 24;
-                const char* labelOnGroundText = TextFormat("Grounded: %s", scenemanager->scenelevel->player.isOnGround ? "true" : "false");
+                const char* labelOnGroundText = TextFormat("Grounded: %s", this->scenelevel->player.isOnGround ? "true" : "false");
                 DrawText(labelOnGroundText, 10, y, 24, WHITE);
             #endif
         } break;
         case SCENE_LVLED: {
-            scenelvledDraw(scenemanager->scenelvled);
+            scenelvledDraw(this->scenelvled);
         } break;
         default: {
             assert(false && "NOT IMPLEMENTED: a scene draw loop is not implemented");

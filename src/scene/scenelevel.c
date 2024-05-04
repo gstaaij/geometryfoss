@@ -11,13 +11,11 @@
 // #define STRESS_TEST
 
 SceneLevel* scenelevelCreate() {
-    SceneLevel* scenelevel = (SceneLevel*) malloc(sizeof(SceneLevel));
-    assert(scenelevel != NULL && "You don't have enough RAM");
-    memset(scenelevel, 0, sizeof(SceneLevel));
+    SCENE_CREATE(SceneLevel);
 
     // Initialize the dynamic array of objects, the player and the camera, and colors
-    scenelevel->objects = NULL;
-    scenelevel->player = (Player){
+    this->objects = NULL;
+    this->player = (Player){
         .position = {
             .x = 0,
             .y = 105,
@@ -43,9 +41,9 @@ SceneLevel* scenelevelCreate() {
             .height = (double)PLAYER_SIZE / 3.0,
         },
     };
-    scenelevel->camera = (GDFCamera){0};
-    scenelevel->levelSettings.backgroundColor = GetColor(0x287dffff);
-    scenelevel->levelSettings.groundColor = GetColor(0x0066ffff);
+    this->camera = (GDFCamera){0};
+    this->levelSettings.backgroundColor = GetColor(0x287dffff);
+    this->levelSettings.groundColor = GetColor(0x0066ffff);
 
 #ifdef DEBUG
     // Add a test block to the objects DA
@@ -58,7 +56,7 @@ SceneLevel* scenelevelCreate() {
     //     .scale = 1,
     //     .id = 1,
     // };
-    // arrput(scenelevel->objects, testBlock);
+    // arrput(this->objects, testBlock);
     // Add a triple spike
     for (size_t i = 345; i < 345+90; i += 30) {
         Object spike = {
@@ -70,7 +68,7 @@ SceneLevel* scenelevelCreate() {
             .scale = 1,
             .id = 8,
         };
-        arrput(scenelevel->objects, spike);
+        arrput(this->objects, spike);
     }
     // Add another spike that should make it just barely possible to jump over the spikes
     // Object lastSpike = {
@@ -82,7 +80,7 @@ SceneLevel* scenelevelCreate() {
     //     .scale = 1,
     //     .id = 8,
     // };
-    // arrput(scenelevel->objects, lastSpike);
+    // arrput(this->objects, lastSpike);
 
     // Add stairs
     for (int i = 0; i < 100; i++) {
@@ -95,7 +93,7 @@ SceneLevel* scenelevelCreate() {
             .scale = 1,
             .id = 1,
         };
-        arrput(scenelevel->objects, block);
+        arrput(this->objects, block);
     }
 
     // Add platforms
@@ -110,7 +108,7 @@ SceneLevel* scenelevelCreate() {
                 .scale = 1,
                 .id = 1,
             };
-            arrput(scenelevel->objects, block);
+            arrput(this->objects, block);
         }
     }
 
@@ -135,36 +133,37 @@ SceneLevel* scenelevelCreate() {
                 .scale = 1,
                 .id = 8,
             };
-            arrput(scenelevel->objects, block);
-            arrput(scenelevel->objects, spike);
+            arrput(this->objects, block);
+            arrput(this->objects, spike);
         }
     #else // STRESS_TEST
-        if (!levelSaveToFile("debuglevel.json", scenelevel->levelSettings, scenelevel->objects))
+        if (!levelSaveToFile("debuglevel.json", this->levelSettings, this->objects))
             TraceLog(LOG_ERROR, "Couldn't save the debug level!");
     #endif
 #else
-    if (!levelLoadFromFile("level.json", &scenelevel->levelSettings, &scenelevel->objects))
+    if (!levelLoadFromFile("level.json", &this->levelSettings, &this->objects))
         TraceLog(LOG_ERROR, "Couldn't load save!");
 #endif
 
-    return scenelevel;
+    return this;
 }
+
 void scenelevelDestroy(SceneLevel* scenelevel) {
     free(scenelevel);
 }
 
 
-void scenelevelUpdate(SceneLevel* scenelevel, SceneState* sceneState, double deltaTime) {
+void scenelevelUpdate(SceneLevel* this, SceneState* sceneState, double deltaTime) {
     // Don't update anything except the camera
     if (sceneState->transition.transitioning)
         goto updateCamera;
 
     // Update the player
-    if (!scenelevel->frameStep || keyboardDown(KEY_Q) || keyboardPressed(KEY_P)) playerUpdate(&scenelevel->player, scenelevel->objects, deltaTime);
+    if (!this->frameStep || keyboardDown(KEY_Q) || keyboardPressed(KEY_P)) playerUpdate(&this->player, this->objects, deltaTime);
 
     // Update the camera
 updateCamera:
-    cameraUpdate(&scenelevel->camera, scenelevel->player, deltaTime);
+    cameraUpdate(&this->camera, this->player, deltaTime);
 
     // Don't update anything except the camera
     if (sceneState->transition.transitioning)
@@ -172,11 +171,11 @@ updateCamera:
 
     // Some key combinations that aren't handled by any of the other update loops
     if (keyboardPressed(KEY_R)) {
-        playerReset(&scenelevel->player);
+        playerReset(&this->player);
     }
 
     if (keyboardPressed(KEY_ESCAPE)) {
-        scenelevel->frameStep = !scenelevel->frameStep;
+        this->frameStep = !this->frameStep;
     }
 
     if (keyboardPressedMod(KEY_ESCAPE, false, true)) {
@@ -184,34 +183,34 @@ updateCamera:
     }
 }
 
-void scenelevelUpdateUI(SceneLevel* scenelevel, SceneState* sceneState) {
-    (void) scenelevel;
+void scenelevelUpdateUI(SceneLevel* this, SceneState* sceneState) {
+    (void) this;
     (void) sceneState;
 }
 
-void scenelevelDraw(SceneLevel* scenelevel) {
-    cameraRecalculateScreenSize(&scenelevel->camera);
+void scenelevelDraw(SceneLevel* this) {
+    cameraRecalculateScreenSize(&this->camera);
 
     // Set the backgrond color
-    ClearBackground(scenelevel->levelSettings.backgroundColor);
+    ClearBackground(this->levelSettings.backgroundColor);
     // Temporary fix for a weird transparency issue
-    DrawRectangle(0, 0, scenelevel->camera.screenSize.x, scenelevel->camera.screenSize.y, scenelevel->levelSettings.backgroundColor);
+    DrawRectangle(0, 0, this->camera.screenSize.x, this->camera.screenSize.y, this->levelSettings.backgroundColor);
 
     // Draw the player
-    playerDraw(scenelevel->player, scenelevel->camera);
+    playerDraw(this->player, this->camera);
 
     // Draw the objects
-    size_t objectsLen = arrlenu(scenelevel->objects);
+    size_t objectsLen = arrlenu(this->objects);
     for (size_t i = 0; i < objectsLen; ++i) {
-        objectDraw(scenelevel->objects[i], scenelevel->camera);
+        objectDraw(this->objects[i], this->camera);
     }
 
     // Draw the hitboxes
     for (size_t i = 0; i < objectsLen; ++i) {
-        objectDrawHitbox(scenelevel->objects[i], true, scenelevel->camera);
+        objectDrawHitbox(this->objects[i], true, this->camera);
     }
-    playerDrawHitboxes(scenelevel->player, true, scenelevel->camera);
+    playerDrawHitboxes(this->player, true, this->camera);
 
     // Draw the ground
-    drawGround(scenelevel->levelSettings.groundColor, scenelevel->camera);
+    drawGround(this->levelSettings.groundColor, this->camera);
 }

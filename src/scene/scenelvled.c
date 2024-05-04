@@ -71,36 +71,34 @@ typedef enum {
 PopupQuestion popupQuestion = POPUP_QUESTION_NONE;
 
 SceneLevelEditor* scenelvledCreate() {
-    SceneLevelEditor* scenelvled = (SceneLevelEditor*) malloc(sizeof(SceneLevelEditor));
-    assert(scenelvled != NULL && "You don't have enough RAM");
-    memset(scenelvled, 0, sizeof(SceneLevelEditor));
+    SCENE_CREATE(SceneLevelEditor);
 
-    cameraRecalculateScreenSize(&scenelvled->camera);
-    scenelvled->camera.position.x = scenelvled->camera.screenSizeAsCoord.x / 2 - 110;
-    scenelvled->camera.position.y = scenelvled->camera.screenSizeAsCoord.y / 2 - 20;
+    cameraRecalculateScreenSize(&this->camera);
+    this->camera.position.x = this->camera.screenSizeAsCoord.x / 2 - 110;
+    this->camera.position.y = this->camera.screenSizeAsCoord.y / 2 - 20;
 
-    scenelvled->uiCamera.position = (Coord){0};
+    this->uiCamera.position = (Coord){0};
 
-    scenelvled->objects = NULL;
+    this->objects = NULL;
 
-    scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
+    this->uiMode = EDITOR_UI_MODE_BUILD;
 
-    scenelvled->levelSettings.backgroundColor = GetColor(0x287dffff);
-    scenelvled->levelSettings.groundColor = GetColor(0x0066ffff);
+    this->levelSettings.backgroundColor = GetColor(0x287dffff);
+    this->levelSettings.groundColor = GetColor(0x0066ffff);
 
     // Build Mode
 
-    scenelvled->blockBuildId = 1;
+    this->blockBuildId = 1;
 
 
     // Load the level
-    if (!levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects))
+    if (!levelLoadFromFile("level.json", &this->levelSettings, &this->objects))
         TraceLog(LOG_WARNING, "Couldn't load save! This is likely due to the save not existing yet");
 
-    return scenelvled;
+    return this;
 }
-void scenelvledDestroy(SceneLevelEditor* scenelvled) {
-    free(scenelvled);
+void scenelvledDestroy(SceneLevelEditor* this) {
+    free(this);
 }
 
 
@@ -112,7 +110,7 @@ static double holdTime;
 static int startMouseX;
 static int startMouseY;
 
-void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, double deltaTime) {
+void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double deltaTime) {
     (void) sceneState;
 
     popupUpdate(deltaTime);
@@ -125,14 +123,14 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             case POPUP_QUESTION_NONE: {} break;
             case POPUP_QUESTION_SAVE: {
                 bool shouldSave = popupResult == POPUP_BUTTON_ONE;
-                if (shouldSave && !levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                if (shouldSave && !levelSaveToFile("level.json", this->levelSettings, this->objects)) {
                     TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 }
             } break;
             case POPUP_QUESTION_LOAD: {
                 bool shouldLoad = popupResult == POPUP_BUTTON_ONE;
-                if (shouldLoad && !levelLoadFromFile("level.json", &scenelvled->levelSettings, &scenelvled->objects)) {
+                if (shouldLoad && !levelLoadFromFile("level.json", &this->levelSettings, &this->objects)) {
                     TraceLog(LOG_ERROR, "Couldn't load save!");
                     popupShow(POPUP_MESSAGE_COULDNT_LOAD);
                 }
@@ -141,9 +139,9 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
         popupQuestion = POPUP_QUESTION_NONE;
     }
 
-    if (scenelvled->isPaused || scenelvled->clickedButton) {
+    if (this->isPaused || this->clickedButton) {
         /// TODO: fix the bug where you place something when clicking the pause button
-        scenelvled->clickedButton = false;
+        this->clickedButton = false;
         return;
     }
     
@@ -152,7 +150,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
         startMouseY = GetMouseY();
         holdTime = 0.0;
 
-        isValidClick = convertToGD(scenelvled->uiCamera.screenSize.y - startMouseY, scenelvled->uiCamera) > MOUSE_DEAD_ZONE_UPPER_Y;
+        isValidClick = convertToGD(this->uiCamera.screenSize.y - startMouseY, this->uiCamera) > MOUSE_DEAD_ZONE_UPPER_Y;
     }
 
     if (isValidClick) {
@@ -160,40 +158,40 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             holdTime += deltaTime;
             
             Vector2 mouseDelta = mouseGetDelta();
-            double deltaXCoord = convertToGD(mouseDelta.x, scenelvled->camera);
-            double deltaYCoord = convertToGD(mouseDelta.y, scenelvled->camera);
+            double deltaXCoord = convertToGD(mouseDelta.x, this->camera);
+            double deltaYCoord = convertToGD(mouseDelta.y, this->camera);
 
-            scenelvled->camera.position.x -= deltaXCoord;
-            scenelvled->camera.position.y += deltaYCoord;
-        } else if (mouseReleased(MOUSE_BUTTON_LEFT) && !scenelvled->clickedButton) {
+            this->camera.position.x -= deltaXCoord;
+            this->camera.position.y += deltaYCoord;
+        } else if (mouseReleased(MOUSE_BUTTON_LEFT) && !this->clickedButton) {
             
             ScreenCoord clickScreenCoord = {
                 .x = GetMouseX(),
                 .y = GetMouseY(),
             };
-            Coord clickPos = getGDCoord(clickScreenCoord, scenelvled->camera);
-            switch (scenelvled->uiMode) {
+            Coord clickPos = getGDCoord(clickScreenCoord, this->camera);
+            switch (this->uiMode) {
                 case EDITOR_UI_MODE_BUILD: {
                     clickPos.x = floor(clickPos.x / 30) * 30 + 15;
                     clickPos.y = floor(clickPos.y / 30) * 30 + 15;
                     Object newObject = {
-                        .id = scenelvled->blockBuildId,
+                        .id = this->blockBuildId,
                         .position = clickPos,
                         .angle = 0,
                         .scale = 1.0,
                     };
-                    arrput(scenelvled->objects, newObject);
-                    selectAddObjectIndex(scenelvled->objects, arrlen(scenelvled->objects) - 1, false);
+                    arrput(this->objects, newObject);
+                    selectAddObjectIndex(this->objects, arrlen(this->objects) - 1, false);
                 } break;
 
                 case EDITOR_UI_MODE_EDIT: {
-                    selectAddObjectClicked(scenelvled->objects, clickPos, IsKeyDown(KEY_LEFT_SHIFT));
+                    selectAddObjectClicked(this->objects, clickPos, IsKeyDown(KEY_LEFT_SHIFT));
                 } break;
 
                 case EDITOR_UI_MODE_DELETE: {
-                    for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
-                        if (objectMouseOver(scenelvled->objects[i], clickPos)) {
-                            arrdel(scenelvled->objects, i);
+                    for (int i = arrlen(this->objects) - 1; i >= 0; --i) {
+                        if (objectMouseOver(this->objects[i], clickPos)) {
+                            arrdel(this->objects, i);
                             break;
                         }
                     }
@@ -206,7 +204,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             int deltaY = GetMouseY() - startMouseY;
             int mouseDeltaLengthSq = deltaX*deltaX + deltaY*deltaY;
             
-            int maxMouseDelta = convertToScreen(30, scenelvled->uiCamera);
+            int maxMouseDelta = convertToScreen(30, this->uiCamera);
 
             if (mouseDeltaLengthSq > maxMouseDelta*maxMouseDelta) {
                 isDragging = true;
@@ -242,8 +240,8 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             double maxX = -INFINITY;
             double minY =  INFINITY;
             double maxY = -INFINITY;
-            for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
-                Object* object = &scenelvled->objects[i];
+            for (int i = arrlen(this->objects) - 1; i >= 0; --i) {
+                Object* object = &this->objects[i];
                 if (object->selected) {
                     double x = object->position.x;
                     double y = object->position.y;
@@ -264,8 +262,8 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
             };
             TraceLog(LOG_DEBUG, "Selected object rotation position: {%lf, %lf}", selectedObjectRotateAroundPosition.x, selectedObjectRotateAroundPosition.y);
         }
-        for (int i = arrlen(scenelvled->objects) - 1; i >= 0; --i) {
-            Object* object = &scenelvled->objects[i];
+        for (int i = arrlen(this->objects) - 1; i >= 0; --i) {
+            Object* object = &this->objects[i];
             if (object->selected) {
                 if (keyPressedW) {
                     object->position.y += 2 + !shiftDown * 28;
@@ -308,7 +306,7 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
                     if (object->angle > 360) object->angle -= 360;
                 }
                 if (keyPressedDel) {
-                    arrdel(scenelvled->objects, i);
+                    arrdel(this->objects, i);
                 }
             }
         }
@@ -316,15 +314,15 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
 
     // Zooming in
     if (keyboardPressedMod(KEY_EQUAL, false, true)) {
-        cameraSetZoomLevel(&scenelvled->camera, scenelvled->camera.zoomLevel + 0.1);
+        cameraSetZoomLevel(&this->camera, this->camera.zoomLevel + 0.1);
     }
     // Zooming out
     if (keyboardPressedMod(KEY_MINUS, false, true)) {
-        cameraSetZoomLevel(&scenelvled->camera, scenelvled->camera.zoomLevel - 0.1);
+        cameraSetZoomLevel(&this->camera, this->camera.zoomLevel - 0.1);
     }
     // Zooming with the mouse
     if (GetMouseWheelMove() != 0 && keyboardDown(KEY_LEFT_CONTROL)) {
-        cameraSetZoomLevel(&scenelvled->camera, scenelvled->camera.zoomLevel + (GetMouseWheelMove() > 0 ? 0.1 : -0.1));
+        cameraSetZoomLevel(&this->camera, this->camera.zoomLevel + (GetMouseWheelMove() > 0 ? 0.1 : -0.1));
     }
 
     // Save the level
@@ -339,33 +337,33 @@ void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, doub
         popupShowChoice("Are you sure you want to load the level?\nAll your unsaved work will be lost!", "Yes", "No");
     }
 
-    switch (scenelvled->uiMode) {
+    switch (this->uiMode) {
         case EDITOR_UI_MODE_BUILD: {} break;
         case EDITOR_UI_MODE_EDIT: {} break;
         case EDITOR_UI_MODE_DELETE: {} break;
     }
 }
 
-bool shouldLockUI(SceneLevelEditor* scenelvled) {
-    return scenelvled->isPaused || popupIsShown();
+bool shouldLockUI(SceneLevelEditor* this) {
+    return this->isPaused || popupIsShown();
 }
 
-void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
-    cameraRecalculateScreenSize(&scenelvled->uiCamera);
+void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
+    cameraRecalculateScreenSize(&this->uiCamera);
 
-    if (shouldLockUI(scenelvled))
+    if (shouldLockUI(this))
         GuiLock();
 
     // Convert some sizes from GD coordinates to screen coordinates
 
-    long buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, scenelvled->uiCamera);
-    long buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, scenelvled->uiCamera);
-    long buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, scenelvled->uiCamera);
-    long fontSize = convertToScreen(MODE_BUTTON_FONT_SIZE, scenelvled->uiCamera);
-    long upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, scenelvled->uiCamera);
+    long buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, this->uiCamera);
+    long buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, this->uiCamera);
+    long buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, this->uiCamera);
+    long fontSize = convertToScreen(MODE_BUTTON_FONT_SIZE, this->uiCamera);
+    long upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, this->uiCamera);
 
     // Draw the bottom button pane
-    DrawRectangle(0, scenelvled->uiCamera.screenSize.y - upperY, scenelvled->uiCamera.screenSize.x, upperY, (Color) { 0, 0, 0, 128 });
+    DrawRectangle(0, this->uiCamera.screenSize.y - upperY, this->uiCamera.screenSize.x, upperY, (Color) { 0, 0, 0, 128 });
 
     // Set the font size
     GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
@@ -373,62 +371,62 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     // The rectangle for the current button to draw
     Rectangle currentButtonRect = {
         .x = buttonOffset,
-        .y = scenelvled->uiCamera.screenSize.y - buttonOffset - buttonHeight,
+        .y = this->uiCamera.screenSize.y - buttonOffset - buttonHeight,
         .width = buttonWidth,
         .height = buttonHeight,
     };
 
-    if (scenelvled->uiMode == EDITOR_UI_MODE_DELETE) {
+    if (this->uiMode == EDITOR_UI_MODE_DELETE) {
         GuiLock();
     } else {
         GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
     }
     // Draw the Delete button
     if (GuiButton(currentButtonRect, "Delete")) {
-        scenelvled->uiMode = EDITOR_UI_MODE_DELETE;
+        this->uiMode = EDITOR_UI_MODE_DELETE;
     }
-    if (!shouldLockUI(scenelvled)) GuiUnlock();
+    if (!shouldLockUI(this)) GuiUnlock();
     GuiSetAlpha(1);
 
     // Change the y position for the Edit button
     currentButtonRect.y -= buttonOffset + buttonHeight;
 
-    if (scenelvled->uiMode == EDITOR_UI_MODE_EDIT) {
+    if (this->uiMode == EDITOR_UI_MODE_EDIT) {
         GuiLock();
     } else {
         GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
     }
     // Draw the Edit button
     if (GuiButton(currentButtonRect, "Edit")) {
-        scenelvled->uiMode = EDITOR_UI_MODE_EDIT;
+        this->uiMode = EDITOR_UI_MODE_EDIT;
     }
-    if (!shouldLockUI(scenelvled)) GuiUnlock();
+    if (!shouldLockUI(this)) GuiUnlock();
     GuiSetAlpha(1);
 
     // Change the y position for the Build button
     currentButtonRect.y -= buttonOffset + buttonHeight;
     
-    if (scenelvled->uiMode == EDITOR_UI_MODE_BUILD) {
+    if (this->uiMode == EDITOR_UI_MODE_BUILD) {
         GuiLock();
     } else {
         GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
     }
     // Draw the Build button
     if (GuiButton(currentButtonRect, "Build")) {
-        scenelvled->uiMode = EDITOR_UI_MODE_BUILD;
+        this->uiMode = EDITOR_UI_MODE_BUILD;
     }
-    if (!shouldLockUI(scenelvled)) GuiUnlock();
+    if (!shouldLockUI(this)) GuiUnlock();
     GuiSetAlpha(1);
 
-    switch (scenelvled->uiMode) {
+    switch (this->uiMode) {
         case EDITOR_UI_MODE_BUILD: {
-            buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, scenelvled->uiCamera);
-            buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, scenelvled->uiCamera);
+            buttonOffset = convertToScreen(BUTTON_GRID_OFFSET, this->uiCamera);
+            buttonWidth = convertToScreen(BUTTON_GRID_BUTTON_SIZE, this->uiCamera);
             buttonHeight = buttonWidth;
 
             Coord buttonGridCenter = {
                 .x = 0,
-                .y = (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET) - scenelvled->uiCamera.screenSizeAsCoord.y / 2,
+                .y = (BUTTON_GRID_HEIGHT / 2 + BUTTON_GRID_OFFSET) - this->uiCamera.screenSizeAsCoord.y / 2,
             };
 
             int row = 0;
@@ -441,9 +439,9 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                     .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
                     .y = buttonGridCenter.y - (-BUTTON_GRID_HEIGHT/2 + row*BUTTON_GRID_BUTTON_SIZE + row*BUTTON_GRID_OFFSET) - BUTTON_GRID_BUTTON_SIZE/2,
                 };
-                ScreenCoord scButtonPos = getScreenCoord(buttonPos, scenelvled->uiCamera);
+                ScreenCoord scButtonPos = getScreenCoord(buttonPos, this->uiCamera);
 
-                if (i == scenelvled->blockBuildId) {
+                if (i == this->blockBuildId) {
                     GuiLock();
                 } else {
                     GuiSetAlpha(DESELECTED_BUTTON_ALPHA);
@@ -456,7 +454,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                     .height = buttonHeight,
                 }, NULL);
 
-                if (!shouldLockUI(scenelvled)) GuiUnlock();
+                if (!shouldLockUI(this)) GuiUnlock();
                 GuiSetAlpha(1);
 
                 Object buttonObject = {
@@ -466,10 +464,10 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                     .selected = false,
                     .id = i,
                 };
-                objectDraw(buttonObject, scenelvled->uiCamera);
+                objectDraw(buttonObject, this->uiCamera);
 
                 if (clicked) {
-                    scenelvled->blockBuildId = i;
+                    this->blockBuildId = i;
                 }
 
                 ++column;
@@ -482,12 +480,12 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
         case EDITOR_UI_MODE_EDIT: {
             // Draw text telling the user that they're in edit mode
             // This is temporary and will be removed once I add buttons to edit mode
-            DrawText("You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
+            DrawText("You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, this->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         } break;
         case EDITOR_UI_MODE_DELETE: {
             // Draw text telling the user that they're in delete mode
             // This is temporary and will be removed once I add buttons to delete mode
-            DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, scenelvled->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
+            DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, this->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         } break;
     }
 
@@ -496,12 +494,12 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     double pauseButtonSize = 20.0;
     double pauseIconSize = 1.0;
     Coord pauseButtonTopLeftCoord = {
-        scenelvled->uiCamera.screenSizeAsCoord.x / 2 - pauseButtonSize * 1.5,
-        scenelvled->uiCamera.screenSizeAsCoord.y / 2 - pauseButtonSize * 0.5,
+        this->uiCamera.screenSizeAsCoord.x / 2 - pauseButtonSize * 1.5,
+        this->uiCamera.screenSizeAsCoord.y / 2 - pauseButtonSize * 0.5,
     };
-    ScreenCoord pauseButtonSCoord = getScreenCoord(pauseButtonTopLeftCoord, scenelvled->uiCamera);
-    long pauseButtonSSize = convertToScreen(pauseButtonSize, scenelvled->uiCamera);
-    long pauseIconSSize = convertToScreen(pauseIconSize, scenelvled->uiCamera);
+    ScreenCoord pauseButtonSCoord = getScreenCoord(pauseButtonTopLeftCoord, this->uiCamera);
+    long pauseButtonSSize = convertToScreen(pauseButtonSize, this->uiCamera);
+    long pauseIconSSize = convertToScreen(pauseIconSize, this->uiCamera);
 
 
     Rectangle pauseButtonRect = {
@@ -510,17 +508,17 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
     };
 
     if (keyboardPressed(KEY_ESCAPE)) {
-        scenelvled->isPaused = !scenelvled->isPaused;
+        this->isPaused = !this->isPaused;
     }
 
     GuiSetIconScale(pauseIconSSize);
     if (GuiButton(pauseButtonRect, GuiIconText(ICON_PLAYER_PAUSE, ""))) {
-        scenelvled->isPaused = true;
-        scenelvled->clickedButton = true;
+        this->isPaused = true;
+        this->clickedButton = true;
     }
 
-    if (scenelvled->isPaused) {
-        DrawRectangle(0, 0, scenelvled->uiCamera.screenSize.x, scenelvled->uiCamera.screenSize.y, (Color) { 0, 0, 0, 128 });
+    if (this->isPaused) {
+        DrawRectangle(0, 0, this->uiCamera.screenSize.x, this->uiCamera.screenSize.y, (Color) { 0, 0, 0, 128 });
 
         if (!popupIsShown()) GuiUnlock();
 
@@ -529,16 +527,16 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
             -PAUSE_MENU_BUTTON_WIDTH / 2,
             firstButtonY + PAUSE_MENU_BUTTON_HEIGHT / 2,
         };
-        ScreenCoord firstButtonTopLeftSCoord = getScreenCoord(firstButtonTopLeftCoord, scenelvled->uiCamera);
+        ScreenCoord firstButtonTopLeftSCoord = getScreenCoord(firstButtonTopLeftCoord, this->uiCamera);
 
         Rectangle pauseMenuButtonRect = {
             firstButtonTopLeftSCoord.x,
             firstButtonTopLeftSCoord.y,
-            convertToScreen(PAUSE_MENU_BUTTON_WIDTH, scenelvled->uiCamera),
-            convertToScreen(PAUSE_MENU_BUTTON_HEIGHT, scenelvled->uiCamera),
+            convertToScreen(PAUSE_MENU_BUTTON_WIDTH, this->uiCamera),
+            convertToScreen(PAUSE_MENU_BUTTON_HEIGHT, this->uiCamera),
         };
 
-        long pauseMenuButtonYIncrement = convertToScreen(PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_OFFSET, scenelvled->uiCamera);
+        long pauseMenuButtonYIncrement = convertToScreen(PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_OFFSET, this->uiCamera);
 
         PauseMenuButton pauseMenuActiveButton = PAUSE_MENU_BUTTON_COUNT;
         for (int i = 0; i < PAUSE_MENU_BUTTON_COUNT; ++i) {
@@ -550,10 +548,10 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
 
         switch (pauseMenuActiveButton) {
             case PAUSE_MENU_BUTTON_RESUME: {
-                scenelvled->isPaused = false;
+                this->isPaused = false;
             } break;
             case PAUSE_MENU_BUTTON_SAVE: {
-                if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                if (!levelSaveToFile("level.json", this->levelSettings, this->objects)) {
                     TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
@@ -561,7 +559,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                 }
             } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_EXIT: {
-                if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                if (!levelSaveToFile("level.json", this->levelSettings, this->objects)) {
                     TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
@@ -569,7 +567,7 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
                 }
             } break;
             case PAUSE_MENU_BUTTON_SAVE_AND_PLAY: {
-                if (!levelSaveToFile("level.json", scenelvled->levelSettings, scenelvled->objects)) {
+                if (!levelSaveToFile("level.json", this->levelSettings, this->objects)) {
                     TraceLog(LOG_ERROR, "Couldn't save the level");
                     popupShow(POPUP_MESSAGE_COULDNT_SAVE);
                 } else {
@@ -587,41 +585,41 @@ void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState) {
 
     // Update the popups
     GuiUnlock();
-    popupUpdateUI(scenelvled->uiCamera);
+    popupUpdateUI(this->uiCamera);
 }
 
-void scenelvledDraw(SceneLevelEditor* scenelvled) {
-    cameraRecalculateScreenSize(&scenelvled->camera);
+void scenelvledDraw(SceneLevelEditor* this) {
+    cameraRecalculateScreenSize(&this->camera);
     
     // Draw the background
-    ClearBackground(scenelvled->levelSettings.backgroundColor);
+    ClearBackground(this->levelSettings.backgroundColor);
     // Temporary fix for a weird transparency issue
-    DrawRectangle(0, 0, scenelvled->camera.screenSize.x, scenelvled->camera.screenSize.y, scenelvled->levelSettings.backgroundColor);
+    DrawRectangle(0, 0, this->camera.screenSize.x, this->camera.screenSize.y, this->levelSettings.backgroundColor);
 
     // Draw the ground
-    drawGround(scenelvled->levelSettings.groundColor, scenelvled->camera);
+    drawGround(this->levelSettings.groundColor, this->camera);
 
     // Draw the grid
-    if (scenelvled->camera.zoomLevel > -1.5) gridDraw(scenelvled->camera);
+    if (this->camera.zoomLevel > -1.5) gridDraw(this->camera);
 
     // Draw the white begin and ground lines
-    ScreenCoord whitelinesPos = getScreenCoord((Coord){0, GROUND_Y}, scenelvled->camera);
+    ScreenCoord whitelinesPos = getScreenCoord((Coord){0, GROUND_Y}, this->camera);
 
     DrawLine(
         whitelinesPos.x, 0,
-        whitelinesPos.x, scenelvled->camera.screenSize.y,
+        whitelinesPos.x, this->camera.screenSize.y,
         WHITE
     );
     DrawLine(
         0, whitelinesPos.y,
-        scenelvled->camera.screenSize.x, whitelinesPos.y,
+        this->camera.screenSize.x, whitelinesPos.y,
         WHITE
     );
 
     // Draw the objects
-    for (size_t i = 0; i < arrlenu(scenelvled->objects); ++i) {
-        Object object = scenelvled->objects[i];
-        objectDraw(object, scenelvled->camera);
-        objectDrawHitbox(object, false, scenelvled->camera);
+    for (size_t i = 0; i < arrlenu(this->objects); ++i) {
+        Object object = this->objects[i];
+        objectDraw(object, this->camera);
+        objectDrawHitbox(object, false, this->camera);
     }
 }

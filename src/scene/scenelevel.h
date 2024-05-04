@@ -17,10 +17,10 @@ typedef struct {
 } SceneLevel;
 
 SceneLevel* scenelevelCreate();
-void scenelevelDestroy(SceneLevel* scenelevel);
+void scenelevelDestroy(SceneLevel* this);
 
-void scenelevelUpdate(SceneLevel* scenelevel, SceneState* sceneState, double deltaTime);
+void scenelevelUpdate(SceneLevel* this, SceneState* sceneState, double deltaTime);
 
-void scenelevelUpdateUI(SceneLevel* scenelevel, SceneState* sceneState);
+void scenelevelUpdateUI(SceneLevel* this, SceneState* sceneState);
 
-void scenelevelDraw(SceneLevel* scenelevel);
+void scenelevelDraw(SceneLevel* this);

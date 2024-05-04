@@ -13,13 +13,13 @@ typedef struct {
 } SceneManager;
 
 SceneManager* scenemanagerCreate();
-void scenemanagerDestroy(SceneManager* scenemanager);
+void scenemanagerDestroy(SceneManager* this);
 
-void scenemanagerLoad(SceneManager* scenemanager, const SceneEnum scene);
-void scenemanagerUnload(SceneManager* scenemanager);
+void scenemanagerLoad(SceneManager* this, const SceneEnum scene);
+void scenemanagerUnload(SceneManager* this);
 
-void scenemanagerUpdate(SceneManager* scenemanager, const double deltaTime);
+void scenemanagerUpdate(SceneManager* this, const double deltaTime);
 
-void scenemanagerUpdateUI(SceneManager* scenemanager);
+void scenemanagerUpdateUI(SceneManager* this);
 
-void scenemanagerDraw(SceneManager* scenemanager);
+void scenemanagerDraw(SceneManager* this);

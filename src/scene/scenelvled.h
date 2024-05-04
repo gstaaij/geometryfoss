@@ -31,10 +31,10 @@ typedef struct {
 } SceneLevelEditor;
 
 SceneLevelEditor* scenelvledCreate();
-void scenelvledDestroy(SceneLevelEditor* scenelvled);
+void scenelvledDestroy(SceneLevelEditor* this);
 
-void scenelvledUpdate(SceneLevelEditor* scenelvled, SceneState* sceneState, double deltaTime);
+void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double deltaTime);
 
-void scenelvledUpdateUI(SceneLevelEditor* scenelvled, SceneState* sceneState);
+void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState);
 
-void scenelvledDraw(SceneLevelEditor* scenelvled);
+void scenelvledDraw(SceneLevelEditor* this);

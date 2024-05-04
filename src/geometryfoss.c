@@ -68,9 +68,9 @@ static long tps = 0;
 static long targetTps = TARGET_TPS;
 static double timeScale = TIME_SCALE;
 
-int deltaTimeTooHighCounter = 0;
+static int deltaTimeTooHighCounter = 0;
 
-SceneManager* scenemanager;
+static SceneManager* scenemanager;
 
 int main(void) {
     // Initialize the window and make it resizable

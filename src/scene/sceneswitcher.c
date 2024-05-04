@@ -5,10 +5,8 @@
 #include "util.h"
 
 SceneState* sceneswitcherCreateState() {
-    SceneState* state = (SceneState*) malloc(sizeof(SceneState));
-    assert(state != NULL && "You don't have enough RAM");
-    memset(state, 0, sizeof(SceneState));
-    return state;
+    SCENE_CREATE(SceneState);
+    return this;
 }
 void sceneswitcherDestroyState(SceneState* state) {
     free(state);

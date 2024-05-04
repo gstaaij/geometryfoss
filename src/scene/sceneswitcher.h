@@ -1,6 +1,9 @@
 #pragma once
 #include "raylib.h"
 
+#define SCENE_CREATE(structure) structure* this = (structure*) malloc(sizeof(structure)); \
+                                assert(this != NULL && "You don't have enough RAM"); \
+                                memset(this, 0, sizeof(structure))
 
 typedef enum {
     SCENE_NONE = 0,
