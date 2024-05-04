@@ -8,6 +8,7 @@
 typedef enum {
     SCENE_NONE = 0,
     SCENE_CRASH,
+    SCENE_LOAD_ASSETS,
     SCENE_LEVEL,
     SCENE_LVLED,
 } SceneEnum; // I'm very good at naming things

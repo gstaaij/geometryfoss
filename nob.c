@@ -127,6 +127,7 @@ static const char* cFiles[] = {
     "player/physics/playerphysics.c",
     "scene/scenemanager.c",
     "scene/sceneswitcher.c",
+    "scene/sceneloadassets.c",
     "scene/scenelevel.c",
     "scene/scenelvled.c",
     "select.c",

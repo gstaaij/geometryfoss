@@ -26,6 +26,9 @@ void scenemanagerLoad(SceneManager* this, const SceneEnum scene) {
         case SCENE_CRASH: {
             // This scene is very simple, we don't need a seperate structure for it
         } break;
+        case SCENE_LOAD_ASSETS: {
+            this->sceneloadassets = sceneloadassetsCreate();
+        } break;
         case SCENE_LEVEL: {
             this->scenelevel = scenelevelCreate();
         } break;
@@ -41,6 +44,9 @@ void scenemanagerLoad(SceneManager* this, const SceneEnum scene) {
 
 void scenemanagerUnload(SceneManager* this) {
     switch (this->state->currentScene) {
+        case SCENE_LOAD_ASSETS: {
+            sceneloadassetsDestroy(this->sceneloadassets);
+        } break;
         case SCENE_LEVEL: {
             scenelevelDestroy(this->scenelevel);
         } break;
@@ -61,6 +67,9 @@ void scenemanagerUpdate(SceneManager* this, const double deltaTime) {
                 /// TODO: make this return to the main menu
                 sceneswitcherTransitionTo(this->state, SCENE_LVLED);
             }
+        } break;
+        case SCENE_LOAD_ASSETS: {
+            sceneloadassetsUpdate(this->sceneloadassets, this->state, deltaTime);
         } break;
         case SCENE_LEVEL: {
             scenelevelUpdate(this->scenelevel, this->state, deltaTime);
@@ -85,6 +94,9 @@ void scenemanagerUpdateUI(SceneManager* this) {
     switch (this->state->currentScene) {
         case SCENE_NONE: {} break;
         case SCENE_CRASH: {} break;
+        case SCENE_LOAD_ASSETS: {
+            sceneloadassetsUpdateUI(this->sceneloadassets, this->state);
+        } break;
         case SCENE_LEVEL: {
             scenelevelUpdateUI(this->scenelevel, this->state);
         } break;
@@ -123,6 +135,9 @@ void scenemanagerDraw(SceneManager* this) {
                 GetScreenHeight() / 2 + titleFontSize / 2 + subtitleFontSize,
                 subtitleFontSize, WHITE
             );
+        } break;
+        case SCENE_LOAD_ASSETS: {
+            sceneloadassetsDraw(this->sceneloadassets);
         } break;
         case SCENE_LEVEL: {
             scenelevelDraw(this->scenelevel);

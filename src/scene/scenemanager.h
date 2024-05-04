@@ -1,6 +1,7 @@
 #pragma once
 #include "camera.h"
 #include "scene/sceneswitcher.h"
+#include "scene/sceneloadassets.h"
 #include "scene/scenelvled.h"
 #include "scene/scenelevel.h"
 
@@ -8,6 +9,7 @@
 typedef struct {
     SceneState* state;
 
+    SceneLoadAssets* sceneloadassets;
     SceneLevelEditor* scenelvled;
     SceneLevel* scenelevel;
 } SceneManager;

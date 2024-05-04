@@ -84,7 +84,7 @@ int main(void) {
 
     // Initialize the Scene Manager
     scenemanager = scenemanagerCreate();
-    sceneswitcherTransitionEx(scenemanager->state, SCENE_LVLED, 1.0, 0.5);
+    sceneswitcherTransitionEx(scenemanager->state, SCENE_LOAD_ASSETS, 1.0, 0.5);
 
     #ifdef DEBUG
         SetTraceLogLevel(LOG_ALL);
@@ -202,7 +202,7 @@ static void draw() {
                 y += fs;
                 DrawText("In Delete mode:  click on an object to remove it", 10, y, fs, WHITE);
                 y += fs;
-            } else {
+            } else if (scenemanager->state->currentScene == SCENE_LEVEL) {
                 DrawText("Press SPACE or click the mouse to jump", 10, y, fs, WHITE);
                 y += fs;
                 DrawText("Press ESCAPE to pause or unpause the game", 10, y, fs, WHITE);
