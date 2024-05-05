@@ -4,21 +4,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "input/keyboard.h"
 #include "ui/text.h"
 #include "scene/sceneswitcher.h"
 
 #define RESOLUTION "-uhd"
 
 static char* filesToCopy[] = {
-    "Resources/bigFont"RESOLUTION".png",
-    "Resources/bigFont"RESOLUTION".fnt",
+    "Resources/bigFont-uhd.png",
+    "Resources/bigFont-uhd.fnt",
+    "Resources/chatFont-uhd.png",
+    "Resources/chatFont-uhd.fnt",
     "Resources/GJ_GameSheet"RESOLUTION".png",
     "Resources/GJ_GameSheet"RESOLUTION".plist",
 };
 
 static char* fileDestinations[] = {
-    "fonts/bigFont.png",
-    "fonts/bigFont.fnt",
+    "fonts/bigFont-uhd.png",
+    "fonts/bigFont-uhd.fnt",
+    "fonts/chatFont-uhd.png",
+    "fonts/chatFont-uhd.fnt",
     "textures/GJ_GameSheet.png",
     "textures/GJ_GameSheet.plist",
 };
@@ -71,6 +76,10 @@ void sceneloadassetsUpdate(SceneLoadAssets* this, SceneState* sceneState, double
                         return;
                     }
                 }
+            }
+            if (keyboardPressed(KEY_SPACE)) {
+                sceneswitcherTransitionTo(sceneState, SCENE_LVLED);
+                return;
             }
         } break;
         case SLASTATE_EXTRACTING_ASSETS: {
@@ -125,6 +134,12 @@ void sceneloadassetsDraw(SceneLoadAssets* this) {
                 "Drag GeometryDash.exe to this window",
                 (Coord) { 0, 0 },
                 15, WHITE
+            );
+            textDrawCentered(
+                this->uiCamera, this->font,
+                "or press SPACE to continue without GD assets",
+                (Coord) { 0, -20 },
+                10, WHITE
             );
         } break;
         case SLASTATE_EXTRACTING_ASSETS: {
