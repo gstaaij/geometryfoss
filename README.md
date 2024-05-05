@@ -3,6 +3,8 @@
 
 This is an Open Source clone of Geomety Dash written in C using [raylib](https://www.raylib.com/).
 
+### Please keep in mind that this project is still under development. If major things don't work, please wait a few days and see if the problem persists before creating an issue
+
 ## Building
 
 There aren't any releases yet, so you have to compile GDF yourself for now.
