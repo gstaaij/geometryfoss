@@ -5,25 +5,24 @@
 #include <string.h>
 
 #include "input/keyboard.h"
+#include "ui/font.h"
 #include "ui/text.h"
 #include "scene/sceneswitcher.h"
 
-#define RESOLUTION "-uhd"
-
 static char* filesToCopy[] = {
-    "Resources/bigFont-uhd.png",
-    "Resources/bigFont-uhd.fnt",
-    "Resources/chatFont-uhd.png",
-    "Resources/chatFont-uhd.fnt",
-    "Resources/GJ_GameSheet"RESOLUTION".png",
-    "Resources/GJ_GameSheet"RESOLUTION".plist",
+    "Resources/bigFont"ASSET_RESOLUTION".png",
+    "Resources/bigFont"ASSET_RESOLUTION".fnt",
+    "Resources/chatFont"ASSET_RESOLUTION".png",
+    "Resources/chatFont"ASSET_RESOLUTION".fnt",
+    "Resources/GJ_GameSheet"ASSET_RESOLUTION".png",
+    "Resources/GJ_GameSheet"ASSET_RESOLUTION".plist",
 };
 
 static char* fileDestinations[] = {
-    "fonts/bigFont-uhd.png",
-    "fonts/bigFont-uhd.fnt",
-    "fonts/chatFont-uhd.png",
-    "fonts/chatFont-uhd.fnt",
+    "fonts/bigFont"ASSET_RESOLUTION".png",
+    "fonts/bigFont.fnt",
+    "fonts/chatFont"ASSET_RESOLUTION".png",
+    "fonts/chatFont.fnt",
     "textures/GJ_GameSheet.png",
     "textures/GJ_GameSheet.plist",
 };
@@ -42,8 +41,6 @@ SceneLoadAssets* sceneloadassetsCreate() {
             break;
         }
     }
-
-    this->font = GetFontDefault();
 
     return this;
 }
@@ -130,13 +127,13 @@ void sceneloadassetsDraw(SceneLoadAssets* this) {
     switch (this->state) {
         case SLASTATE_AWAITING_DRAG_DROP: {
             textDrawCentered(
-                this->uiCamera, this->font,
+                this->uiCamera, fontGetBig(),
                 "Drag GeometryDash.exe to this window",
                 (Coord) { 0, 0 },
                 15, WHITE
             );
             textDrawCentered(
-                this->uiCamera, this->font,
+                this->uiCamera, fontGetBig(),
                 "or press SPACE to continue without GD assets",
                 (Coord) { 0, -20 },
                 10, WHITE
@@ -144,7 +141,7 @@ void sceneloadassetsDraw(SceneLoadAssets* this) {
         } break;
         case SLASTATE_EXTRACTING_ASSETS: {
             textDrawCentered(
-                this->uiCamera, this->font,
+                this->uiCamera, fontGetBig(),
                 this->currentAssetIndex >= NOB_ARRAY_LEN(fileDestinations)
                     ? "Done!"
                     : TextFormat("Copying %s...", GetFileName(fileDestinations[this->currentAssetIndex])),
@@ -155,7 +152,7 @@ void sceneloadassetsDraw(SceneLoadAssets* this) {
         case SLASTATE_COPY_ERROR: {
             Coord pos = { 0, 0 };
             textDrawCentered(
-                this->uiCamera, this->font,
+                this->uiCamera, fontGetBig(),
                 "Copying assets failed",
                 pos,
                 15, WHITE
@@ -163,7 +160,7 @@ void sceneloadassetsDraw(SceneLoadAssets* this) {
             pos.y -= 20;
             if (this->errorMessage != NULL) {
                 textDrawCentered(
-                    this->uiCamera, this->font,
+                    this->uiCamera, fontGetBig(),
                     this->errorMessage,
                     pos,
                     10, WHITE
@@ -171,7 +168,7 @@ void sceneloadassetsDraw(SceneLoadAssets* this) {
                 pos.y -= 10;
             }
             textDrawCentered(
-                this->uiCamera, this->font,
+                this->uiCamera, fontGetBig(),
                 "Refer to the console output for more information",
                 pos,
                 10, LIGHTGRAY

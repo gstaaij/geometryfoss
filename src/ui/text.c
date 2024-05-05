@@ -35,6 +35,11 @@ char* textWrap(char* text, const size_t maxChars) {
     return sb.items;
 }
 
+void textDraw(Font font, const char* text, int posX, int posY, int fontSize, Color color) {
+    float fontSpacing = fontSize/(float)font.baseSize;
+    DrawTextEx(font, text, (Vector2) { posX, posY }, fontSize, fontSpacing, color);
+}
+
 void textDrawCentered(GDFCamera camera, Font font, const char* text, Coord center, double fontSize, Color color) {
     fontSize = convertToScreen(fontSize, camera);
     double fontSpacing = fontSize/font.baseSize;

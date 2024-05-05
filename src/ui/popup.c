@@ -2,6 +2,7 @@
 #include "nob.h"
 #include "stb_ds.h"
 #include "raygui.h"
+#include "ui/font.h"
 #include "ui/text.h"
 #include "lib/easing/easing.h"
 #include "input/keyboard.h"
@@ -45,7 +46,7 @@ static double popupWasShown = false;
 
 long popupGetWidth(const GDFCamera uiCamera, const double fontSize, const double fontSpacing, const char* message) {
     long width = convertToScreen(4 * POPUP_BOX_PADDING, uiCamera);
-    width += MeasureTextEx(GetFontDefault(), message, fontSize, fontSpacing).x;
+    width += MeasureTextEx(fontGetSmall(), message, fontSize, fontSpacing).x;
     return width;
 }
 
@@ -168,9 +169,9 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         popupLocation.y + (POPUP_BOX_PADDING / 2 + POPUP_BUTTON_HEIGHT / 2) * popupScale,
     };
     ScreenCoord popupScreenLocation = getScreenCoord(popupLocation, uiCamera);
-    double fontSpacing = fontSize/GetFontDefault().baseSize;
+    double fontSpacing = fontSize/fontGetSmall().baseSize;
     long popupWidth = popupGetWidth(uiCamera, fontSize, fontSpacing, message);
-    Vector2 messageSize = MeasureTextEx(GetFontDefault(), message, (float) fontSize, (float) fontSpacing);
+    Vector2 messageSize = MeasureTextEx(fontGetSmall(), message, (float) fontSize, (float) fontSpacing);
     long popupHeight = convertToScreen((POPUP_BOX_PADDING * 3 + POPUP_BUTTON_HEIGHT) * popupScale, uiCamera) + messageSize.y;
     double popupGDHeight = convertToGD(popupHeight, uiCamera);
 
@@ -191,9 +192,9 @@ void popupUpdateUI(const GDFCamera uiCamera) {
 
     textDrawCentered(
         uiCamera,
-        GetFontDefault(), message,
+        fontGetSmall(), message,
         popupMessageLocation,
-        POPUP_MESSAGE_FONT_SIZE * popupScale, LIGHTGRAY
+        POPUP_MESSAGE_FONT_SIZE * popupScale, WHITE
     );
 
     fontSize = convertToScreen(POPUP_BUTTON_FONT_SIZE * popupScale, uiCamera);

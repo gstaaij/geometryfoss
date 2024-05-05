@@ -15,6 +15,8 @@
 #include "camera.h"
 #include "serialize.h"
 #include "level/level.h"
+#include "ui/font.h"
+#include "ui/text.h"
 #include "ui/popup.h"
 
 #define MODE_BUTTON_OFFSET 5.0
@@ -480,12 +482,12 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
         case EDITOR_UI_MODE_EDIT: {
             // Draw text telling the user that they're in edit mode
             // This is temporary and will be removed once I add buttons to edit mode
-            DrawText("You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, this->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
+            textDraw(fontGetBig(), "You are in EDIT MODE!", buttonOffset * 3 + buttonWidth, this->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         } break;
         case EDITOR_UI_MODE_DELETE: {
             // Draw text telling the user that they're in delete mode
             // This is temporary and will be removed once I add buttons to delete mode
-            DrawText("You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, this->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
+            textDraw(fontGetBig(), "You are in DELETE MODE!", buttonOffset * 3 + buttonWidth, this->uiCamera.screenSize.y - upperY + buttonOffset, 30, WHITE);
         } break;
     }
 

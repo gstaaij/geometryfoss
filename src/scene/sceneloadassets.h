@@ -5,6 +5,8 @@
 #include "raylib.h"
 #include "camera.h"
 
+#define ASSET_RESOLUTION "-uhd"
+
 typedef enum {
     SLASTATE_AWAITING_DRAG_DROP,
     SLASTATE_EXTRACTING_ASSETS,
@@ -17,7 +19,6 @@ typedef struct {
     size_t currentAssetIndex;
     char* GDDirectory;
     const char* errorMessage;
-    Font font;
     GDFCamera uiCamera;
 } SceneLoadAssets;
 

@@ -25,6 +25,8 @@
 #include "object.h"
 #include "ground.h"
 #include "player/player.h"
+#include "ui/font.h"
+#include "ui/text.h"
 
 // Make raygui use our own mouse and keyboard functions
 #define IsMouseButtonReleased mouseReleased
@@ -151,6 +153,8 @@ int main(void) {
 
     scenemanagerDestroy(scenemanager);
 
+    fontUnload();
+
     CloseWindow();
 
     return 0;
@@ -159,6 +163,8 @@ int main(void) {
 static void update(const double deltaTime) {  
     keyboardUpdate();
     mouseUpdate();
+    fontUpdate();
+    GuiSetFont(fontGetBig());
 
     scenemanagerUpdate(scenemanager, deltaTime);
 
@@ -181,33 +187,33 @@ static void draw() {
             // Display the FPS and TPS on the top left of the screen
             const int fs = 20;
             int y = 10;
-            DrawText(TextFormat("TPS: %ld", tps), 10, y, fs, WHITE);
+            textDraw(GetFontDefault(), TextFormat("TPS: %ld", tps), 10, y, fs, WHITE);
             y += fs;
-            DrawText(TextFormat("FPS: %ld", GetFPS()), 10, y, fs, WHITE);
+            textDraw(GetFontDefault(), TextFormat("FPS: %ld", GetFPS()), 10, y, fs, WHITE);
             y += 2 * fs;
-            DrawText("Press F3 to toggle this text", 10, y, fs, WHITE);
+            textDraw(GetFontDefault(), "Press F3 to toggle this text", 10, y, fs, WHITE);
             y += 2 * fs;
             if (scenemanager->state->currentScene == SCENE_LVLED) {
-                DrawText("Drag the mouse around to move the view", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "Drag the mouse around to move the view", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("Press CTRL+PLUS to zoom in and CTRL+MINUS to zoom out. CTRL+SCROLL can also be used", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "Press CTRL+PLUS to zoom in and CTRL+MINUS to zoom out. CTRL+SCROLL can also be used", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("Press ESCAPE to enter the pause menu", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "Press ESCAPE to enter the pause menu", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("In Build mode:    click to build something", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "In Build mode:    click to build something", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("In Edit mode:     click on objects to select them and use W, A, S and D to move them around", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "In Edit mode:     click on objects to select them and use W, A, S and D to move them around", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("                     You can also use Q and E to rotate objects and select multiple objects by holding SHIFT", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "                     You can also use Q and E to rotate objects and select multiple objects by holding SHIFT", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("In Delete mode:  click on an object to remove it", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "In Delete mode:  click on an object to remove it", 10, y, fs, WHITE);
                 y += fs;
             } else if (scenemanager->state->currentScene == SCENE_LEVEL) {
-                DrawText("Press SPACE or click the mouse to jump", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "Press SPACE or click the mouse to jump", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("Press ESCAPE to pause or unpause the game", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "Press ESCAPE to pause or unpause the game", 10, y, fs, WHITE);
                 y += fs;
-                DrawText("Press CTRL+ESCAPE to go back to the Editor", 10, y, fs, WHITE);
+                textDraw(GetFontDefault(), "Press CTRL+ESCAPE to go back to the Editor", 10, y, fs, WHITE);
                 y += fs;
             }
         }
@@ -215,16 +221,16 @@ static void draw() {
         #ifdef DEBUG
             static const char* debugModeText = "DEBUG MODE";
             int y = 10;
-            DrawText(debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10 + 2, y + 2, 48, BLACK);
-            DrawText(debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10, y, 48, RED);
+            textDraw(GetFontDefault(), debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10 + 2, y + 2, 48, BLACK);
+            textDraw(GetFontDefault(), debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10, y, 48, RED);
             y += 48;
             const char* instruction1Text = TextFormat("Press G to set the time scale to %.02f", timeScale == TIME_SCALE ? TIME_SCALE_DEBUG_TOGGLE : TIME_SCALE);
-            DrawText(instruction1Text, GetScreenWidth() - MeasureText(instruction1Text, 24) - 10 + 1, y + 1, 24, BLACK);
-            DrawText(instruction1Text, GetScreenWidth() - MeasureText(instruction1Text, 24) - 10, y, 24, LIGHTGRAY);
+            textDraw(GetFontDefault(), instruction1Text, GetScreenWidth() - MeasureText(instruction1Text, 24) - 10 + 1, y + 1, 24, BLACK);
+            textDraw(GetFontDefault(), instruction1Text, GetScreenWidth() - MeasureText(instruction1Text, 24) - 10, y, 24, LIGHTGRAY);
             y += 24;
             const char* instruction2Text = TextFormat("Press F to set the target TPS to %d", targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS);
-            DrawText(instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10 + 1, y + 1, 24, BLACK);
-            DrawText(instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10, y, 24, LIGHTGRAY);
+            textDraw(GetFontDefault(), instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10 + 1, y + 1, 24, BLACK);
+            textDraw(GetFontDefault(), instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10, y, 24, LIGHTGRAY);
         #endif
 
     EndDrawing();
