@@ -52,4 +52,5 @@ Font fontGetSmall() {
 
 void fontUnload() {
     UnloadFont(bigFont);
+    UnloadFont(smallFont);
 }
