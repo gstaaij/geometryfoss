@@ -117,6 +117,7 @@ static const char* cFiles[] = {
     "coord.c",
     "lib/cJSON/cJSON.c",
     "lib/easing/easing.c",
+    "lib/yxml/yxml.c",
     "grid.c",
     "ground.c",
     "hitbox.c",
@@ -156,7 +157,6 @@ bool buildMain(Target target, bool debugMode) {
 
                 // Disable some warnings from stb_ds
                 nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
-                // nob_cmd_append(&cmd, "-Wno-missing-field-initializers");
                 
                 nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
                 nob_cmd_append(&cmd, "-I./src");

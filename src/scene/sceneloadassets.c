@@ -23,8 +23,8 @@ static char* fileDestinations[] = {
     "fonts/bigFont.fnt",
     "fonts/chatFont"ASSET_RESOLUTION".png",
     "fonts/chatFont.fnt",
-    "textures/GJ_GameSheet.png",
-    "textures/GJ_GameSheet.plist",
+    "maps/GJ_GameSheet.png",
+    "maps/GJ_GameSheet.plist",
 };
 
 SceneLoadAssets* sceneloadassetsCreate() {

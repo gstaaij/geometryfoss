@@ -15,6 +15,7 @@
 #include "camera.h"
 #include "serialize.h"
 #include "level/level.h"
+#include "assets/assets.h"
 #include "assets/font.h"
 #include "ui/text.h"
 #include "ui/popup.h"
@@ -624,4 +625,14 @@ void scenelvledDraw(SceneLevelEditor* this) {
         objectDraw(object, this->camera);
         objectDrawHitbox(object, false, this->camera);
     }
+
+#ifdef DEBUG
+    TextureMap map = assetsTextureMap("square_01_001.png");
+    DrawTexturePro(
+        assetsTexture("assets/maps/GJ_GameSheet.png"),
+        map.textureRect, (Rectangle) { 0, 0, convertToScreen(map.spriteSize.x, this->camera), convertToScreen(map.spriteSize.x, this->camera) },
+        (Vector2) { 0, 0 },
+        0.0, WHITE
+    );
+#endif
 }

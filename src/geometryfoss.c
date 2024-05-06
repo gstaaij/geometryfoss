@@ -25,6 +25,7 @@
 #include "object.h"
 #include "ground.h"
 #include "player/player.h"
+#include "assets/assets.h"
 #include "assets/font.h"
 #include "ui/text.h"
 
@@ -75,6 +76,12 @@ static int deltaTimeTooHighCounter = 0;
 static SceneManager* scenemanager;
 
 int main(void) {
+    #ifdef DEBUG
+        SetTraceLogLevel(LOG_ALL);
+    #else
+        SetTraceLogLevel(LOG_INFO);
+    #endif
+
     // Initialize the window and make it resizable
     InitWindow(1280, 720, "Geometry FOSS");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
@@ -87,12 +94,6 @@ int main(void) {
     // Initialize the Scene Manager
     scenemanager = scenemanagerCreate();
     sceneswitcherTransitionEx(scenemanager->state, SCENE_LOAD_ASSETS, 1.0, 0.5);
-
-    #ifdef DEBUG
-        SetTraceLogLevel(LOG_ALL);
-    #else
-        SetTraceLogLevel(LOG_INFO);
-    #endif
 
     // Initialize some variables that will be needed
     double timeSinceLastUpdate = 0;
@@ -153,6 +154,7 @@ int main(void) {
 
     scenemanagerDestroy(scenemanager);
 
+    assetsUnloadEverything();
     fontUnload();
 
     CloseWindow();
