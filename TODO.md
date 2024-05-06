@@ -8,6 +8,7 @@
 - [ ] Make the easing functions like the ones in GD (ease, elastic, bounce, exponential, sine, back. Ease and elastic have an easing rate)
 - [ ] Add jump pads, jump rings, and portals
 - [x] If the deltaTime is too high, don't update (will cause phasing through walls if not) ([e3f9eb3](https://github.com/gstaaij/geometryfoss/commit/e3f9eb369315e5b61cb2e5bbb26de1ce17afa1ba))
+- [ ] Parse the texture map `.plist` files
 - [ ] Make update and draw loops run in seperate threads
 
 ## QoL stuff

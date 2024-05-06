@@ -111,6 +111,7 @@ defer:
 
 static const char* cFiles[] = {
     "geometryfoss.c",
+    "assets/assets.c",
     "assets/font.c",
     "camera.c",
     "coord.c",
