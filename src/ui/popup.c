@@ -2,7 +2,7 @@
 #include "nob.h"
 #include "stb_ds.h"
 #include "raygui.h"
-#include "ui/font.h"
+#include "assets/font.h"
 #include "ui/text.h"
 #include "lib/easing/easing.h"
 #include "input/keyboard.h"

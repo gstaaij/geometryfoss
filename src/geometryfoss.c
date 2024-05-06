@@ -25,7 +25,7 @@
 #include "object.h"
 #include "ground.h"
 #include "player/player.h"
-#include "ui/font.h"
+#include "assets/font.h"
 #include "ui/text.h"
 
 // Make raygui use our own mouse and keyboard functions

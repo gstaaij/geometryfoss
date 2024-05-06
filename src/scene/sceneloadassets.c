@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "input/keyboard.h"
-#include "ui/font.h"
+#include "assets/font.h"
 #include "ui/text.h"
 #include "scene/sceneswitcher.h"
 

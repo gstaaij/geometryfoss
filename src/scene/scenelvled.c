@@ -15,7 +15,7 @@
 #include "camera.h"
 #include "serialize.h"
 #include "level/level.h"
-#include "ui/font.h"
+#include "assets/font.h"
 #include "ui/text.h"
 #include "ui/popup.h"
 
