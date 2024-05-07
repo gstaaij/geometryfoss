@@ -17,6 +17,14 @@ static char* filesToCopy[] = {
     "Resources/chatFont"ASSET_RESOLUTION_STRING".fnt",
     "Resources/GJ_GameSheet"ASSET_RESOLUTION_STRING".png",
     "Resources/GJ_GameSheet"ASSET_RESOLUTION_STRING".plist",
+    "Resources/GJ_GameSheet02"ASSET_RESOLUTION_STRING".png",
+    "Resources/GJ_GameSheet02"ASSET_RESOLUTION_STRING".plist",
+    "Resources/GJ_GameSheet03"ASSET_RESOLUTION_STRING".png",
+    "Resources/GJ_GameSheet03"ASSET_RESOLUTION_STRING".plist",
+    "Resources/GJ_GameSheet04"ASSET_RESOLUTION_STRING".png",
+    "Resources/GJ_GameSheet04"ASSET_RESOLUTION_STRING".plist",
+    "Resources/GJ_GameSheetGlow"ASSET_RESOLUTION_STRING".png",
+    "Resources/GJ_GameSheetGlow"ASSET_RESOLUTION_STRING".plist",
 };
 
 static char* fileDestinations[] = {
@@ -26,6 +34,14 @@ static char* fileDestinations[] = {
     "fonts/chatFont.fnt",
     "maps/GJ_GameSheet.png",
     "maps/GJ_GameSheet.plist",
+    "maps/GJ_GameSheet02.png",
+    "maps/GJ_GameSheet02.plist",
+    "maps/GJ_GameSheet03.png",
+    "maps/GJ_GameSheet03.plist",
+    "maps/GJ_GameSheet04.png",
+    "maps/GJ_GameSheet04.plist",
+    "maps/GJ_GameSheetGlow.png",
+    "maps/GJ_GameSheetGlow.plist",
 };
 
 SceneLoadAssets* sceneloadassetsCreate() {

@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include "nob.h"
 #include "lib/yxml/yxml.h"
+#include "camera.h"
 
 typedef struct {
     const char* key;
@@ -48,10 +49,11 @@ static void* assetFind_(void* items, size_t itemSize, size_t itemsCount, size_t 
                ((char*)&(table).items[0].value - (char*)&(table).items[0]), \
                (key))
 
+#define TEXTURE_MAPS_MAX_CAPACITY 4096
 typedef struct {
     Images images;
     Textures textures;
-    TextureMapItem textureMaps[4096];
+    TextureMapItem textureMaps[TEXTURE_MAPS_MAX_CAPACITY];
     size_t textureMapCount;
     bool textureMapsInitializeFailed;
 } Assets;
@@ -130,27 +132,12 @@ Nob_String_View svParseCoordListString(Nob_String_View* sv2) {
     return sv1;
 }
 
-bool assetsInitializeTextureMaps() {
+bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, const char* pngRelPath) {
     bool result = true;
 
     unsigned char* mapstring = NULL;
     void* buffer = NULL;
 
-    int dataSize;
-    const char* relPath = "assets/maps/GJ_GameSheet.plist";
-    mapstring = LoadFileData(assetsGetAbsolutePath(relPath), &dataSize);
-    if (mapstring == NULL) {
-        TraceLog(LOG_ERROR, "Failed to load file %s", relPath);
-        nob_return_defer(false);
-    }
-
-    #define BUFFER_SIZE 4096
-    buffer = malloc(BUFFER_SIZE);
-    yxml_t xml;
-    yxml_init(&xml, buffer, BUFFER_SIZE);
-
-    int dictCounter = 0;
-    bool hasSeenFramesKey = false;
     Nob_String_Builder currentElement = {0};
     Nob_String_Builder currentValue = {0};
     Nob_String_Builder currentImage = {0};
@@ -161,12 +148,31 @@ bool assetsInitializeTextureMaps() {
     Nob_String_Builder sb2X = {0};
     Nob_String_Builder sb2Y = {0};
 
-    int currentMapIndex = -1;
+    char* spriteSheet = malloc(sizeof(char) * (strlen(pngRelPath) + 1));
+    strcpy(spriteSheet, pngRelPath);
+
+    int dataSize;
+    mapstring = LoadFileData(assetsGetAbsolutePath(plistRelPath), &dataSize);
+    if (mapstring == NULL) {
+        TraceLog(LOG_ERROR, "Failed to load file %s", plistRelPath);
+        nob_return_defer(false);
+    }
+
+    #define BUFFER_SIZE 4096
+    buffer = malloc(BUFFER_SIZE);
+    yxml_t xml;
+    yxml_init(&xml, buffer, BUFFER_SIZE);
+    #undef BUFFER_SIZE
+
+    int dictCounter = 0;
+    bool hasSeenFramesKey = false;
+
+    int currentMapIndex = *currentIndex;
 
     for (int i = 0; i < dataSize; ++i) {
         yxml_ret_t ret = yxml_parse(&xml, (char)mapstring[i]);
         if (ret < 0) {
-            TraceLog(LOG_ERROR, "Failed to parse file %s at line %d:%d", relPath, xml.line, xml.byte);
+            TraceLog(LOG_ERROR, "Failed to parse file %s at line %d:%d", plistRelPath, xml.line, xml.byte);
             nob_return_defer(false);
         }
 
@@ -216,11 +222,15 @@ bool assetsInitializeTextureMaps() {
                     
                     if (hasSeenFramesKey && dictCounter == 2) {
                         // This is the key for a new image
-                        if (currentMapIndex >= 0) {
+                        if (currentImage.items) {
                             assets.textureMaps[currentMapIndex].key = malloc(sizeof(char) * currentImage.count);
                             strcpy(assets.textureMaps[currentMapIndex].key, currentImage.items);
                         }
                         currentMapIndex++;
+                        if (currentMapIndex >= TEXTURE_MAPS_MAX_CAPACITY) {
+                            TraceLog(LOG_ERROR, "Not enough memory allocated for texture maps");
+                            nob_return_defer(false);
+                        }
 
                         // Also set currentImage to the same value as currentValue
                         currentImage.count = 0;
@@ -254,14 +264,7 @@ bool assetsInitializeTextureMaps() {
                     } else if (strcmp("spriteSize", currentKey.items) == 0) {
                         // We need to set the sprite sheet for this image somewhere,
                         // so we do it in here, since the sprite size should always be set
-                        /// TODO: make this use less memory
-                        size_t len = strlen(relPath);
-                        assets.textureMaps[currentMapIndex].item.spriteSheet = malloc(sizeof(char) * (len + 1));
-                        strcpy(assets.textureMaps[currentMapIndex].item.spriteSheet, relPath);
-                        assets.textureMaps[currentMapIndex].item.spriteSheet[len - 5] = 'p';
-                        assets.textureMaps[currentMapIndex].item.spriteSheet[len - 4] = 'n';
-                        assets.textureMaps[currentMapIndex].item.spriteSheet[len - 3] = 'g';
-                        assets.textureMaps[currentMapIndex].item.spriteSheet[len - 2] = '\0';
+                        assets.textureMaps[currentMapIndex].item.spriteSheet = spriteSheet;
 
                         // Now, the same happens as in the spriteOffset case
 
@@ -319,6 +322,37 @@ bool assetsInitializeTextureMaps() {
         }
     }
 
+    *currentIndex = currentMapIndex - 1;
+
+defer:
+    if (buffer) free(buffer);
+    if (mapstring) UnloadFileData(mapstring);
+    if (currentElement.items) nob_sb_free(currentElement);
+    if (currentImage.items) nob_sb_free(currentImage);
+    if (currentKey.items) nob_sb_free(currentKey);
+    if (currentValue.items) nob_sb_free(currentValue);
+    if (sb1X.items) nob_sb_free(sb1X);
+    if (sb1Y.items) nob_sb_free(sb1Y);
+    if (sb2X.items) nob_sb_free(sb2X);
+    if (sb2Y.items) nob_sb_free(sb2Y);
+    return result;
+}
+
+bool assetsInitializeTextureMaps() {
+    int currentMapIndex = -1;
+    bool result = true;
+    if (!assetsInitializeTextureMap(&currentMapIndex, "assets/maps/GJ_GameSheet.plist", "assets/maps/GJ_GameSheet.png"))
+        result = false;
+    TraceLog(LOG_INFO, "currentMapIndex: %d", currentMapIndex);
+    if (!assetsInitializeTextureMap(&currentMapIndex, "assets/maps/GJ_GameSheet02.plist", "assets/maps/GJ_GameSheet02.png"))
+        result = false;
+    if (!assetsInitializeTextureMap(&currentMapIndex, "assets/maps/GJ_GameSheet03.plist", "assets/maps/GJ_GameSheet03.png"))
+        result = false;
+    if (!assetsInitializeTextureMap(&currentMapIndex, "assets/maps/GJ_GameSheet04.plist", "assets/maps/GJ_GameSheet04.png"))
+        result = false;
+    if (!assetsInitializeTextureMap(&currentMapIndex, "assets/maps/GJ_GameSheetGlow.plist", "assets/maps/GJ_GameSheetGlow.png"))
+        result = false;
+    
     assets.textureMapCount = currentMapIndex + 1;
 
 #ifdef DEBUG
@@ -331,9 +365,6 @@ bool assetsInitializeTextureMaps() {
     TraceLog(LOG_DEBUG, "Amount of texture maps: %lld", assets.textureMapCount);
 #endif
 
-defer:
-    if (buffer) free(buffer);
-    if (mapstring) UnloadFileData(mapstring);
     return result;
 }
 
@@ -351,6 +382,22 @@ TextureMap assetsTextureMap(const char* fileName) {
     return (TextureMap) {0};
 }
 
+void assetsDrawFromTextureMap(TextureMap map, Coord position, Color color, GDFCamera camera) {
+    if (map.spriteSheet != NULL) {
+        position.x += map.spriteOffset.x;
+        position.y += map.spriteOffset.y;
+        ScreenCoord scPosition = getScreenCoord(position, camera);
+        long scWidth = convertToScreen(map.spriteSize.x, camera);
+        long scHeight = convertToScreen(map.spriteSize.y, camera);
+        DrawTexturePro(
+            assetsTexture(map.spriteSheet),
+            map.textureRect, (Rectangle) { scPosition.x, scPosition.y, scWidth, scHeight },
+            (Vector2) { scWidth/2, scHeight/2 },
+            map.textureRotated ? -90.0 : 0.0, color
+        );
+    }
+}
+
 void assetsUnloadEverything() {
     for (size_t i = 0; i < assets.textures.count; ++i) {
         UnloadTexture(assets.textures.items[i].value);
@@ -361,7 +408,7 @@ void assetsUnloadEverything() {
     }
     assets.images.count = 0;
     for (size_t i = 0; i < NOB_ARRAY_LEN(assets.textureMaps); ++i) {
-        free(assets.textureMaps[i].item.spriteSheet);
+        // free(assets.textureMaps[i].item.spriteSheet);
         free(assets.textureMaps[i].key);
     }
 }

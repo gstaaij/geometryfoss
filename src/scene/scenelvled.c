@@ -628,19 +628,14 @@ void scenelvledDraw(SceneLevelEditor* this) {
 
 #ifdef DEBUG
     // Draw a test texture
-    const char* fileName = "dashRing_02_001.png";
+    const char* fileName = "square_01_001.png";
+    const char* fileNameGlow = "square_01_glow_001.png";
     TextureMap map = assetsTextureMap(fileName);
-    if (map.spriteSheet != NULL) {
-        Coord position = { 15 + map.spriteOffset.x, 15 + map.spriteOffset.y };
-        ScreenCoord scPosition = getScreenCoord(position, this->camera);
-        long scWidth = convertToScreen(map.spriteSize.x, this->camera);
-        long scHeight = convertToScreen(map.spriteSize.y, this->camera);
-        DrawTexturePro(
-            assetsTexture(map.spriteSheet),
-            map.textureRect, (Rectangle) { scPosition.x, scPosition.y, scWidth, scHeight },
-            (Vector2) { scWidth/2, scHeight/2 },
-            map.textureRotated ? -90.0 : 0.0, WHITE
-        );
-    }
+    TextureMap mapGlow = assetsTextureMap(fileNameGlow);
+    Coord position = { 15, 15 };
+    BeginBlendMode(BLEND_ADDITIVE);
+        assetsDrawFromTextureMap(mapGlow, position, ColorFromHSV(0, 0.0, 0.5), this->camera);
+    EndBlendMode();
+    assetsDrawFromTextureMap(map, position, WHITE, this->camera);
 #endif
 }

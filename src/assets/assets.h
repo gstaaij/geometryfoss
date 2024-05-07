@@ -37,5 +37,6 @@ typedef struct {
 
 bool assetsInitializeTextureMaps();
 TextureMap assetsTextureMap(const char* fileName);
+void assetsDrawFromTextureMap(TextureMap map, Coord position, Color color, GDFCamera camera);
 
 void assetsUnloadEverything();
