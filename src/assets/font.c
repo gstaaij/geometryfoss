@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 #include "raygui.h"
-#include "scene/sceneloadassets.h"
+#include "assets/assets.h"
 
 static Font bigFont = {0};
 static Font smallFont = {0};
@@ -15,7 +15,7 @@ void fontUpdate() {
     if (
         bigFont.recs == NULL &&
         FileExists(bigFontPath) &&
-        FileExists(TextFormat("%s/assets/fonts/bigFont"ASSET_RESOLUTION".png", GetApplicationDirectory()))
+        FileExists(TextFormat("%s/assets/fonts/bigFont"ASSET_RESOLUTION_STRING".png", GetApplicationDirectory()))
     ) {
         bigFont = LoadFont(bigFontPath);
         // Make the font look pretty
@@ -33,7 +33,7 @@ void fontUpdate() {
     if (
         smallFont.recs == NULL &&
         FileExists(smallFontPath) &&
-        FileExists(TextFormat("%s/assets/fonts/chatFont"ASSET_RESOLUTION".png", GetApplicationDirectory()))
+        FileExists(TextFormat("%s/assets/fonts/chatFont"ASSET_RESOLUTION_STRING".png", GetApplicationDirectory()))
     ) {
         smallFont = LoadFont(smallFontPath);
         // Make the font look pretty

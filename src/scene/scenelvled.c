@@ -627,12 +627,16 @@ void scenelvledDraw(SceneLevelEditor* this) {
     }
 
 #ifdef DEBUG
-    TextureMap map = assetsTextureMap("square_01_001.png");
+    // Draw a test texture
+    const char* fileName = "square_01_001.png";
+    TextureMap map = assetsTextureMap(fileName);
+    Coord position = { 15 + map.spriteOffset.x - 30.0/2, 15 + map.spriteOffset.y + 30.0/2 };
+    ScreenCoord scPosition = getScreenCoord(position, this->camera);
     DrawTexturePro(
-        assetsTexture("assets/maps/GJ_GameSheet.png"),
-        map.textureRect, (Rectangle) { 0, 0, convertToScreen(map.spriteSize.x, this->camera), convertToScreen(map.spriteSize.x, this->camera) },
+        assetsTexture(map.spriteSheet),
+        map.textureRect, (Rectangle) { scPosition.x, scPosition.y, convertToScreen(map.spriteSize.x, this->camera), convertToScreen(map.spriteSize.y, this->camera) },
         (Vector2) { 0, 0 },
-        0.0, WHITE
+        map.textureRotated ? 90.0 : 0.0, WHITE
     );
 #endif
 }

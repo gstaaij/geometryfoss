@@ -5,8 +5,6 @@
 #include "raylib.h"
 #include "camera.h"
 
-#define ASSET_RESOLUTION "-uhd"
-
 typedef enum {
     SLASTATE_AWAITING_DRAG_DROP,
     SLASTATE_EXTRACTING_ASSETS,

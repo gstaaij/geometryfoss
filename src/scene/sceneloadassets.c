@@ -4,24 +4,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "assets/assets.h"
 #include "input/keyboard.h"
 #include "assets/font.h"
 #include "ui/text.h"
 #include "scene/sceneswitcher.h"
 
 static char* filesToCopy[] = {
-    "Resources/bigFont"ASSET_RESOLUTION".png",
-    "Resources/bigFont"ASSET_RESOLUTION".fnt",
-    "Resources/chatFont"ASSET_RESOLUTION".png",
-    "Resources/chatFont"ASSET_RESOLUTION".fnt",
-    "Resources/GJ_GameSheet"ASSET_RESOLUTION".png",
-    "Resources/GJ_GameSheet"ASSET_RESOLUTION".plist",
+    "Resources/bigFont"ASSET_RESOLUTION_STRING".png",
+    "Resources/bigFont"ASSET_RESOLUTION_STRING".fnt",
+    "Resources/chatFont"ASSET_RESOLUTION_STRING".png",
+    "Resources/chatFont"ASSET_RESOLUTION_STRING".fnt",
+    "Resources/GJ_GameSheet"ASSET_RESOLUTION_STRING".png",
+    "Resources/GJ_GameSheet"ASSET_RESOLUTION_STRING".plist",
 };
 
 static char* fileDestinations[] = {
-    "fonts/bigFont"ASSET_RESOLUTION".png",
+    "fonts/bigFont"ASSET_RESOLUTION_STRING".png",
     "fonts/bigFont.fnt",
-    "fonts/chatFont"ASSET_RESOLUTION".png",
+    "fonts/chatFont"ASSET_RESOLUTION_STRING".png",
     "fonts/chatFont.fnt",
     "maps/GJ_GameSheet.png",
     "maps/GJ_GameSheet.plist",
