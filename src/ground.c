@@ -13,5 +13,5 @@ void drawGround(const Color color, const GDFCamera camera) {
     if (scGround.y > camera.screenSize.y) return;
 
     // Draw the rectangle that forms the ground
-    DrawRectangle(0, scGround.y, camera.screenSize.x, camera.screenSize.y, color);
+    DrawRectangle(0, scGround.y < 0 ? 0 : scGround.y, camera.screenSize.x, camera.screenSize.y, color);
 }
