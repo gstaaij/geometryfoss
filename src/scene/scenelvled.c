@@ -628,14 +628,17 @@ void scenelvledDraw(SceneLevelEditor* this) {
 
 #ifdef DEBUG
     // Draw a test texture
-    const char* fileName = "square_01_001.png";
-    const char* fileNameGlow = "square_01_glow_001.png";
+    const char* fileName = "blackCogwheel_02_001.png";
+    const char* fileNameColor = "blackCogwheel_02_color_001.png";
+    const char* fileNameGlow = "blackCogwheel_02_glow_001.png";
     TextureMap map = assetsTextureMap(fileName);
+    TextureMap mapColor = assetsTextureMap(fileNameColor);
     TextureMap mapGlow = assetsTextureMap(fileNameGlow);
     Coord position = { 15, 15 };
     BeginBlendMode(BLEND_ADDITIVE);
         assetsDrawFromTextureMap(mapGlow, position, ColorFromHSV(0, 0.0, 0.5), this->camera);
     EndBlendMode();
+    assetsDrawFromTextureMap(mapColor, position, BLACK, this->camera);
     assetsDrawFromTextureMap(map, position, WHITE, this->camera);
 #endif
 }

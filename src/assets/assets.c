@@ -192,9 +192,18 @@ bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, con
                 // If we're currently at the `textureRotated` field,
                 // we set the `textureRotated` property of the TextureMap struct
                 if (hasSeenFramesKey && dictCounter == 3 && strcmp("textureRotated", currentKey.items) == 0) {
-                    if (strcmp("true", xml.elem) == 0)
-                        assets.textureMaps[currentMapIndex].item.textureRotated = true;
-                    else if (strcmp("false", xml.elem) == 0)
+                    if (strcmp("true", xml.elem) == 0) {
+                        TextureMap* item = &assets.textureMaps[currentMapIndex].item;
+                        item->textureRotated = true;
+                        
+                        // If the texture is rotated, width and height for the textureRect and spriteSize is flipped
+                        double temp = item->textureRect.width;
+                        item->textureRect.width = item->textureRect.height;
+                        item->textureRect.height = temp;
+                        temp = item->spriteSize.x;
+                        item->spriteSize.x = item->spriteSize.y;
+                        item->spriteSize.y = temp;
+                    } else if (strcmp("false", xml.elem) == 0)
                         assets.textureMaps[currentMapIndex].item.textureRotated = false;
                 }
             } break;
@@ -222,10 +231,6 @@ bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, con
                     
                     if (hasSeenFramesKey && dictCounter == 2) {
                         // This is the key for a new image
-                        if (currentImage.items) {
-                            assets.textureMaps[currentMapIndex].key = malloc(sizeof(char) * currentImage.count);
-                            strcpy(assets.textureMaps[currentMapIndex].key, currentImage.items);
-                        }
                         currentMapIndex++;
                         if (currentMapIndex >= TEXTURE_MAPS_MAX_CAPACITY) {
                             TraceLog(LOG_ERROR, "Not enough memory allocated for texture maps");
@@ -235,6 +240,9 @@ bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, con
                         // Also set currentImage to the same value as currentValue
                         currentImage.count = 0;
                         nob_sb_append_buf(&currentImage, currentValue.items, currentValue.count);
+
+                        assets.textureMaps[currentMapIndex].key = malloc(sizeof(char) * currentImage.count);
+                        strcpy(assets.textureMaps[currentMapIndex].key, currentImage.items);
 
                     #ifdef DEBUG
                         TraceLog(LOG_DEBUG, "Parsing texture map image: %s", currentImage.items);
@@ -322,7 +330,7 @@ bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, con
         }
     }
 
-    *currentIndex = currentMapIndex - 1;
+    *currentIndex = currentMapIndex;
 
 defer:
     if (buffer) free(buffer);
