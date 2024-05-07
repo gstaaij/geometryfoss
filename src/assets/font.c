@@ -37,8 +37,8 @@ void fontUpdate() {
     ) {
         smallFont = LoadFont(smallFontPath);
         // Make the font look pretty
-        GenTextureMipmaps(&smallFont.texture);
         SetTextureFilter(smallFont.texture, TEXTURE_FILTER_BILINEAR);
+        GenTextureMipmaps(&smallFont.texture);
     }
 }
 

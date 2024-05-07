@@ -84,8 +84,9 @@ Texture assetsTexture(const char* relativePath) {
 
     Image image = assetsImage(relativePath);
     item.value = LoadTextureFromImage(image);
-    GenTextureMipmaps(&item.value);
+    // It NEEDS to be in this order, otherwise the texture will look worse
     SetTextureFilter(item.value, TEXTURE_FILTER_BILINEAR);
+    GenTextureMipmaps(&item.value);
 
     nob_da_append(&assets.textures, item);
     return item.value;
@@ -338,6 +339,7 @@ defer:
 
 TextureMap assetsTextureMap(const char* fileName) {
     if (!assets.textureMapsInitializeFailed && assets.textureMapCount == 0) {
+        /// TODO: do this in a loading screen when the game starts
         if (!assetsInitializeTextureMaps())
             assets.textureMapsInitializeFailed = true;
     }
