@@ -182,6 +182,8 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
                         .position = clickPos,
                         .angle = 0,
                         .scale = 1.0,
+                        .baseColor = WHITE,
+                        .detailColor = BLACK,
                     };
                     arrput(this->objects, newObject);
                     selectAddObjectIndex(this->objects, arrlen(this->objects) - 1, false);
@@ -466,8 +468,10 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
                     .angle = 0,
                     .selected = false,
                     .id = i,
+                    .baseColor = WHITE,
+                    .detailColor = GetColor(0xc8c8ffff),
                 };
-                objectDraw(buttonObject, this->uiCamera);
+                objectDraw(buttonObject, false, this->uiCamera);
 
                 if (clicked) {
                     this->blockBuildId = i;
@@ -622,7 +626,7 @@ void scenelvledDraw(SceneLevelEditor* this) {
     // Draw the objects
     for (size_t i = 0; i < arrlenu(this->objects); ++i) {
         Object object = this->objects[i];
-        objectDraw(object, this->camera);
+        objectDraw(object, false, this->camera);
         objectDrawHitbox(object, false, this->camera);
     }
 
@@ -636,9 +640,9 @@ void scenelvledDraw(SceneLevelEditor* this) {
     TextureMap mapGlow = assetsTextureMap(fileNameGlow);
     Coord position = { 15, 15 };
     BeginBlendMode(BLEND_ADDITIVE);
-        assetsDrawFromTextureMap(mapGlow, position, ColorFromHSV(0, 0.0, 0.5), this->camera);
+        assetsDrawFromTextureMap(mapGlow, position, 1.0, 0.0, ColorFromHSV(0, 0.0, 0.5), this->camera);
     EndBlendMode();
-    assetsDrawFromTextureMap(mapColor, position, BLACK, this->camera);
-    assetsDrawFromTextureMap(map, position, WHITE, this->camera);
+    assetsDrawFromTextureMap(mapColor, position, 1.0, 0.0, BLACK, this->camera);
+    assetsDrawFromTextureMap(map, position, 1.0, 0.0, WHITE, this->camera);
 #endif
 }

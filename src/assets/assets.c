@@ -390,18 +390,18 @@ TextureMap assetsTextureMap(const char* fileName) {
     return (TextureMap) {0};
 }
 
-void assetsDrawFromTextureMap(TextureMap map, Coord position, Color color, GDFCamera camera) {
+void assetsDrawFromTextureMap(TextureMap map, Coord position, double scale, double rotation, Color color, GDFCamera camera) {
     if (map.spriteSheet != NULL) {
         position.x += map.spriteOffset.x;
         position.y += map.spriteOffset.y;
         ScreenCoord scPosition = getScreenCoord(position, camera);
-        long scWidth = convertToScreen(map.spriteSize.x, camera);
-        long scHeight = convertToScreen(map.spriteSize.y, camera);
+        long scWidth = convertToScreen(map.spriteSize.x * scale, camera);
+        long scHeight = convertToScreen(map.spriteSize.y * scale, camera);
         DrawTexturePro(
             assetsTexture(map.spriteSheet),
             map.textureRect, (Rectangle) { scPosition.x, scPosition.y, scWidth, scHeight },
             (Vector2) { scWidth/2, scHeight/2 },
-            map.textureRotated ? -90.0 : 0.0, color
+            (map.textureRotated ? -90.0 : 0.0) + rotation, color
         );
     }
 }

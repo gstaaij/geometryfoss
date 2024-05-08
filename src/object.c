@@ -5,7 +5,7 @@
 #include "serialize.h"
 #include <stdio.h>
 
-void objectDraw(const Object object, const GDFCamera camera) {
+void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera) {
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefenitions[object.id];
 
@@ -30,55 +30,59 @@ void objectDraw(const Object object, const GDFCamera camera) {
         return;
     }
 
-    rlPushMatrix();
-    rlTranslatef(scBlock.x, scBlock.y, 0);
-    rlRotatef(object.angle, 0, 0, 1);
-
-    switch (def.shape.type) {
-        case OBJSHAPE_BLOCK: {
-            // Define a raylib Rectangle for the block
-            Rectangle recBlock = {
-                .x = -scHalfBlockSize,
-                .y = -scHalfBlockSize,
-                .width = scBlockSize,
-                .height = scBlockSize,
-            };
-            // Draw a black square with a white outline
-            DrawRectangleRec(recBlock, BLACK);
-            DrawRectangleLinesEx(recBlock, scBlockLineThick, WHITE);
-
-            if (object.selected) {
-                BeginBlendMode(BLEND_MULTIPLIED);
-                    DrawRectangleRec(recBlock, GREEN);
-                EndBlendMode();
-            }
-        } break;
-        case OBJSHAPE_SPIKE: {
-            Vector2 vecSpikePoint1 = {
-                .x = 0,
-                .y = -scHalfBlockSize,
-            };
-            Vector2 vecSpikePoint2 = {
-                .x = -scHalfBlockSize,
-                .y =  scHalfBlockSize,
-            };
-            Vector2 vecSpikePoint3 = {
-                .x = scHalfBlockSize,
-                .y = scHalfBlockSize,
-            };
-            DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
-            // No defining thickness of lines :(
-            DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, WHITE);
-
-            if (object.selected) {
-                BeginBlendMode(BLEND_MULTIPLIED);
-                    DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, GREEN);
-                EndBlendMode();
-            }
-        } break;
+    if (def.baseTextureMap.spriteSheet == NULL) {
+        def.baseTextureMap = assetsTextureMap(def.baseTexturePath);
+        if (def.detailTexturePath) def.detailTextureMap = assetsTextureMap(def.detailTexturePath);
+        if (def.glowTexturePath) def.glowTextureMap = assetsTextureMap(def.glowTexturePath);
     }
 
-    rlPopMatrix();
+    if (def.baseTextureMap.spriteSheet) {
+        if (drawGlow) {
+            BeginBlendMode(BLEND_ADDITIVE);
+                assetsDrawFromTextureMap(def.glowTextureMap, object.position, scale, object.angle, object.selected ? GREEN : GetColor(0xffffff88), camera);
+            EndBlendMode();
+        }
+        assetsDrawFromTextureMap(def.detailTextureMap, object.position, scale, object.angle, object.selected ? GREEN : object.detailColor, camera);
+        assetsDrawFromTextureMap(def.baseTextureMap, object.position, scale, object.angle, object.selected ? GREEN : object.baseColor, camera);
+    } else {
+        rlPushMatrix();
+        rlTranslatef(scBlock.x, scBlock.y, 0);
+        rlRotatef(object.angle, 0, 0, 1);
+
+        switch (def.shape.type) {
+            case OBJSHAPE_BLOCK: {
+                // Define a raylib Rectangle for the block
+                Rectangle recBlock = {
+                    .x = -scHalfBlockSize,
+                    .y = -scHalfBlockSize,
+                    .width = scBlockSize,
+                    .height = scBlockSize,
+                };
+                // Draw a black square with a white outline
+                DrawRectangleRec(recBlock, BLACK);
+                DrawRectangleLinesEx(recBlock, scBlockLineThick, object.selected ? GREEN : object.baseColor);
+            } break;
+            case OBJSHAPE_SPIKE: {
+                Vector2 vecSpikePoint1 = {
+                    .x = 0,
+                    .y = -scHalfBlockSize,
+                };
+                Vector2 vecSpikePoint2 = {
+                    .x = -scHalfBlockSize,
+                    .y =  scHalfBlockSize,
+                };
+                Vector2 vecSpikePoint3 = {
+                    .x = scHalfBlockSize,
+                    .y = scHalfBlockSize,
+                };
+                DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
+                // No defining thickness of lines :(
+                DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, object.selected ? GREEN : object.baseColor);
+            } break;
+        }
+
+        rlPopMatrix();
+    }
 }
 
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera) {
@@ -144,6 +148,16 @@ cJSON* objectSerialize(const Object object) {
         nob_return_defer(NULL);
     }
 
+    if (cJSON_AddNumberToObject(objectJson, "baseColor", ColorToInt(object.baseColor)) == NULL) {
+        TraceLog(LOG_ERROR, "Couldn't serialize object base color");
+        nob_return_defer(NULL);
+    }
+
+    if (cJSON_AddNumberToObject(objectJson, "detailColor", ColorToInt(object.detailColor)) == NULL) {
+        TraceLog(LOG_ERROR, "Couldn't serialize object detail color");
+        nob_return_defer(NULL);
+    }
+
 defer:
     if (result == NULL)
         cJSON_Delete(objectJson);
@@ -172,6 +186,22 @@ bool objectDeserialize(Object* object, const cJSON* objectJson) {
     const cJSON* idJson = cJSON_GetObjectItemCaseSensitive(objectJson, "id");
     if (cJSON_IsNumber(idJson)) {
         object->id = idJson->valueint;
+    }
+
+    const cJSON* baseColorJson = cJSON_GetObjectItemCaseSensitive(objectJson, "baseColor");
+    if (cJSON_IsNumber(baseColorJson)) {
+        object->baseColor = GetColor((unsigned int) baseColorJson->valueint);
+    } else {
+        // Set a default color if the color wasn't set
+        object->baseColor = WHITE;
+    }
+
+    const cJSON* detailColorJson = cJSON_GetObjectItemCaseSensitive(objectJson, "detailColor");
+    if (cJSON_IsNumber(detailColorJson)) {
+        object->detailColor = GetColor((unsigned int) detailColorJson->valueint);
+    } else {
+        // Set a default color if the color wasn't set
+        object->detailColor = BLACK;
     }
 
     return true;

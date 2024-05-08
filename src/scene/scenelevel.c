@@ -202,12 +202,12 @@ void scenelevelDraw(SceneLevel* this) {
     // Draw the objects
     size_t objectsLen = arrlenu(this->objects);
     for (size_t i = 0; i < objectsLen; ++i) {
-        objectDraw(this->objects[i], this->camera);
+        objectDraw(this->objects[i], true, this->camera);
     }
 
     // Draw the hitboxes
     for (size_t i = 0; i < objectsLen; ++i) {
-        objectDrawHitbox(this->objects[i], true, this->camera);
+        objectDrawHitbox(this->objects[i], false, this->camera);
     }
     playerDrawHitboxes(this->player, true, this->camera);
 

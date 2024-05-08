@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "nob.h"
 #include "lib/cJSON/cJSON.h"
+#include "assets/assets.h"
 #include "coord.h"
 #include "hitbox.h"
 #include <stdbool.h>
@@ -17,6 +18,8 @@ typedef struct {
     Coord position;
     double angle;
     double scale;
+    Color baseColor;
+    Color detailColor;
     bool selected;
     int id;
 } Object;
@@ -49,10 +52,17 @@ typedef struct {
     ObjectShape shape;
     Hitbox hitbox;
     bool exists;
+
+    const char* baseTexturePath;
+    const char* detailTexturePath;
+    const char* glowTexturePath;
+    TextureMap baseTextureMap;
+    TextureMap detailTextureMap;
+    TextureMap glowTextureMap;
 } ObjectDefinition;
 
 // Draws an Object
-void objectDraw(const Object object, const GDFCamera camera);
+void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera);
 // Draws an Object's hitbox
 void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamera camera);
 
@@ -70,6 +80,7 @@ typedef enum {
     OBJECT_ID_DEFAULT_SPIKE = 8,
 } ObjectIDs;
 
+#define TEXTURE(base, detail, glow) .baseTexturePath = (base), .detailTexturePath = (detail), .glowTexturePath = (glow)
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {
     [OBJECT_ID_DEFAULT_BLOCK] = {
@@ -84,6 +95,7 @@ static const ObjectDefinition objectDefenitions[] = {
             .width = 30,
             .height = 30,
         },
+        TEXTURE("square_01_001.png", NULL, "square_01_glow_001.png"),
         .exists = true,
     },
     [OBJECT_ID_DEFAULT_SPIKE] = {
@@ -98,6 +110,8 @@ static const ObjectDefinition objectDefenitions[] = {
             .width = 6,
             .height = 12,
         },
+        TEXTURE("spike_01_001.png", NULL, "spike_01_glow_001.png"),
         .exists = true,
     },
 };
+#undef TEXTURE
