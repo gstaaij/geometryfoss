@@ -246,9 +246,15 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
             double maxX = -INFINITY;
             double minY =  INFINITY;
             double maxY = -INFINITY;
+            int selectedObjectsCount = 0;
+            int objectId = 0;
+            double objectAngle = 0;
             for (int i = arrlen(this->objects) - 1; i >= 0; --i) {
                 Object* object = &this->objects[i];
                 if (object->selected) {
+                    selectedObjectsCount += 1;
+                    objectId = object->id;
+                    objectAngle = object->angle;
                     double x = object->position.x;
                     double y = object->position.y;
                     if (x < minX)
@@ -266,6 +272,22 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
                 .x = (minX + maxX) / 2,
                 .y = (minY + maxY) / 2,
             };
+            if (selectedObjectsCount == 1) {
+                // Make sure objects with a place offset rotate correctly (e.g. slabs, ground spikes/pits, etc.)
+                if (objectAngle == 0.0) {
+                    selectedObjectRotateAroundPosition.x -= objectDefenitions[objectId].placeOffset.x;
+                    selectedObjectRotateAroundPosition.y -= objectDefenitions[objectId].placeOffset.y;
+                } else if (objectAngle == 90.0) {
+                    selectedObjectRotateAroundPosition.x -= objectDefenitions[objectId].placeOffset.y;
+                    selectedObjectRotateAroundPosition.y += objectDefenitions[objectId].placeOffset.x;
+                } else if (objectAngle == 180.0) {
+                    selectedObjectRotateAroundPosition.x += objectDefenitions[objectId].placeOffset.x;
+                    selectedObjectRotateAroundPosition.y += objectDefenitions[objectId].placeOffset.y;
+                } else if (objectAngle == 270.0) {
+                    selectedObjectRotateAroundPosition.x += objectDefenitions[objectId].placeOffset.y;
+                    selectedObjectRotateAroundPosition.y -= objectDefenitions[objectId].placeOffset.x;
+                }
+            }
             TraceLog(LOG_DEBUG, "Selected object rotation position: {%lf, %lf}", selectedObjectRotateAroundPosition.x, selectedObjectRotateAroundPosition.y);
         }
         for (int i = arrlen(this->objects) - 1; i >= 0; --i) {
