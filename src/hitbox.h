@@ -4,6 +4,7 @@
 
 // Defines the shape of a hitbox
 typedef enum HitboxShape {
+    HITBOX_NONE = 0,
     HITBOX_SQUARE,
     HITBOX_CIRCLE,
 } HitboxShape;

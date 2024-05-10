@@ -26,6 +26,7 @@ typedef struct {
     char* spriteSheet;
     Coord spriteOffset;
     Coord spriteSize;
+    Coord spriteSourceSize;
     Rectangle textureRect;
     bool textureRotated;
 } TextureMap;

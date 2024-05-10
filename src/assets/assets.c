@@ -203,6 +203,9 @@ bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, con
                         temp = item->spriteSize.x;
                         item->spriteSize.x = item->spriteSize.y;
                         item->spriteSize.y = temp;
+                        temp = item->spriteSourceSize.x;
+                        item->spriteSourceSize.x = item->spriteSourceSize.y;
+                        item->spriteSourceSize.y = temp;
                     } else if (strcmp("false", xml.elem) == 0)
                         assets.textureMaps[currentMapIndex].item.textureRotated = false;
                 }
@@ -287,6 +290,18 @@ bool assetsInitializeTextureMap(int* currentIndex, const char* plistRelPath, con
                         nob_sb_append_null(&sb1Y);
 
                         assets.textureMaps[currentMapIndex].item.spriteSize = (Coord) { strtod(sb1X.items, NULL) / ASSET_RESOLUTION, strtod(sb1Y.items, NULL) / ASSET_RESOLUTION };
+                    } else if (strcmp("spriteSourceSize", currentKey.items) == 0) {
+                        Nob_String_View svY = nob_sv_from_cstr(currentValue.items);
+                        Nob_String_View svX = svParseCoordString(&svY);
+                        
+                        sb1X.count = 0;
+                        sb1Y.count = 0;
+                        nob_sb_append_buf(&sb1X, svX.data, svX.count);
+                        nob_sb_append_buf(&sb1Y, svY.data, svY.count);
+                        nob_sb_append_null(&sb1X);
+                        nob_sb_append_null(&sb1Y);
+
+                        assets.textureMaps[currentMapIndex].item.spriteSourceSize = (Coord) { strtod(sb1X.items, NULL) / ASSET_RESOLUTION, strtod(sb1Y.items, NULL) / ASSET_RESOLUTION };
                     } else if (strcmp("textureRect", currentKey.items) == 0) {
                         // Split the string into two coordinate pairs
                         Nob_String_View sv2Y = nob_sv_from_cstr(currentValue.items);
@@ -365,11 +380,14 @@ bool assetsInitializeTextureMaps() {
 
 #ifdef DEBUG
     // Print some debug info
-    TraceLog(LOG_DEBUG, "%s spriteSheet: %s", assets.textureMaps[0].key, assets.textureMaps[0].item.spriteSheet);
-    TraceLog(LOG_DEBUG, "%s spriteOffset: {x: %lf, y: %lf}", assets.textureMaps[0].key, assets.textureMaps[0].item.spriteOffset.x, assets.textureMaps[0].item.spriteOffset.y);
-    TraceLog(LOG_DEBUG, "%s spriteSize: {x: %lf, y: %lf}", assets.textureMaps[0].key, assets.textureMaps[0].item.spriteSize.x, assets.textureMaps[0].item.spriteSize.y);
-    TraceLog(LOG_DEBUG, "%s textureRect: {x: %lf, y: %lf, w: %lf, h: %lf}", assets.textureMaps[0].key, assets.textureMaps[0].item.textureRect.x, assets.textureMaps[0].item.textureRect.y, assets.textureMaps[0].item.textureRect.width, assets.textureMaps[0].item.textureRect.height);
-    TraceLog(LOG_DEBUG, "%s textureRotated: %s", assets.textureMaps[2].key, assets.textureMaps[2].item.textureRotated ? "true" : "false");
+    const char* fileName = "square_02_glow_001.png";
+    TextureMap map = assetsTextureMap(fileName);
+    TraceLog(LOG_DEBUG, "%s spriteSheet: %s", fileName, map.spriteSheet);
+    TraceLog(LOG_DEBUG, "%s spriteOffset: {x: %lf, y: %lf}", fileName, map.spriteOffset.x, map.spriteOffset.y);
+    TraceLog(LOG_DEBUG, "%s spriteSize: {x: %lf, y: %lf}", fileName, map.spriteSize.x, map.spriteSize.y);
+    TraceLog(LOG_DEBUG, "%s spriteSourceSize: {x: %lf, y: %lf}", fileName, map.spriteSourceSize.x, map.spriteSourceSize.y);
+    TraceLog(LOG_DEBUG, "%s textureRect: {x: %lf, y: %lf, w: %lf, h: %lf}", fileName, map.textureRect.x, map.textureRect.y, assets.textureMaps[0].item.textureRect.width, assets.textureMaps[0].item.textureRect.height);
+    TraceLog(LOG_DEBUG, "%s textureRotated: %s", fileName, map.textureRotated ? "true" : "false");
     TraceLog(LOG_DEBUG, "Amount of texture maps: %lld", assets.textureMapCount);
 #endif
 
@@ -392,15 +410,21 @@ TextureMap assetsTextureMap(const char* fileName) {
 
 void assetsDrawFromTextureMap(TextureMap map, Coord position, double scale, double rotation, Color color, GDFCamera camera) {
     if (map.spriteSheet != NULL) {
-        position.x += map.spriteOffset.x;
-        position.y += map.spriteOffset.y;
         ScreenCoord scPosition = getScreenCoord(position, camera);
         long scWidth = convertToScreen(map.spriteSize.x * scale, camera);
         long scHeight = convertToScreen(map.spriteSize.y * scale, camera);
+        long scOriginX, scOriginY;
+        if (!map.textureRotated) {
+            scOriginX = convertToScreen((map.spriteSourceSize.x * 0.5 - (map.spriteSourceSize.x * 0.5 + map.spriteOffset.x - map.spriteSize.x * 0.5)) * scale, camera);
+            scOriginY = convertToScreen((map.spriteSourceSize.y * 0.5 - (map.spriteSourceSize.y * 0.5 - map.spriteOffset.y - map.spriteSize.y * 0.5)) * scale, camera);
+        } else {
+            scOriginX = convertToScreen((map.spriteSourceSize.x * 0.5 - (map.spriteSourceSize.x * 0.5 + map.spriteOffset.y - map.spriteSize.x * 0.5)) * scale, camera);
+            scOriginY = convertToScreen((map.spriteSourceSize.y * 0.5 - (map.spriteSourceSize.y * 0.5 - map.spriteOffset.x - map.spriteSize.y * 0.5)) * scale, camera);
+        }
         DrawTexturePro(
             assetsTexture(map.spriteSheet),
             map.textureRect, (Rectangle) { scPosition.x, scPosition.y, scWidth, scHeight },
-            (Vector2) { scWidth/2, scHeight/2 },
+            (Vector2) { scOriginX, scOriginY },
             (map.textureRotated ? -90.0 : 0.0) + rotation, color
         );
     }

@@ -175,15 +175,16 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
             Coord clickPos = getGDCoord(clickScreenCoord, this->camera);
             switch (this->uiMode) {
                 case EDITOR_UI_MODE_BUILD: {
-                    clickPos.x = floor(clickPos.x / 30) * 30 + 15;
-                    clickPos.y = floor(clickPos.y / 30) * 30 + 15;
+                    ObjectDefinition def = objectDefenitions[this->blockBuildId];
+                    clickPos.x = floor(clickPos.x / 30) * 30 + 15 + def.placeOffset.x;
+                    clickPos.y = floor(clickPos.y / 30) * 30 + 15 + def.placeOffset.y;
                     Object newObject = {
                         .id = this->blockBuildId,
                         .position = clickPos,
                         .angle = 0,
                         .scale = 1.0,
-                        .baseColor = WHITE,
-                        .detailColor = BLACK,
+                        .baseColor = def.baseDefaultColor,
+                        .detailColor = def.detailDefaultColor,
                     };
                     arrput(this->objects, newObject);
                     selectAddObjectIndex(this->objects, arrlen(this->objects) - 1, false);
@@ -468,7 +469,7 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
                     .angle = 0,
                     .selected = false,
                     .id = i,
-                    .baseColor = WHITE,
+                    .baseColor = objectDefenitions[i].baseDefaultColor,
                     .detailColor = GetColor(0xc8c8ffff),
                 };
                 objectDraw(buttonObject, false, this->uiCamera);
@@ -639,10 +640,11 @@ void scenelvledDraw(SceneLevelEditor* this) {
     TextureMap mapColor = assetsTextureMap(fileNameColor);
     TextureMap mapGlow = assetsTextureMap(fileNameGlow);
     Coord position = { 15, 15 };
+    double rotation = GetTime() * 180.0;
     BeginBlendMode(BLEND_ADDITIVE);
-        assetsDrawFromTextureMap(mapGlow, position, 1.0, 0.0, ColorFromHSV(0, 0.0, 0.5), this->camera);
+        assetsDrawFromTextureMap(mapGlow, position, 1.0, rotation, ColorFromHSV(0, 0.0, 0.5), this->camera);
     EndBlendMode();
-    assetsDrawFromTextureMap(mapColor, position, 1.0, 0.0, BLACK, this->camera);
-    assetsDrawFromTextureMap(map, position, 1.0, 0.0, WHITE, this->camera);
+    assetsDrawFromTextureMap(mapColor, position, 1.0, rotation, BLACK, this->camera);
+    assetsDrawFromTextureMap(map, position, 1.0, rotation, WHITE, this->camera);
 #endif
 }

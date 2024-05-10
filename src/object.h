@@ -36,6 +36,7 @@ typedef enum ObjectType {
 
 // Defines the shape of an object
 typedef enum ObjectShapeType {
+    OBJSHAPE_NONE = 0,
     OBJSHAPE_BLOCK,      // It's a square.
     OBJSHAPE_SPIKE,      // It's a triangle.
 } ObjectShapeType;
@@ -48,10 +49,11 @@ typedef struct {
 
 // Defines an object with a type, a shape, and a hitbox
 typedef struct {
+    bool exists;
     ObjectType type;
     ObjectShape shape;
     Hitbox hitbox;
-    bool exists;
+    Coord placeOffset;
 
     const char* baseTexturePath;
     const char* detailTexturePath;
@@ -59,6 +61,9 @@ typedef struct {
     TextureMap baseTextureMap;
     TextureMap detailTextureMap;
     TextureMap glowTextureMap;
+
+    Color baseDefaultColor;
+    Color detailDefaultColor;
 } ObjectDefinition;
 
 // Draws an Object
@@ -76,14 +81,27 @@ bool objectDeserialize(Object* object, const cJSON* objectJson);
 
 
 typedef enum {
-    OBJECT_ID_DEFAULT_BLOCK = 1,
-    OBJECT_ID_DEFAULT_SPIKE = 8,
+    OBJECT_ID_SQUARE_01 = 1,
+    OBJECT_ID_SQUARE_02 = 2,
+    OBJECT_ID_SQUARE_03 = 3,
+    OBJECT_ID_SQUARE_04 = 4,
+    OBJECT_ID_SQUARE_05 = 5,
+    OBJECT_ID_SQUARE_06 = 6,
+    OBJECT_ID_SQUARE_07 = 7,
+    OBJECT_ID_SQUARE_08 = 83,
+    /// TODO: square_09
+    OBJECT_ID_SPIKE_01 = 8,
+    /// TODO: This one should choose randomly between `pit_01_001.png`, `pit_02_001.png` and `pit_03_001.png` when it's placed
+    OBJECT_ID_PIT_01_02_03 = 9,
 } ObjectIDs;
 
 #define TEXTURE(base, detail, glow) .baseTexturePath = (base), .detailTexturePath = (detail), .glowTexturePath = (glow)
+#define DEFAULT_COLORS(base, detail) .baseDefaultColor = (base), .detailDefaultColor = (detail)
+#define DEFAULT_COLOR() DEFAULT_COLORS(WHITE, BLACK)
 // An array of Object Defenitions to define all objects
 static const ObjectDefinition objectDefenitions[] = {
-    [OBJECT_ID_DEFAULT_BLOCK] = {
+    [OBJECT_ID_SQUARE_01] = {
+        .exists = true,
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
@@ -95,10 +113,128 @@ static const ObjectDefinition objectDefenitions[] = {
             .width = 30,
             .height = 30,
         },
+        .placeOffset = {0},
         TEXTURE("square_01_001.png", NULL, "square_01_glow_001.png"),
-        .exists = true,
+        DEFAULT_COLOR(),
     },
-    [OBJECT_ID_DEFAULT_SPIKE] = {
+    [OBJECT_ID_SQUARE_02] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 30,
+            .height = 30,
+        },
+        .placeOffset = {0},
+        TEXTURE("square_02_001.png", NULL, "square_02_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SQUARE_03] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 30,
+            .height = 30,
+        },
+        .placeOffset = {0},
+        TEXTURE("square_03_001.png", NULL, "square_03_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SQUARE_04] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 30,
+            .height = 30,
+        },
+        .placeOffset = {0},
+        TEXTURE("square_04_001.png", NULL, "square_04_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SQUARE_05] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        // This object has no shape and no hitbox
+        .shape = {
+            .type = OBJSHAPE_NONE,
+            // We do have to set the scale, so it doesn't disappear off of the edge of the screen too quickly
+            .scale = 1,
+        },
+        .hitbox = {0},
+        .placeOffset = {0},
+        TEXTURE("square_05_001.png", NULL, NULL),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SQUARE_06] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 30,
+            .height = 30,
+        },
+        .placeOffset = {0},
+        TEXTURE("square_06_001.png", NULL, "square_06_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SQUARE_07] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 30,
+            .height = 30,
+        },
+        .placeOffset = {0},
+        TEXTURE("square_07_001.png", NULL, "square_07_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SQUARE_08] = {
+        .exists = true,
+        .type = OBJECT_SOLID,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 30,
+            .height = 30,
+        },
+        .placeOffset = {0},
+        TEXTURE("square_08_001.png", NULL, "square_08_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_SPIKE_01] = {
+        .exists = true,
         .type = OBJECT_HAZARD,
         .shape = {
             .type = OBJSHAPE_SPIKE,
@@ -110,8 +246,27 @@ static const ObjectDefinition objectDefenitions[] = {
             .width = 6,
             .height = 12,
         },
+        .placeOffset = {0},
         TEXTURE("spike_01_001.png", NULL, "spike_01_glow_001.png"),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_PIT_01_02_03] = {
         .exists = true,
+        .type = OBJECT_HAZARD,
+        .shape = {
+            .type = OBJSHAPE_SPIKE,
+            .scale = 1,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 9,
+            // Height is slightly more than 11, but it's less than 11.5, so I don't know what the exact value should be
+            .height = 11,
+        },
+        .placeOffset = { 0, -12.5 },
+        TEXTURE("pit_01_001.png", NULL, NULL),
+        DEFAULT_COLORS(BLACK, BLACK),
     },
 };
 #undef TEXTURE

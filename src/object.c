@@ -9,8 +9,6 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefenitions[object.id];
 
-    // Draw the shape
-
     // Calculate the size of the block based on the Object Defenition and the Object's scale
     double scale = def.shape.scale * object.scale;
     double blockSize = scale * 30;
@@ -22,7 +20,6 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
     long scBlockLineThick = convertToScreen(scale * 1.5, camera);
 
     if (
-        // Don't divide the size by 2 because it's integer division
         scBlock.x + scHalfBlockSize < 0 || scBlock.x - scHalfBlockSize > camera.screenSize.x ||
         scBlock.y + scHalfBlockSize < 0 || scBlock.y - scHalfBlockSize > camera.screenSize.y
     ) {
@@ -37,19 +34,26 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
     }
 
     if (def.baseTextureMap.spriteSheet) {
+        // Draw the texture
+
         if (drawGlow) {
             BeginBlendMode(BLEND_ADDITIVE);
-                assetsDrawFromTextureMap(def.glowTextureMap, object.position, scale, object.angle, object.selected ? GREEN : GetColor(0xffffff88), camera);
+                assetsDrawFromTextureMap(def.glowTextureMap, object.position, object.scale, object.angle, object.selected ? GREEN : ColorAlpha(WHITE, 0.5), camera);
             EndBlendMode();
         }
-        assetsDrawFromTextureMap(def.detailTextureMap, object.position, scale, object.angle, object.selected ? GREEN : object.detailColor, camera);
-        assetsDrawFromTextureMap(def.baseTextureMap, object.position, scale, object.angle, object.selected ? GREEN : object.baseColor, camera);
+        assetsDrawFromTextureMap(def.detailTextureMap, object.position, object.scale, object.angle, object.selected ? GREEN : object.detailColor, camera);
+        assetsDrawFromTextureMap(def.baseTextureMap, object.position, object.scale, object.angle, object.selected ? GREEN : object.baseColor, camera);
     } else {
+        // Draw the shape
+
         rlPushMatrix();
         rlTranslatef(scBlock.x, scBlock.y, 0);
         rlRotatef(object.angle, 0, 0, 1);
 
         switch (def.shape.type) {
+            case OBJSHAPE_NONE: {
+                // Do nothing
+            } break;
             case OBJSHAPE_BLOCK: {
                 // Define a raylib Rectangle for the block
                 Rectangle recBlock = {
