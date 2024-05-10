@@ -175,7 +175,7 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
             Coord clickPos = getGDCoord(clickScreenCoord, this->camera);
             switch (this->uiMode) {
                 case EDITOR_UI_MODE_BUILD: {
-                    ObjectDefinition def = objectDefenitions[this->blockBuildId];
+                    ObjectDefinition def = objectDefinitions[this->blockBuildId];
                     clickPos.x = floor(clickPos.x / 30) * 30 + 15 + def.placeOffset.x;
                     clickPos.y = floor(clickPos.y / 30) * 30 + 15 + def.placeOffset.y;
                     Object newObject = {
@@ -275,17 +275,17 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
             if (selectedObjectsCount == 1) {
                 // Make sure objects with a place offset rotate correctly (e.g. slabs, ground spikes/pits, etc.)
                 if (objectAngle == 0.0) {
-                    selectedObjectRotateAroundPosition.x -= objectDefenitions[objectId].placeOffset.x;
-                    selectedObjectRotateAroundPosition.y -= objectDefenitions[objectId].placeOffset.y;
+                    selectedObjectRotateAroundPosition.x -= objectDefinitions[objectId].placeOffset.x;
+                    selectedObjectRotateAroundPosition.y -= objectDefinitions[objectId].placeOffset.y;
                 } else if (objectAngle == 90.0) {
-                    selectedObjectRotateAroundPosition.x -= objectDefenitions[objectId].placeOffset.y;
-                    selectedObjectRotateAroundPosition.y += objectDefenitions[objectId].placeOffset.x;
+                    selectedObjectRotateAroundPosition.x -= objectDefinitions[objectId].placeOffset.y;
+                    selectedObjectRotateAroundPosition.y += objectDefinitions[objectId].placeOffset.x;
                 } else if (objectAngle == 180.0) {
-                    selectedObjectRotateAroundPosition.x += objectDefenitions[objectId].placeOffset.x;
-                    selectedObjectRotateAroundPosition.y += objectDefenitions[objectId].placeOffset.y;
+                    selectedObjectRotateAroundPosition.x += objectDefinitions[objectId].placeOffset.x;
+                    selectedObjectRotateAroundPosition.y += objectDefinitions[objectId].placeOffset.y;
                 } else if (objectAngle == 270.0) {
-                    selectedObjectRotateAroundPosition.x += objectDefenitions[objectId].placeOffset.y;
-                    selectedObjectRotateAroundPosition.y -= objectDefenitions[objectId].placeOffset.x;
+                    selectedObjectRotateAroundPosition.x += objectDefinitions[objectId].placeOffset.y;
+                    selectedObjectRotateAroundPosition.y -= objectDefinitions[objectId].placeOffset.x;
                 }
             }
             TraceLog(LOG_DEBUG, "Selected object rotation position: {%lf, %lf}", selectedObjectRotateAroundPosition.x, selectedObjectRotateAroundPosition.y);
@@ -459,9 +459,9 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
 
             int row = 0;
             int column = 0;
-            int len = NOB_ARRAY_LEN(objectDefenitions);
+            int len = NOB_ARRAY_LEN(objectDefinitions);
             for (int i = 0; i < len; ++i) {
-                if (!objectDefenitions[i].exists) continue;
+                if (!objectDefinitions[i].exists) continue;
 
                 Coord buttonPos = {
                     .x = buttonGridCenter.x + (-BUTTON_GRID_WIDTH/2 + column*BUTTON_GRID_BUTTON_SIZE + column*BUTTON_GRID_OFFSET) + BUTTON_GRID_BUTTON_SIZE/2,
@@ -491,7 +491,7 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
                     .angle = 0,
                     .selected = false,
                     .id = i,
-                    .baseColor = objectDefenitions[i].baseDefaultColor,
+                    .baseColor = objectDefinitions[i].baseDefaultColor,
                     .detailColor = GetColor(0xc8c8ffff),
                 };
                 objectDraw(buttonObject, false, this->uiCamera);

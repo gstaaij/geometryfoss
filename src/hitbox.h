@@ -3,13 +3,13 @@
 #include "coord.h"
 
 // Defines the shape of a hitbox
-typedef enum HitboxShape {
+typedef enum {
     HITBOX_NONE = 0,
     HITBOX_SQUARE,
     HITBOX_CIRCLE,
 } HitboxShape;
 
-typedef enum HitboxAngle {
+typedef enum {
     HITBOX_ROTATION_MODE_90DEG,
     HITBOX_ROTATION_MODE_NONE,
     // NOT IMPLEMENTED YET

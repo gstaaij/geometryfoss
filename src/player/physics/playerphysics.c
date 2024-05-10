@@ -37,7 +37,7 @@ void playerphysicsUpdate(Player* player, const Object* objects, const double del
     bool onBlock = false;
     for (size_t i = 0; i < arrlenu(objects); ++i) {
         Object object = objects[i];
-        ObjectDefinition def = objectDefenitions[object.id];
+        ObjectDefinition def = objectDefinitions[object.id];
 
         switch(def.type) {
         case OBJECT_SOLID:

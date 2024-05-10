@@ -25,7 +25,7 @@ typedef struct {
 } Object;
 
 // Defines the type of object
-typedef enum ObjectType {
+typedef enum {
     OBJECT_NONSOLID = 0,    // Doesn't have a hitbox
     OBJECT_SOLID,           // Has a hitbox that can be stepped on
     OBJECT_HAZARD,          // Has a hitbox that kills the player
@@ -35,7 +35,7 @@ typedef enum ObjectType {
 } ObjectType;
 
 // Defines the shape of an object
-typedef enum ObjectShapeType {
+typedef enum {
     OBJSHAPE_NONE = 0,
     OBJSHAPE_BLOCK,      // It's a square.
     OBJSHAPE_SPIKE,      // It's a triangle.
@@ -99,7 +99,7 @@ typedef enum {
 #define DEFAULT_COLORS(base, detail) .baseDefaultColor = (base), .detailDefaultColor = (detail)
 #define DEFAULT_COLOR() DEFAULT_COLORS(WHITE, BLACK)
 // An array of Object Defenitions to define all objects
-static const ObjectDefinition objectDefenitions[] = {
+static const ObjectDefinition objectDefinitions[] = {
     [OBJECT_ID_SQUARE_01] = {
         .exists = true,
         .type = OBJECT_SOLID,

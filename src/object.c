@@ -7,7 +7,7 @@
 
 void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera) {
     // Get the Object Defenition tied to this Object
-    ObjectDefinition def = objectDefenitions[object.id];
+    ObjectDefinition def = objectDefinitions[object.id];
 
     // Calculate the size of the block based on the Object Defenition and the Object's scale
     double scale = def.shape.scale * object.scale;
@@ -93,7 +93,7 @@ void objectDrawHitbox(const Object object, const bool drawHitbox, const GDFCamer
     if (!drawHitbox) return;
 
     // Get the Object Defenition tied to this Object
-    ObjectDefinition def = objectDefenitions[object.id];
+    ObjectDefinition def = objectDefinitions[object.id];
 
     if (def.type != OBJECT_NONSOLID) {
         // Determine the hitbox color
@@ -213,7 +213,7 @@ bool objectDeserialize(Object* object, const cJSON* objectJson) {
 
 bool objectMouseOver(const Object object, const Coord clickPos) {
     // Get the Object Defenition tied to this Object
-    ObjectDefinition def = objectDefenitions[object.id];
+    ObjectDefinition def = objectDefinitions[object.id];
 
     if (clickPos.x > object.position.x - def.shape.scale * 15.0 && clickPos.x < object.position.x + def.shape.scale * 15.0) {
         return clickPos.y > object.position.y - def.shape.scale * 15.0 && clickPos.y < object.position.y + def.shape.scale * 15.0;
