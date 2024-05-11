@@ -419,7 +419,7 @@ void assetsDrawFromTextureMap(TextureMap map, Coord position, double scale, doub
             scOriginY = convertToScreen((map.spriteSourceSize.y * 0.5 - (map.spriteSourceSize.y * 0.5 - map.spriteOffset.y - map.spriteSize.y * 0.5)) * scale, camera);
         } else {
             scOriginX = convertToScreen((map.spriteSourceSize.x * 0.5 - (map.spriteSourceSize.x * 0.5 + map.spriteOffset.y - map.spriteSize.x * 0.5)) * scale, camera);
-            scOriginY = convertToScreen((map.spriteSourceSize.y * 0.5 - (map.spriteSourceSize.y * 0.5 - map.spriteOffset.x - map.spriteSize.y * 0.5)) * scale, camera);
+            scOriginY = convertToScreen((map.spriteSourceSize.y * 0.5 - (map.spriteSourceSize.y * 0.5 + map.spriteOffset.x - map.spriteSize.y * 0.5)) * scale, camera);
         }
         DrawTexturePro(
             assetsTexture(map.spriteSheet),
