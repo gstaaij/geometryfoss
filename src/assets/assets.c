@@ -395,7 +395,10 @@ bool assetsInitializeTextureMaps() {
 }
 
 TextureMap assetsTextureMap(const char* fileName) {
-    if (!assets.textureMapsInitializeFailed && assets.textureMapCount == 0) {
+    if (assets.textureMapsInitializeFailed) {
+        return (TextureMap) {0};
+    }
+    if (assets.textureMapCount == 0) {
         /// TODO: do this in a loading screen when the game starts
         if (!assetsInitializeTextureMaps())
             assets.textureMapsInitializeFailed = true;

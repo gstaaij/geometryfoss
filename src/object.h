@@ -44,6 +44,7 @@ typedef enum {
 // Defines the shape and scale of an object
 typedef struct {
     ObjectShapeType type;
+    Color color;
     double scaleX, scaleY;
 } ObjectShape;
 
@@ -109,6 +110,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -127,6 +129,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -145,6 +148,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -163,6 +167,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -182,6 +187,7 @@ static const ObjectDefinition objectDefinitions[] = {
         // This object has no shape and no hitbox
         .shape = {
             .type = OBJSHAPE_NONE,
+            .color = BLACK,
             // We do have to set the scale, so it doesn't disappear off of the edge of the screen too quickly
             .scaleX = 1,
             .scaleY = 1,
@@ -196,6 +202,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -214,6 +221,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -232,6 +240,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -250,6 +259,7 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_HAZARD,
         .shape = {
             .type = OBJSHAPE_SPIKE,
+            .color = BLACK,
             .scaleX = 1,
             .scaleY = 1,
         },
@@ -267,9 +277,10 @@ static const ObjectDefinition objectDefinitions[] = {
         .exists = true,
         .type = OBJECT_HAZARD,
         .shape = {
-            .type = OBJSHAPE_SPIKE,
+            .type = OBJSHAPE_BLOCK,
+            .color = BLACK,
             .scaleX = 1,
-            .scaleY = 1,
+            .scaleY = 0.95,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -287,7 +298,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_PORTAL,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scaleX = 1,
+            .color = (Color) { 0x3c, 0xdc, 0xff, 0xff },
+            .scaleX = 0.85,
             .scaleY = 2.5,
         },
         .hitbox = {
@@ -305,7 +317,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_PORTAL,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scaleX = 1,
+            .color = (Color) { 0xff, 0xe9, 0x4a, 0xff },
+            .scaleX = 0.85,
             .scaleY = 2.5,
         },
         .hitbox = {

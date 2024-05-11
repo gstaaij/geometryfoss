@@ -15,17 +15,9 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
     double blockSizeX = scaleX * 30;
     double blockSizeY = scaleY * 30;
 
-    // Convert some values to Screen Coordinates
-    ScreenCoord scBlock = getScreenCoord(object.position, camera);
-    double scBlockSizeX = convertToScreen(blockSizeX, camera);
-    double scBlockSizeY = convertToScreen(blockSizeY, camera);
-    double scHalfBlockSizeX = convertToScreen(blockSizeX / 2, camera);
-    double scHalfBlockSizeY = convertToScreen(blockSizeY / 2, camera);
-    double scBlockLineThick = convertToScreen(scaleX * 1.5, camera);
-
     if (
-        scBlock.x + scHalfBlockSizeX < 0 || scBlock.x - scHalfBlockSizeX > camera.screenSize.x ||
-        scBlock.y + scHalfBlockSizeY < 0 || scBlock.y - scHalfBlockSizeY > camera.screenSize.y
+        object.position.x + blockSizeX < camera.position.x - camera.screenSizeAsCoord.x/2 || object.position.x - blockSizeX > camera.position.x + camera.screenSizeAsCoord.x/2 ||
+        object.position.y + blockSizeY < camera.position.y - camera.screenSizeAsCoord.y/2 || object.position.y - blockSizeY > camera.position.y + camera.screenSizeAsCoord.y/2
     ) {
         // Don't try to draw the block if it's out of screen
         return;
@@ -50,6 +42,14 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
     } else {
         // Draw the shape
 
+        // Convert some values to Screen Coordinates
+        ScreenCoord scBlock = getScreenCoord(object.position, camera);
+        double scBlockSizeX = convertToScreen(blockSizeX, camera);
+        double scBlockSizeY = convertToScreen(blockSizeY, camera);
+        double scHalfBlockSizeX = convertToScreen(blockSizeX / 2, camera);
+        double scHalfBlockSizeY = convertToScreen(blockSizeY / 2, camera);
+        double scBlockLineThick = convertToScreen(scaleX * 1.5, camera);
+
         rlPushMatrix();
         rlTranslatef(scBlock.x, scBlock.y, 0);
         rlRotatef(object.angle, 0, 0, 1);
@@ -67,7 +67,7 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
                     .height = scBlockSizeY,
                 };
                 // Draw a black square with a white outline
-                DrawRectangleRec(recBlock, BLACK);
+                DrawRectangleRec(recBlock, def.shape.color);
                 DrawRectangleLinesEx(recBlock, scBlockLineThick, object.selected ? GREEN : object.baseColor);
             } break;
             case OBJSHAPE_SPIKE: {
@@ -83,7 +83,7 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
                     .x = scHalfBlockSizeX,
                     .y = scHalfBlockSizeY,
                 };
-                DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
+                DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, def.shape.color);
                 // No defining thickness of lines :(
                 DrawTriangleLines(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, object.selected ? GREEN : object.baseColor);
             } break;
