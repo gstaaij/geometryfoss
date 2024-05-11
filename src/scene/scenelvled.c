@@ -487,7 +487,7 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
 
                 Object buttonObject = {
                     .position = buttonPos,
-                    .scale = 30.0 / BUTTON_GRID_BUTTON_SIZE,
+                    .scale = 35.0 / BUTTON_GRID_BUTTON_SIZE / fmax(objectDefinitions[i].shape.scaleX, objectDefinitions[i].shape.scaleY),
                     .angle = 0,
                     .selected = false,
                     .id = i,

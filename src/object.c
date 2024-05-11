@@ -10,18 +10,22 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
     ObjectDefinition def = objectDefinitions[object.id];
 
     // Calculate the size of the block based on the Object Defenition and the Object's scale
-    double scale = def.shape.scale * object.scale;
-    double blockSize = scale * 30;
+    double scaleX = def.shape.scaleX * object.scale;
+    double scaleY = def.shape.scaleY * object.scale;
+    double blockSizeX = scaleX * 30;
+    double blockSizeY = scaleY * 30;
 
     // Convert some values to Screen Coordinates
     ScreenCoord scBlock = getScreenCoord(object.position, camera);
-    long scBlockSize = convertToScreen(blockSize, camera);
-    long scHalfBlockSize = convertToScreen(blockSize / 2, camera);
-    long scBlockLineThick = convertToScreen(scale * 1.5, camera);
+    long scBlockSizeX = convertToScreen(blockSizeX, camera);
+    long scBlockSizeY = convertToScreen(blockSizeY, camera);
+    long scHalfBlockSizeX = convertToScreen(blockSizeX / 2, camera);
+    long scHalfBlockSizeY = convertToScreen(blockSizeY / 2, camera);
+    long scBlockLineThick = convertToScreen(scaleX * 1.5, camera);
 
     if (
-        scBlock.x + scHalfBlockSize < 0 || scBlock.x - scHalfBlockSize > camera.screenSize.x ||
-        scBlock.y + scHalfBlockSize < 0 || scBlock.y - scHalfBlockSize > camera.screenSize.y
+        scBlock.x + scHalfBlockSizeX < 0 || scBlock.x - scHalfBlockSizeX > camera.screenSize.x ||
+        scBlock.y + scHalfBlockSizeY < 0 || scBlock.y - scHalfBlockSizeY > camera.screenSize.y
     ) {
         // Don't try to draw the block if it's out of screen
         return;
@@ -57,10 +61,10 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
             case OBJSHAPE_BLOCK: {
                 // Define a raylib Rectangle for the block
                 Rectangle recBlock = {
-                    .x = -scHalfBlockSize,
-                    .y = -scHalfBlockSize,
-                    .width = scBlockSize,
-                    .height = scBlockSize,
+                    .x = -scHalfBlockSizeX,
+                    .y = -scHalfBlockSizeY,
+                    .width = scBlockSizeX,
+                    .height = scBlockSizeY,
                 };
                 // Draw a black square with a white outline
                 DrawRectangleRec(recBlock, BLACK);
@@ -69,15 +73,15 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
             case OBJSHAPE_SPIKE: {
                 Vector2 vecSpikePoint1 = {
                     .x = 0,
-                    .y = -scHalfBlockSize,
+                    .y = -scHalfBlockSizeY,
                 };
                 Vector2 vecSpikePoint2 = {
-                    .x = -scHalfBlockSize,
-                    .y =  scHalfBlockSize,
+                    .x = -scHalfBlockSizeX,
+                    .y =  scHalfBlockSizeY,
                 };
                 Vector2 vecSpikePoint3 = {
-                    .x = scHalfBlockSize,
-                    .y = scHalfBlockSize,
+                    .x = scHalfBlockSizeX,
+                    .y = scHalfBlockSizeY,
                 };
                 DrawTriangle(vecSpikePoint1, vecSpikePoint2, vecSpikePoint3, BLACK);
                 // No defining thickness of lines :(
@@ -215,8 +219,8 @@ bool objectMouseOver(const Object object, const Coord clickPos) {
     // Get the Object Defenition tied to this Object
     ObjectDefinition def = objectDefinitions[object.id];
 
-    if (clickPos.x > object.position.x - def.shape.scale * 15.0 && clickPos.x < object.position.x + def.shape.scale * 15.0) {
-        return clickPos.y > object.position.y - def.shape.scale * 15.0 && clickPos.y < object.position.y + def.shape.scale * 15.0;
+    if (clickPos.x > object.position.x - def.shape.scaleX * 15.0 && clickPos.x < object.position.x + def.shape.scaleX * 15.0) {
+        return clickPos.y > object.position.y - def.shape.scaleY * 15.0 && clickPos.y < object.position.y + def.shape.scaleY * 15.0;
     }
     return false;
 }

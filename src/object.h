@@ -44,7 +44,7 @@ typedef enum {
 // Defines the shape and scale of an object
 typedef struct {
     ObjectShapeType type;
-    double scale;
+    double scaleX, scaleY;
 } ObjectShape;
 
 // Defines an object with a type, a shape, and a hitbox
@@ -93,6 +93,10 @@ typedef enum {
     OBJECT_ID_SPIKE_01 = 8,
     /// TODO: This one should choose randomly between `pit_01_001.png`, `pit_02_001.png` and `pit_03_001.png` when it's placed
     OBJECT_ID_PIT_01_02_03 = 9,
+    // Normal gravity portal
+    OBJECT_ID_PORTAL_01 = 10,
+    // Reverse gravity portal
+    OBJECT_ID_PORTAL_02 = 11,
 } ObjectIDs;
 
 #define TEXTURE(base, detail, glow) .baseTexturePath = (base), .detailTexturePath = (detail), .glowTexturePath = (glow)
@@ -105,7 +109,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -122,7 +127,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -139,7 +145,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -156,7 +163,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -170,12 +178,13 @@ static const ObjectDefinition objectDefinitions[] = {
     },
     [OBJECT_ID_SQUARE_05] = {
         .exists = true,
-        .type = OBJECT_SOLID,
+        .type = OBJECT_NONSOLID,
         // This object has no shape and no hitbox
         .shape = {
             .type = OBJSHAPE_NONE,
             // We do have to set the scale, so it doesn't disappear off of the edge of the screen too quickly
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {0},
         .placeOffset = {0},
@@ -187,7 +196,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -204,7 +214,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -221,7 +232,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_SOLID,
         .shape = {
             .type = OBJSHAPE_BLOCK,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -238,7 +250,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_HAZARD,
         .shape = {
             .type = OBJSHAPE_SPIKE,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -255,7 +268,8 @@ static const ObjectDefinition objectDefinitions[] = {
         .type = OBJECT_HAZARD,
         .shape = {
             .type = OBJSHAPE_SPIKE,
-            .scale = 1,
+            .scaleX = 1,
+            .scaleY = 1,
         },
         .hitbox = {
             .shape = HITBOX_SQUARE,
@@ -267,6 +281,42 @@ static const ObjectDefinition objectDefinitions[] = {
         .placeOffset = { 0, -12.5 },
         TEXTURE("pit_01_001.png", NULL, NULL),
         DEFAULT_COLORS(BLACK, BLACK),
+    },
+    [OBJECT_ID_PORTAL_01] = {
+        .exists = true,
+        .type = OBJECT_PORTAL,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scaleX = 1,
+            .scaleY = 2.5,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 25,
+            .height = 75,
+        },
+        .placeOffset = {0},
+        TEXTURE("portal_01_front_001.png", NULL, NULL),
+        DEFAULT_COLOR(),
+    },
+    [OBJECT_ID_PORTAL_02] = {
+        .exists = true,
+        .type = OBJECT_PORTAL,
+        .shape = {
+            .type = OBJSHAPE_BLOCK,
+            .scaleX = 1,
+            .scaleY = 2.5,
+        },
+        .hitbox = {
+            .shape = HITBOX_SQUARE,
+            .offset = {0},
+            .width = 25,
+            .height = 75,
+        },
+        .placeOffset = {0},
+        TEXTURE("portal_02_front_001.png", NULL, NULL),
+        DEFAULT_COLOR(),
     },
 };
 #undef TEXTURE
