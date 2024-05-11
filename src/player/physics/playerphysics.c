@@ -37,6 +37,14 @@ void playerphysicsUpdate(Player* player, const Object* objects, const double del
     bool onBlock = false;
     for (size_t i = 0; i < arrlenu(objects); ++i) {
         Object object = objects[i];
+        
+        // Skip objects that are too far away
+        long dx = (object.position.x - player->position.x);
+        long dy = (object.position.y - player->position.y);
+        long objDistSq = dx*dx + dy*dy;
+        if (objDistSq > 72900 * object.scale*object.scale)
+            continue;
+        
         ObjectDefinition def = objectDefinitions[object.id];
 
         switch(def.type) {

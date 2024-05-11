@@ -67,6 +67,8 @@ SceneLevel* scenelevelCreate() {
             .angle = 0,
             .scale = 1,
             .id = 8,
+            .baseColor = WHITE,
+            .detailColor = BLACK,
         };
         arrput(this->objects, spike);
     }
@@ -92,13 +94,15 @@ SceneLevel* scenelevelCreate() {
             .angle = 0,
             .scale = 1,
             .id = 1,
+            .baseColor = WHITE,
+            .detailColor = BLACK,
         };
         arrput(this->objects, block);
     }
 
     // Add platforms
     for (int i = 0; i < 100; i++) {
-        for (int x = i * 900 + 885; x < i * 900 + 885 + 300; x += 30) {
+        for (int x = i * 900 + 885; x < i * 900 + 885 + 270; x += 30) {
             Object block = {
                 .position = {
                     .x = x,
@@ -107,6 +111,8 @@ SceneLevel* scenelevelCreate() {
                 .angle = 0,
                 .scale = 1,
                 .id = 1,
+                .baseColor = WHITE,
+                .detailColor = BLACK,
             };
             arrput(this->objects, block);
         }
@@ -114,7 +120,7 @@ SceneLevel* scenelevelCreate() {
 
     #ifdef STRESS_TEST
         // Stress test
-        for (int i = 0; i < 40000; i++) {
+        for (int i = 0; i < 250000; i++) {
             Object block = {
                 .position = {
                     .x = 990 + i * 30 * 5,
@@ -123,6 +129,8 @@ SceneLevel* scenelevelCreate() {
                 .angle = 0,
                 .scale = 1,
                 .id = 1,
+                .baseColor = WHITE,
+                .detailColor = BLACK,
             };
             Object spike = {
                 .position = {
@@ -132,6 +140,8 @@ SceneLevel* scenelevelCreate() {
                 .angle = 0,
                 .scale = 1,
                 .id = 8,
+                .baseColor = WHITE,
+                .detailColor = BLACK,
             };
             arrput(this->objects, block);
             arrput(this->objects, spike);
