@@ -20,6 +20,6 @@ ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera);
 Coord getGDCoord(const ScreenCoord coord, const GDFCamera camera);
 
 // Convert a width or height or length in GD coordinates to screen coordinates
-long convertToScreen(const double size, const GDFCamera camera);
+double convertToScreen(const double size, const GDFCamera camera);
 // Convert a width or height or length in screen coordinates to GD coordinates
 double convertToGD(const double size, const GDFCamera camera);

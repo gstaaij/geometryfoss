@@ -4,8 +4,8 @@
 
 // Defines a position or size in screen coordinates
 typedef struct {
-    long x;
-    long y;
+    double x;
+    double y;
 } ScreenCoord;
 
 // Defines a position or size in GD coordinates

@@ -17,11 +17,11 @@ void objectDraw(const Object object, const bool drawGlow, const GDFCamera camera
 
     // Convert some values to Screen Coordinates
     ScreenCoord scBlock = getScreenCoord(object.position, camera);
-    long scBlockSizeX = convertToScreen(blockSizeX, camera);
-    long scBlockSizeY = convertToScreen(blockSizeY, camera);
-    long scHalfBlockSizeX = convertToScreen(blockSizeX / 2, camera);
-    long scHalfBlockSizeY = convertToScreen(blockSizeY / 2, camera);
-    long scBlockLineThick = convertToScreen(scaleX * 1.5, camera);
+    double scBlockSizeX = convertToScreen(blockSizeX, camera);
+    double scBlockSizeY = convertToScreen(blockSizeY, camera);
+    double scHalfBlockSizeX = convertToScreen(blockSizeX / 2, camera);
+    double scHalfBlockSizeY = convertToScreen(blockSizeY / 2, camera);
+    double scBlockLineThick = convertToScreen(scaleX * 1.5, camera);
 
     if (
         scBlock.x + scHalfBlockSizeX < 0 || scBlock.x - scHalfBlockSizeX > camera.screenSize.x ||

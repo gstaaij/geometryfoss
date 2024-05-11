@@ -32,14 +32,14 @@ void cameraConvertScreenSize(GDFCamera* camera) {
     // First try making the height the same as the minimum height...
     double height = MIN_COORD_SCREEN_HEIGHT;
     // ... and calculate a width based on that
-    double width = (double)camera->screenSize.x / (double)camera->screenSize.y * MIN_COORD_SCREEN_HEIGHT;
+    double width = camera->screenSize.x / camera->screenSize.y * MIN_COORD_SCREEN_HEIGHT;
 
     // If that doesn't work...
     if (width < MIN_COORD_SCREEN_WIDTH) {
         // ... make the width the same as the minimum width...
         width = MIN_COORD_SCREEN_WIDTH;
         // ... and calculate the height based on that width
-        height = (double)camera->screenSize.y / (double)camera->screenSize.x * MIN_COORD_SCREEN_WIDTH;
+        height = camera->screenSize.y / camera->screenSize.x * MIN_COORD_SCREEN_WIDTH;
     }
 
     // Construct a Coord out of the width and height variables and assign it to camera.screenSizeAsCoord
@@ -75,8 +75,8 @@ ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {
     double xTranslated = coord.x - camera.position.x + (camera.screenSizeAsCoord.x / 2);
     double yTranslated = -(coord.y - camera.position.y) + (camera.screenSizeAsCoord.y / 2);
     // Map the GD coordinates to screen coordinates
-    long xScreen = roundl(xTranslated / camera.screenSizeAsCoord.x * camera.screenSize.x);
-    long yScreen = roundl(yTranslated / camera.screenSizeAsCoord.y * camera.screenSize.y);
+    double xScreen = xTranslated / camera.screenSizeAsCoord.x * camera.screenSize.x;
+    double yScreen = yTranslated / camera.screenSizeAsCoord.y * camera.screenSize.y;
 
     // Put the coordinates in a ScreenCoord and return it
     ScreenCoord screenCoord = {
@@ -89,8 +89,8 @@ ScreenCoord getScreenCoord(const Coord coord, const GDFCamera camera) {
 Coord getGDCoord(const ScreenCoord screenCoord, const GDFCamera camera) {
     // The reverse of what getScreenCoord does
     
-    double xTemp = (double)screenCoord.x / (double)camera.screenSize.x * camera.screenSizeAsCoord.x;
-    double yTemp = (double)screenCoord.y / (double)camera.screenSize.y * camera.screenSizeAsCoord.y;
+    double xTemp = screenCoord.x / camera.screenSize.x * camera.screenSizeAsCoord.x;
+    double yTemp = screenCoord.y / camera.screenSize.y * camera.screenSizeAsCoord.y;
 
     double xGD = xTemp - (camera.screenSizeAsCoord.x / 2) + camera.position.x;
     double yGD = -(yTemp - (camera.screenSizeAsCoord.y / 2)) + camera.position.y;
@@ -103,9 +103,9 @@ Coord getGDCoord(const ScreenCoord screenCoord, const GDFCamera camera) {
     return coord;
 }
 
-long convertToScreen(const double size, const GDFCamera camera) {
+double convertToScreen(const double size, const GDFCamera camera) {
     // Multiply the size by the ratio between the screen coordinates and the GD coordinates
-    return roundl((double)camera.screenSize.x / camera.screenSizeAsCoord.x * size);
+    return camera.screenSize.x / camera.screenSizeAsCoord.x * size;
 }
 
 double convertToGD(const double size, const GDFCamera camera) {

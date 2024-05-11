@@ -210,7 +210,7 @@ void scenelvledUpdate(SceneLevelEditor* this, SceneState* sceneState, double del
             int deltaY = GetMouseY() - startMouseY;
             int mouseDeltaLengthSq = deltaX*deltaX + deltaY*deltaY;
             
-            int maxMouseDelta = convertToScreen(30, this->uiCamera);
+            double maxMouseDelta = convertToScreen(30, this->uiCamera);
 
             if (mouseDeltaLengthSq > maxMouseDelta*maxMouseDelta) {
                 isDragging = true;
@@ -384,11 +384,11 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
 
     // Convert some sizes from GD coordinates to screen coordinates
 
-    long buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, this->uiCamera);
-    long buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, this->uiCamera);
-    long buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, this->uiCamera);
-    long fontSize = convertToScreen(MODE_BUTTON_FONT_SIZE, this->uiCamera);
-    long upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, this->uiCamera);
+    double buttonOffset = convertToScreen(MODE_BUTTON_OFFSET, this->uiCamera);
+    double buttonWidth = convertToScreen(MODE_BUTTON_WIDTH, this->uiCamera);
+    double buttonHeight = convertToScreen(MODE_BUTTON_HEIGHT, this->uiCamera);
+    double fontSize = convertToScreen(MODE_BUTTON_FONT_SIZE, this->uiCamera);
+    double upperY = convertToScreen(MOUSE_DEAD_ZONE_UPPER_Y, this->uiCamera);
 
     // Draw the bottom button pane
     DrawRectangle(0, this->uiCamera.screenSize.y - upperY, this->uiCamera.screenSize.x, upperY, (Color) { 0, 0, 0, 128 });
@@ -528,20 +528,20 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
         this->uiCamera.screenSizeAsCoord.y / 2 - pauseButtonSize * 0.5,
     };
     ScreenCoord pauseButtonSCoord = getScreenCoord(pauseButtonTopLeftCoord, this->uiCamera);
-    long pauseButtonSSize = convertToScreen(pauseButtonSize, this->uiCamera);
-    long pauseIconSSize = convertToScreen(pauseIconSize, this->uiCamera);
+    double scPauseButtonSize = convertToScreen(pauseButtonSize, this->uiCamera);
+    double scPauseIconSize = convertToScreen(pauseIconSize, this->uiCamera);
 
 
     Rectangle pauseButtonRect = {
         pauseButtonSCoord.x, pauseButtonSCoord.y,
-        pauseButtonSSize, pauseButtonSSize,
+        scPauseButtonSize, scPauseButtonSize,
     };
 
     if (keyboardPressed(KEY_ESCAPE)) {
         this->isPaused = !this->isPaused;
     }
 
-    GuiSetIconScale(pauseIconSSize);
+    GuiSetIconScale(scPauseIconSize);
     if (GuiButton(pauseButtonRect, GuiIconText(ICON_PLAYER_PAUSE, ""))) {
         this->isPaused = true;
         this->clickedButton = true;
@@ -566,7 +566,7 @@ void scenelvledUpdateUI(SceneLevelEditor* this, SceneState* sceneState) {
             convertToScreen(PAUSE_MENU_BUTTON_HEIGHT, this->uiCamera),
         };
 
-        long pauseMenuButtonYIncrement = convertToScreen(PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_OFFSET, this->uiCamera);
+        double pauseMenuButtonYIncrement = convertToScreen(PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_OFFSET, this->uiCamera);
 
         PauseMenuButton pauseMenuActiveButton = PAUSE_MENU_BUTTON_COUNT;
         for (int i = 0; i < PAUSE_MENU_BUTTON_COUNT; ++i) {

@@ -20,14 +20,14 @@ void hitboxDraw(const Hitbox hitbox, const Coord parentPosition, const double sc
         };
 
         // Convert the width, height and line thickness of the hitbox to screen pixels
-        long scHitboxWidth = convertToScreen(hitbox.width * scale, camera);
-        long scHitboxHeight = convertToScreen(hitbox.height * scale, camera);
+        double scHitboxWidth = convertToScreen(hitbox.width * scale, camera);
+        double scHitboxHeight = convertToScreen(hitbox.height * scale, camera);
         if (shouldSwapWidthAndHeight(hitboxGetRealAngle(hitbox, angle), 0)) {
-            long tmp = scHitboxWidth;
+            double tmp = scHitboxWidth;
             scHitboxWidth = scHitboxHeight;
             scHitboxHeight = tmp;
         }
-        long scHitboxLineThick = convertToScreen(1, camera);
+        double scHitboxLineThick = convertToScreen(1, camera);
 
         // Convert the absolute position to Screen Coordinates
         ScreenCoord scHitbox = getScreenCoord(hitboxCoord, camera);

@@ -37,7 +37,7 @@ void playerUpdate(Player* player, const Object* objects, const double deltaTime)
 void playerDraw(const Player player, const GDFCamera camera) {
     // Convert to screen coordinates
     ScreenCoord scPlayer = getScreenCoord(player.position, camera);
-    long scPlayerSize = convertToScreen(PLAYER_SIZE, camera);
+    double scPlayerSize = convertToScreen(PLAYER_SIZE, camera);
     // Create a rectangle and a vector2 for the position & size, and the rotation anchor point respectively
     Rectangle playerRect = {
         .x = scPlayer.x,

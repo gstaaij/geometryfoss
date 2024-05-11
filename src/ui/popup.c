@@ -44,8 +44,8 @@ static double popupWasShown = false;
     static double minPopupTransitionProgressScale = 100.0;
 #endif
 
-long popupGetWidth(const GDFCamera uiCamera, const double fontSize, const double fontSpacing, const char* message) {
-    long width = convertToScreen(4 * POPUP_BOX_PADDING, uiCamera);
+double popupGetWidth(const GDFCamera uiCamera, const double fontSize, const double fontSpacing, const char* message) {
+    double width = convertToScreen(4 * POPUP_BOX_PADDING, uiCamera);
     width += MeasureTextEx(fontGetSmall(), message, fontSize, fontSpacing).x;
     return width;
 }
@@ -170,9 +170,9 @@ void popupUpdateUI(const GDFCamera uiCamera) {
     };
     ScreenCoord popupScreenLocation = getScreenCoord(popupLocation, uiCamera);
     double fontSpacing = fontSize/fontGetSmall().baseSize;
-    long popupWidth = popupGetWidth(uiCamera, fontSize, fontSpacing, message);
+    double popupWidth = popupGetWidth(uiCamera, fontSize, fontSpacing, message);
     Vector2 messageSize = MeasureTextEx(fontGetSmall(), message, (float) fontSize, (float) fontSpacing);
-    long popupHeight = convertToScreen((POPUP_BOX_PADDING * 3 + POPUP_BUTTON_HEIGHT) * popupScale, uiCamera) + messageSize.y;
+    double popupHeight = convertToScreen((POPUP_BOX_PADDING * 3 + POPUP_BUTTON_HEIGHT) * popupScale, uiCamera) + messageSize.y;
     double popupGDHeight = convertToGD(popupHeight, uiCamera);
 
     DrawRectangle(
@@ -210,8 +210,8 @@ void popupUpdateUI(const GDFCamera uiCamera) {
         buttonLocation.x -= (POPUP_BOX_PADDING / 2 + POPUP_BUTTON_WIDTH / 2) * popupScale;
     }
     ScreenCoord buttonScreenLocation = getScreenCoord(buttonLocation, uiCamera);
-    long buttonWidth = convertToScreen(POPUP_BUTTON_WIDTH * popupScale, uiCamera);
-    long buttonHeight = convertToScreen(POPUP_BUTTON_HEIGHT * popupScale, uiCamera);
+    double buttonWidth = convertToScreen(POPUP_BUTTON_WIDTH * popupScale, uiCamera);
+    double buttonHeight = convertToScreen(POPUP_BUTTON_HEIGHT * popupScale, uiCamera);
 
     bool clickedButtonOne = GuiButton(
         (Rectangle) {

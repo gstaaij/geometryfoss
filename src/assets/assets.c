@@ -411,9 +411,9 @@ TextureMap assetsTextureMap(const char* fileName) {
 void assetsDrawFromTextureMap(TextureMap map, Coord position, double scale, double rotation, Color color, GDFCamera camera) {
     if (map.spriteSheet != NULL) {
         ScreenCoord scPosition = getScreenCoord(position, camera);
-        long scWidth = convertToScreen(map.spriteSize.x * scale, camera);
-        long scHeight = convertToScreen(map.spriteSize.y * scale, camera);
-        long scOriginX, scOriginY;
+        double scWidth = convertToScreen(map.spriteSize.x * scale, camera);
+        double scHeight = convertToScreen(map.spriteSize.y * scale, camera);
+        double scOriginX, scOriginY;
         if (!map.textureRotated) {
             scOriginX = convertToScreen((map.spriteSourceSize.x * 0.5 - (map.spriteSourceSize.x * 0.5 + map.spriteOffset.x - map.spriteSize.x * 0.5)) * scale, camera);
             scOriginY = convertToScreen((map.spriteSourceSize.y * 0.5 - (map.spriteSourceSize.y * 0.5 - map.spriteOffset.y - map.spriteSize.y * 0.5)) * scale, camera);
