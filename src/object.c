@@ -201,7 +201,10 @@ bool objectDeserialize(Object* object, const cJSON* objectJson) {
         object->baseColor = GetColor((unsigned int) baseColorJson->valueint);
     } else {
         // Set a default color if the color wasn't set
-        object->baseColor = WHITE;
+        if (objectDefinitions[object->id].exists)
+            object->baseColor = objectDefinitions[object->id].baseDefaultColor;
+        else
+            object->baseColor = WHITE;
     }
 
     const cJSON* detailColorJson = cJSON_GetObjectItemCaseSensitive(objectJson, "detailColor");
@@ -209,7 +212,10 @@ bool objectDeserialize(Object* object, const cJSON* objectJson) {
         object->detailColor = GetColor((unsigned int) detailColorJson->valueint);
     } else {
         // Set a default color if the color wasn't set
-        object->detailColor = BLACK;
+        if (objectDefinitions[object->id].exists)
+            object->detailColor = objectDefinitions[object->id].detailDefaultColor;
+        else
+            object->detailColor = BLACK;
     }
 
     return true;
