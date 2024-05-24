@@ -28,6 +28,7 @@
 #include "assets/assets.h"
 #include "assets/font.h"
 #include "ui/text.h"
+#include "version.h"
 
 // Make raygui use our own mouse and keyboard functions
 #define IsMouseButtonReleased mouseReleased
@@ -185,10 +186,14 @@ static void draw() {
         scenemanagerDraw(scenemanager);
         updateUI();
 
+        int y = 10;
+        const int fs = 20;
+        if (showTpsAndFps || GIT_IS_DIRTY) {
+            textDraw(GetFontDefault(), TextFormat("Version: %s", GIT_VERSION), 10, y, fs, WHITE);
+            y += fs;
+        }
         if (showTpsAndFps) {
             // Display the FPS and TPS on the top left of the screen
-            const int fs = 20;
-            int y = 10;
             textDraw(GetFontDefault(), TextFormat("TPS: %ld", tps), 10, y, fs, WHITE);
             y += fs;
             textDraw(GetFontDefault(), TextFormat("FPS: %ld", GetFPS()), 10, y, fs, WHITE);

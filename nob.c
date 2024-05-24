@@ -143,6 +143,15 @@ bool buildMain(Target target, bool debugMode) {
     bool result = true;
 
     Nob_Cmd cmd = {0};
+
+    // Generate version.h
+    bool hasGitVersion = false;
+#ifndef _WIN32
+    cmd.count = 0;
+    nob_cmd_append(&cmd, "sh", "./nob_addGitVersion.sh");
+    hasGitVersion = nob_cmd_run_sync(cmd);
+#endif // _WIN32
+
     switch (target) {
         case TARGET_LINUX: {
             cmd.count = 0;
@@ -157,6 +166,12 @@ bool buildMain(Target target, bool debugMode) {
 
                 // Disable some warnings from stb_ds
                 nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
+
+                // Include version.h
+                if (hasGitVersion)
+                    nob_cmd_append(&cmd, "-I./build/version");
+                else
+                    nob_cmd_append(&cmd, "-I./src/version_default");
                 
                 nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
                 nob_cmd_append(&cmd, "-I./src");
@@ -187,6 +202,12 @@ bool buildMain(Target target, bool debugMode) {
 
                 // Disable some warnings from stb_ds
                 nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
+
+                // Include version.h
+                if (hasGitVersion)
+                    nob_cmd_append(&cmd, "-I./build/version");
+                else
+                    nob_cmd_append(&cmd, "-I./src/version_default");
                 
                 nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
                 nob_cmd_append(&cmd, "-I./src");
