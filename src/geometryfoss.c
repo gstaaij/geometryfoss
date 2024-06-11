@@ -84,6 +84,7 @@ int main(void) {
     #endif
 
     // Initialize the window and make it resizable
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(1280, 720, "Geometry FOSS");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(640, 480);

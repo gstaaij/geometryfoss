@@ -38,7 +38,6 @@ void fontUpdate() {
         smallFont = LoadFont(smallFontPath);
         // Make the font look pretty
         SetTextureFilter(smallFont.texture, TEXTURE_FILTER_BILINEAR);
-        GenTextureMipmaps(&smallFont.texture);
     }
 }
 

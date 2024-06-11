@@ -86,9 +86,8 @@ Texture assetsTexture(const char* relativePath) {
 
     Image image = assetsImage(relativePath);
     item.value = LoadTextureFromImage(image);
-    // It NEEDS to be in this order, otherwise the texture will look worse
+
     SetTextureFilter(item.value, TEXTURE_FILTER_BILINEAR);
-    GenTextureMipmaps(&item.value);
 
     nob_da_append(&assets.textures, item);
     return item.value;
