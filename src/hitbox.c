@@ -1,6 +1,5 @@
 #include "hitbox.h"
 #include "camera.h"
-#include "util.h"
 #include <assert.h>
 #include <stdio.h>
 #include <math.h>
@@ -80,9 +79,9 @@ bool hitboxCollides(const Hitbox hitbox1, const Coord parent1Position, const int
         }
 
         // If the x distance is smaller than the combined half widths, we are colliding on the x axis
-        if (dabs(dx) < halfWidths) {
+        if (fabs(dx) < halfWidths) {
             // If then the y distance is also smaller than the combined half widths, we are colliding on both axes
-            return dabs(dy) < halfHeights;
+            return fabs(dy) < halfHeights;
         }
     }
 
@@ -110,7 +109,7 @@ bool hitboxSquareCollidesOnlyX(const Hitbox hitbox1, const Coord parent1Position
     }
 
     // If the x distance is smaller than the combined half widths, we are colliding on the x axis
-    return dabs(dx) < halfWidths;
+    return fabs(dx) < halfWidths;
 }
 
 bool hitboxSquareCollidesOnlyY(const Hitbox hitbox1, const Coord parent1Position, const int hitbox1Angle, const Hitbox hitbox2, const Coord parent2Position, const int hitbox2Angle) {
@@ -128,5 +127,5 @@ bool hitboxSquareCollidesOnlyY(const Hitbox hitbox1, const Coord parent1Position
     }
 
     // If the y distance is smaller than the combined half heights, we are colliding on the y axis
-    return dabs(dy) < halfHeights;
+    return fabs(dy) < halfHeights;
 }

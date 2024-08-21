@@ -136,7 +136,6 @@ static const char* cFiles[] = {
     "select.c",
     "ui/popup.c",
     "ui/text.c",
-    "util.c",
 };
 
 bool buildMain(Target target, bool debugMode) {

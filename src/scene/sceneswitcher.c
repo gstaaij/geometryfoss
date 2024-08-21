@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <memory.h>
-#include "util.h"
 
 SceneState* sceneswitcherCreateState() {
     SCENE_CREATE(SceneState);

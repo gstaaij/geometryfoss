@@ -8,7 +8,6 @@
 #include "easing.h"
 #include <stddef.h>
 #include <math.h>
-#include "util.h"
 
 #ifndef PI
 #define PI 3.1415926545
