@@ -28,7 +28,6 @@
 #include "assets/assets.h"
 #include "assets/font.h"
 #include "ui/text.h"
-#include "version.h"
 
 // Make raygui use our own mouse and keyboard functions
 #define IsMouseButtonReleased mouseReleased
@@ -227,6 +226,7 @@ static void draw() {
         }
 
         #ifdef DEBUG
+        {
             static const char* debugModeText = "DEBUG MODE";
             int y = 10;
             textDraw(GetFontDefault(), debugModeText, GetScreenWidth() - MeasureText(debugModeText, 48) - 10 + 2, y + 2, 48, BLACK);
@@ -239,6 +239,7 @@ static void draw() {
             const char* instruction2Text = TextFormat("Press F to set the target TPS to %d", targetTps == TARGET_TPS ? TARGET_TPS_DEBUG_TOGGLE : TARGET_TPS);
             textDraw(GetFontDefault(), instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10 + 1, y + 1, 24, BLACK);
             textDraw(GetFontDefault(), instruction2Text, GetScreenWidth() - MeasureText(instruction2Text, 24) - 10, y, 24, LIGHTGRAY);
+        }
         #endif
 
     EndDrawing();

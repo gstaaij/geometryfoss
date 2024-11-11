@@ -1,5 +1,6 @@
 
 #define NOB_IMPLEMENTATION
+#define NOB_STRIP_PREFIX
 #include "src/nob/nob.h"
 
 #define EXECUTABLE_NAME "geometryfoss"
@@ -18,7 +19,7 @@ const char *targetNames[] = {
     [TARGET_WIN32_MINGW] = "win32-mingw",
 };
 
-void logAvailableTargets(Nob_Log_Level level) {
+void logAvailableTargets(Log_Level level) {
     nob_log(level, "Available targets:");
     for (size_t i = 0; i < COUNT_TARGETS; ++i) {
         nob_log(level, "    %s", targetNames[i]);
@@ -38,65 +39,63 @@ static const char* raylibModules[] = {
 bool buildRaylib(Target target) {
     // Mostly stolen from https://github.com/tsoding/musializer
     bool result = true;
-    Nob_Cmd cmd = {0};
-    Nob_File_Paths objectFiles = {0};
+    Cmd cmd = {0};
+    File_Paths objectFiles = {0};
 
-    if (!nob_mkdir_if_not_exists("./build/raylib")) {
-        nob_return_defer(false);
+    if (!mkdir_if_not_exists("./build/raylib")) {
+        return_defer(false);
     }
 
-    Nob_Procs procs = {0};
+    Procs procs = {0};
 
-    const char* buildPath = nob_temp_sprintf("./build/raylib/%s", NOB_ARRAY_GET(targetNames, target));
+    const char* buildPath = temp_sprintf("./build/raylib/%s", ARRAY_GET(targetNames, target));
 
-    if (!nob_mkdir_if_not_exists(buildPath)) {
-        nob_return_defer(false);
+    if (!mkdir_if_not_exists(buildPath)) {
+        return_defer(false);
     }
 
-    for (size_t i = 0; i < NOB_ARRAY_LEN(raylibModules); ++i) {
-        const char* inputPath = nob_temp_sprintf("./raylib/raylib-"RAYLIB_VERSION"/src/%s.c", raylibModules[i]);
-        const char* outputPath = nob_temp_sprintf("%s/%s.o", buildPath, raylibModules[i]);
+    for (size_t i = 0; i < ARRAY_LEN(raylibModules); ++i) {
+        const char* inputPath = temp_sprintf("./raylib/raylib-"RAYLIB_VERSION"/src/%s.c", raylibModules[i]);
+        const char* outputPath = temp_sprintf("%s/%s.o", buildPath, raylibModules[i]);
 
-        nob_da_append(&objectFiles, outputPath);
+        da_append(&objectFiles, outputPath);
 
-        if (nob_needs_rebuild1(outputPath, inputPath)) {
-            cmd.count = 0;
+        if (needs_rebuild1(outputPath, inputPath)) {
             switch (target) {
                 case TARGET_LINUX: {
-                    nob_cmd_append(&cmd, "gcc");
+                    cmd_append(&cmd, "gcc");
                 } break;
                 case TARGET_WIN32_MINGW: {
-                    nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
+                    cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
                 } break;
 
                 default: NOB_ASSERT(0 && "unreachable");
             }
-            nob_cmd_append(&cmd, "-ggdb", "-DPLATFORM_DESKTOP", "-D_GNU_SOURCE", "-fPIC"); // Remove -ggdb for a miniscule amount of extra performance
-            nob_cmd_append(&cmd, "-O2");
-            nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src/external/glfw/include");
-            nob_cmd_append(&cmd, "-c", inputPath);
-            nob_cmd_append(&cmd, "-o", outputPath);
+            cmd_append(&cmd, "-ggdb", "-DPLATFORM_DESKTOP", "-D_GNU_SOURCE", "-fPIC"); // Remove -ggdb for a miniscule amount of extra performance
+            cmd_append(&cmd, "-O2");
+            cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src/external/glfw/include");
+            cmd_append(&cmd, "-c", inputPath);
+            cmd_append(&cmd, "-o", outputPath);
 
-            Nob_Proc proc = nob_cmd_run_async(cmd);
-            nob_da_append(&procs, proc);
+            Proc proc = cmd_run_async_and_reset(&cmd);
+            da_append(&procs, proc);
         }
     }
-    cmd.count = 0;
 
-    if (!nob_procs_wait(procs)) nob_return_defer(false);
+    if (!procs_wait_and_reset(&procs)) return_defer(false);
 
     switch (target) {
         case TARGET_WIN32_MINGW:
         case TARGET_LINUX: {
-            const char* libraylibPath = nob_temp_sprintf("%s/libraylib.a", buildPath);
+            const char* libraylibPath = temp_sprintf("%s/libraylib.a", buildPath);
 
-            if (nob_needs_rebuild(libraylibPath, objectFiles.items, objectFiles.count)) {
-                nob_cmd_append(&cmd, "ar", "-crs", libraylibPath);
-                for (size_t i = 0; i < NOB_ARRAY_LEN(raylibModules); ++i) {
-                    const char* inputPath = nob_temp_sprintf("%s/%s.o", buildPath, raylibModules[i]);
-                    nob_cmd_append(&cmd, inputPath);
+            if (needs_rebuild(libraylibPath, objectFiles.items, objectFiles.count)) {
+                cmd_append(&cmd, "ar", "-crs", libraylibPath);
+                for (size_t i = 0; i < ARRAY_LEN(raylibModules); ++i) {
+                    const char* inputPath = temp_sprintf("%s/%s.o", buildPath, raylibModules[i]);
+                    cmd_append(&cmd, inputPath);
                 }
-                if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
+                if (!cmd_run_sync_and_reset(&cmd)) return_defer(false);
             }
         } break;
         
@@ -104,8 +103,8 @@ bool buildRaylib(Target target) {
     }
 
 defer:
-    nob_cmd_free(cmd);
-    nob_da_free(objectFiles);
+    cmd_free(cmd);
+    da_free(objectFiles);
     return result;
 }
 
@@ -138,98 +137,113 @@ static const char* cFiles[] = {
     "ui/text.c",
 };
 
+// Kind of stolen from the get_git_hash function in https://github.com/rexim/tore/blob/main/nob.c
+bool addGitVersion(Cmd* cmd) {
+    Cmd tempCmd = {0};
+    bool result = true;
+
+    Fd fdout = fd_open_for_write("./build/gitHash.txt");
+    if (fdout == INVALID_FD) return_defer(false);
+    
+    cmd_append(&tempCmd, "git", "describe", "--abbrev=7", "--dirty", "--always", "--tags");
+    if (!cmd_run_sync_redirect_and_reset(&tempCmd, (Cmd_Redirect) {
+        .fdout = &fdout,
+    })) return_defer(false);
+
+    String_Builder sb = {0};
+    if (!read_entire_file("./build/gitHash.txt", &sb)) return_defer(false);
+    while (sb.count > 0 && isspace(sb.items[sb.count - 1])) --sb.count;
+    sb_append_null(&sb);
+
+    cmd_append(cmd, temp_sprintf("-DGIT_VERSION=\"%s\"", sb.items));
+    int isDirty = strstr(sb.items, "-dirty") != NULL;
+    cmd_append(cmd, temp_sprintf("-DGIT_IS_DIRTY=%d", isDirty));
+    da_free(sb);
+
+defer:
+    if (!result) {
+        cmd_append(cmd, "-DGIT_VERSION=\"unknown\"", "-DGIT_IS_DIRTY=0");
+    }
+    cmd_free(tempCmd);
+    return result;
+}
+
 bool buildMain(Target target, bool debugMode) {
     bool result = true;
 
-    Nob_Cmd cmd = {0};
-
-    // Generate version.h
-    bool hasGitVersion = false;
-#ifndef _WIN32
-    cmd.count = 0;
-    nob_cmd_append(&cmd, "sh", "./nob_addGitVersion.sh");
-    hasGitVersion = nob_cmd_run_sync(cmd);
-#endif // _WIN32
+    Cmd cmd = {0};
 
     switch (target) {
         case TARGET_LINUX: {
-            cmd.count = 0;
-                nob_cmd_append(&cmd, "gcc");
-                nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
+            cmd_append(&cmd, "gcc");
+            cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb");
 
-                if (debugMode)
-                    nob_cmd_append(&cmd, "-DDEBUG");
+            if (debugMode)
+                cmd_append(&cmd, "-DDEBUG");
 
-                // Disable warnings from raygui
-                nob_cmd_append(&cmd, "-isystem", "./src/lib/ray");
+            // Add the git version
+            addGitVersion(&cmd);
 
-                // Disable some warnings from stb_ds
-                nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
+            // Disable warnings from raygui
+            cmd_append(&cmd, "-isystem", "./src/lib/ray");
 
-                // Include version.h
-                if (hasGitVersion)
-                    nob_cmd_append(&cmd, "-I./build/version");
-                else
-                    nob_cmd_append(&cmd, "-I./src/version_default");
-                
-                nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
-                nob_cmd_append(&cmd, "-I./src");
-                nob_cmd_append(&cmd, "-I./src/nob");
-                nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
+            // Disable some warnings from stb_ds
+            cmd_append(&cmd, "-isystem", "./src/lib/stb");
+            
+            cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
+            cmd_append(&cmd, "-I./src");
+            cmd_append(&cmd, "-I./src/nob");
+            cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
-                for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
-                    nob_cmd_append(&cmd, nob_temp_sprintf("src/%s", cFiles[i]));
-                }
-                
-                nob_cmd_append(&cmd,
-                    nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
-                    "-l:libraylib.a");
-                nob_cmd_append(&cmd, "-lm");
-            if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
+            for (size_t i = 0; i < ARRAY_LEN(cFiles); ++i) {
+                cmd_append(&cmd, temp_sprintf("src/%s", cFiles[i]));
+            }
+            
+            cmd_append(&cmd,
+                temp_sprintf("-L./build/raylib/%s", ARRAY_GET(targetNames, target)),
+                "-l:libraylib.a");
+            cmd_append(&cmd, "-lm");
+            if (!cmd_run_sync_and_reset(&cmd)) return_defer(false);
         } break;
 
         case TARGET_WIN32_MINGW: {
-            cmd.count = 0;
-                nob_cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
-                nob_cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
+            cmd_append(&cmd, "x86_64-w64-mingw32-gcc");
+            cmd_append(&cmd, "-Wall", "-Wextra", "-ggdb", "-static");
 
-                if (debugMode)
-                    nob_cmd_append(&cmd, "-DDEBUG");
-                
-                // Disable warnings from raygui
-                nob_cmd_append(&cmd, "-isystem", "./src/lib/ray");
+            if (debugMode)
+                cmd_append(&cmd, "-DDEBUG");
 
-                // Disable some warnings from stb_ds
-                nob_cmd_append(&cmd, "-isystem", "./src/lib/stb");
+            // Add the git version
+            addGitVersion(&cmd);
+            
+            // Disable warnings from raygui
+            cmd_append(&cmd, "-isystem", "./src/lib/ray");
 
-                // Include version.h
-                if (hasGitVersion)
-                    nob_cmd_append(&cmd, "-I./build/version");
-                else
-                    nob_cmd_append(&cmd, "-I./src/version_default");
-                
-                nob_cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
-                nob_cmd_append(&cmd, "-I./src");
-                nob_cmd_append(&cmd, "-I./src/nob");
-                nob_cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
+            // Disable some warnings from stb_ds
+            cmd_append(&cmd, "-isystem", "./src/lib/stb");
+            
+            cmd_append(&cmd, "-I./raylib/raylib-"RAYLIB_VERSION"/src");
+            cmd_append(&cmd, "-I./src");
+            cmd_append(&cmd, "-I./src/nob");
+            cmd_append(&cmd, "-o", "./build/"EXECUTABLE_NAME);
 
-                for (size_t i = 0; i < NOB_ARRAY_LEN(cFiles); ++i) {
-                    nob_cmd_append(&cmd, nob_temp_sprintf("src/%s", cFiles[i]));
-                }
-                
-                nob_cmd_append(&cmd,
-                    nob_temp_sprintf("-L./build/raylib/%s", NOB_ARRAY_GET(targetNames, target)),
-                    "-l:libraylib.a");
-                nob_cmd_append(&cmd, "-lwinmm", "-lgdi32");
-                nob_cmd_append(&cmd, "-static");
-            if (!nob_cmd_run_sync(cmd)) nob_return_defer(false);
+            for (size_t i = 0; i < ARRAY_LEN(cFiles); ++i) {
+                cmd_append(&cmd, temp_sprintf("src/%s", cFiles[i]));
+            }
+            
+            cmd_append(&cmd,
+                temp_sprintf("-L./build/raylib/%s", ARRAY_GET(targetNames, target)),
+                "-l:libraylib.a");
+            cmd_append(&cmd, "-lwinmm", "-lgdi32");
+            cmd_append(&cmd, "-static");
+            if (!cmd_run_sync_and_reset(&cmd)) return_defer(false);
         } break;
 
         default: NOB_ASSERT(0 && "unreachable");
     }
 
 defer:
-    nob_cmd_free(cmd);
+    cmd_free(cmd);
     return result;
 }
 
@@ -243,15 +257,15 @@ bool parseTarget(const char* value, Target* target) {
     }
 
     if (!found) {
-        nob_log(NOB_ERROR, "Unknown target %s", value);
-        logAvailableTargets(NOB_ERROR);
+        nob_log(ERROR, "Unknown target %s", value);
+        logAvailableTargets(ERROR);
         return false;
     }
 
     return true;
 }
 
-void logAvailableSubcommands(const char* program, Nob_Log_Level level) {
+void logAvailableSubcommands(const char* program, Log_Level level) {
     nob_log(level, "Usage: %s <subcommand>", program);
     nob_log(level, "Subcommands:");
     nob_log(level, "    build");
@@ -261,24 +275,24 @@ void logAvailableSubcommands(const char* program, Nob_Log_Level level) {
 int main(int argc, char** argv) {
     NOB_GO_REBUILD_URSELF(argc, argv);
 
-    const char* program = nob_shift_args(&argc, &argv);
+    const char* program = shift(argv, argc);
 
     if (argc < 1) {
-        logAvailableSubcommands(program, NOB_ERROR);
+        logAvailableSubcommands(program, ERROR);
         return 1;
     }
 
-    const char* subcommand = nob_shift_args(&argc, &argv);
+    const char* subcommand = shift(argv, argc);
 
     if (strcmp(subcommand, "help") == 0) {
-        logAvailableSubcommands(program, NOB_INFO);
+        logAvailableSubcommands(program, INFO);
         return 0;
     } else if (strcmp(subcommand, "build") == 0) {
         if (argc < 1) {
-            nob_log(NOB_INFO, "To compile for a different target, use: %s build <target> [options]", program);
+            nob_log(INFO, "To compile for a different target, use: %s build <target> [options]", program);
         }
 
-        if (!nob_mkdir_if_not_exists("./build")) return 1;
+        if (!mkdir_if_not_exists("./build")) return 1;
 
         // Set default target
     #ifdef _WIN32
@@ -288,19 +302,19 @@ int main(int argc, char** argv) {
     #endif // _WIN32
 
         if (argc >= 1) {
-            const char* value = nob_shift_args(&argc, &argv);
+            const char* value = shift(argv, argc);
             if (!parseTarget(value, &target)) return 1;
         }
 
         bool debugMode = false;
         while (argc >= 1) {
-            const char* arg = nob_shift_args(&argc, &argv);
+            const char* arg = shift(argv, argc);
             if (strcmp(arg, "--debug") == 0) {
                 debugMode = true;
             } else {
-                nob_log(NOB_ERROR, "Usage: %s build %s [options]", program, targetNames[target]);
-                nob_log(NOB_ERROR, "Available options:");
-                nob_log(NOB_ERROR, "    --debug        Extra debug visuals and logs");
+                nob_log(ERROR, "Usage: %s build %s [options]", program, targetNames[target]);
+                nob_log(ERROR, "Available options:");
+                nob_log(ERROR, "    --debug        Extra debug visuals and logs");
                 return 1;
             }
         }
@@ -309,7 +323,7 @@ int main(int argc, char** argv) {
         if (!buildMain(target, debugMode)) return 1;
 
     } else {
-        logAvailableSubcommands(program, NOB_ERROR);
+        logAvailableSubcommands(program, ERROR);
         return 1;
     }
 
