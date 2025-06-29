@@ -101,6 +101,18 @@ int main(void) {
     double timeSinceLastDraw = 0;
     double previousTime = 0;
     while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(GetColor(0x181818FF));
+        const int font_size1 = 48;
+        const int font_size2 = 32;
+        const char* txt1 = "The repository for GDF has moved to Codeberg.";
+        const char* txt2 = "Go to codeberg.org/gstaaij/geometry-foss to get the newest version.";
+        DrawText(txt1, GetScreenWidth() / 2 - MeasureText(txt1, font_size1) / 2, GetScreenHeight() / 2 - font_size1, font_size1, WHITE);
+        DrawText(txt2, GetScreenWidth() / 2 - MeasureText(txt2, font_size2) / 2, GetScreenHeight() / 2, font_size2, WHITE);
+        EndDrawing();
+
+        continue;
+
         // Calculate the delta time
         double time = GetTime();
         double deltaTime = time - previousTime;
